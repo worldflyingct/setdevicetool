@@ -71,8 +71,9 @@ void Dialog::on_setnet_clicked()
     crc = crc_calc(crc, serialdata, 12);
     serialdata[12] = crc;
     serialdata[13] = crc>>8;
-    const char *com = ui->com->itemData(ui->com->currentIndex()).toString().toStdString().c_str();
-    HANDLE hCom = CreateFileA(com, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
+    char com[12];
+    sprintf(com, "\\\\.\\%s", ui->com->currentText().toStdString().c_str());
+    HANDLE hCom = CreateFileA(com, GENERIC_READ|GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
     if(hCom == INVALID_HANDLE_VALUE) {
         ui->tips->setText("串口打开失败");
         return;
