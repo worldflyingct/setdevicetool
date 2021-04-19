@@ -34,38 +34,45 @@ unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short 
 void Dialog::on_setnet_clicked()
 {
     unsigned char serialdata[14];
-    const char *ip = ui->ip->text().toStdString().c_str();
-    const char *mask = ui->mask->text().toStdString().c_str();
-    const char *gateway = ui->gateway->text().toStdString().c_str();
+    int inputdata[14];
+    std::string cip = ui->ip->text().toStdString();
+    std::string cmask = ui->mask->text().toStdString();
+    std::string cgateway = ui->gateway->text().toStdString();
+    const char *ip = cip.c_str();
+    const char *mask = cmask.c_str();
+    const char *gateway = cgateway.c_str();
     int res;
-    res = sscanf(ip, "%d.%d.%d.%d", &serialdata[0], &serialdata[1], &serialdata[2], &serialdata[3]);
+    res = sscanf(ip, "%d.%d.%d.%d", &inputdata[0], &inputdata[1], &inputdata[2], &inputdata[3]);
     if (res != 4) {
         ui->tips->setText("ip输入错误");
         return;
     }
-    res = sscanf(mask, "%d.%d.%d.%d", &serialdata[4], &serialdata[5], &serialdata[6], &serialdata[7]);
+    res = sscanf(mask, "%d.%d.%d.%d", &inputdata[4], &inputdata[5], &inputdata[6], &inputdata[7]);
     if (res != 4) {
         ui->tips->setText("掩码输入错误");
         return;
     }
-    res = sscanf(gateway, "%d.%d.%d.%d", &serialdata[8], &serialdata[9], &serialdata[10], &serialdata[11]);
+    res = sscanf(gateway, "%d.%d.%d.%d", &inputdata[8], &inputdata[9], &inputdata[10], &inputdata[11]);
     if (res != 4) {
         ui->tips->setText("网关输入错误");
         return;
     }
     for (int i = 0 ; i < 4 ; i++) {
-        if (serialdata[i] > 255) {
-            ui->tips->setText("ip输入错误");
+        if (inputdata[i] < 0 || inputdata[i] > 255) {
+            ui->tips->setText("ip输入异常");
             return;
         }
-        if (serialdata[i+4] > 255) {
-            ui->tips->setText("掩码输入错误");
+        serialdata[i] = inputdata[i];
+        if (inputdata[i+4] < 0 || inputdata[i+4] > 255) {
+            ui->tips->setText("掩码输入异常");
             return;
         }
-        if (serialdata[i+8] > 255) {
-            ui->tips->setText("网关输入错误");
+        serialdata[i+4] = inputdata[i+4];
+        if (inputdata[i+8] < 0 || inputdata[i+8] > 255) {
+            ui->tips->setText("网关输入异常");
             return;
         }
+        serialdata[i+8] = inputdata[i+8];
     }
     unsigned short crc = 0xffff;
     crc = crc_calc(crc, serialdata, 12);
