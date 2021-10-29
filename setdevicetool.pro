@@ -17,12 +17,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     cjson.c \
     ispiocontroller.cpp \
-    common.c
+    common.c \
+    isp485.cpp
 
 HEADERS  += mainwindow.h \
     cjson.h \
     ispiocontroller.h \
-    common.h
+    common.h \
+    isp485.h
 
 FORMS    += mainwindow.ui \
-    ispiocontroller.ui
+    ispiocontroller.ui \
+    isp485.ui

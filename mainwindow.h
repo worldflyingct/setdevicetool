@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "ispiocontroller.h"
+#include "isp485.h"
 
 namespace Ui {
 class MainWindow;
@@ -19,9 +20,13 @@ public:
 private slots:
     void on_actionIoController_triggered();
 
+    void on_action485GateWay_triggered();
+
 private:
     Ui::MainWindow *ui;
+    void FreeOthersWidget(void *widget);
     IspIoController *ispiocontroller = NULL;
+    Isp485 *isp485 = NULL;
 };
 
 #endif // MAINWINDOW_H

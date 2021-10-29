@@ -31,12 +31,18 @@
      <string>运营商网络设备</string>
     </property>
     <addaction name="actionIoController"/>
+    <addaction name="action485GateWay"/>
    </widget>
    <addaction name="menu"/>
   </widget>
   <action name="actionIoController">
    <property name="text">
     <string>IO控制器</string>
+   </property>
+  </action>
+  <action name="action485GateWay">
+   <property name="text">
+    <string>485网关</string>
    </property>
   </action>
  </widget>
