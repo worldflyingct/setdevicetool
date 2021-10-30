@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>410</width>
-    <height>390</height>
+    <height>347</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,38 +47,6 @@
    </property>
    <property name="text">
     <string>COM口   ：</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="alabel">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>350</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;源码地址&lt;/a&gt;</string>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="alabel2">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>350</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;公司网站&lt;/a&gt;</string>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="readmqtt">

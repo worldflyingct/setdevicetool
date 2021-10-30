@@ -18,6 +18,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::FreeOthersWidget(void *widget)
 {
+    if (widget != ui->label) {
+        ui->label->setVisible(false);
+    }
     if (ispiocontroller != NULL && ispiocontroller != widget) {
         delete ispiocontroller;
         ispiocontroller = NULL;
@@ -50,4 +53,11 @@ void MainWindow::on_action485GateWay_triggered()
         setFixedSize(w, h + 23);
         isp485->show();
     }
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    FreeOthersWidget(ui->label);
+    setFixedSize(400, 300);
+    ui->label->setVisible(true);
 }

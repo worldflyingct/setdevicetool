@@ -44,9 +44,9 @@ void IspIoController::TimerOutEvent()
         bufflen = 0;
     } else {
         ui->tips->setText("数据接收超时");
+        CloseSerial();
+        btnStatus = 0;
     }
-    btnStatus = 0;
-    CloseSerial();
 }
 
 void IspIoController::ReadSerialData()
@@ -96,7 +96,7 @@ void IspIoController::on_setmqtt_clicked()
         return;
     }
     ui->tips->setText("串口打开成功");
-    // 下面的不同项目可能不同，另外，1s后没有收到设备返回就会提示失败。
+    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     btnStatus = 1;
     char buff[1024];
     std::string cmqtturl = ui->mqtturl->text().toStdString();
@@ -142,7 +142,7 @@ void IspIoController::on_readmqtt_clicked()
         return;
     }
     ui->tips->setText("串口打开成功");
-    // 下面的不同项目可能不同，另外，1s后没有收到设备返回就会提示失败。
+    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     btnStatus = 2;
     char buff[1024];
     const char cmd[] = "act=GetMqtt";
@@ -193,4 +193,5 @@ void IspIoController::HandleSerialData()
             ui->tips->setText("crc校验错误");
         }
     }
+    btnStatus = 0;
 }

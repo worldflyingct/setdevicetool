@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>448</height>
+    <height>402</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>沃航配置工具</string>
   </property>
-  <widget class="QPushButton" name="setmqtt">
+  <widget class="QPushButton" name="setconfig">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>330</y>
+     <y>350</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -49,43 +49,11 @@
     <string>COM口   ：</string>
    </property>
   </widget>
-  <widget class="QLabel" name="alabel">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>390</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;源码地址&lt;/a&gt;</string>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="alabel2">
-   <property name="geometry">
-    <rect>
-     <x>250</x>
-     <y>390</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;公司网站&lt;/a&gt;</string>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="readmqtt">
+  <widget class="QPushButton" name="getconfig">
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>330</y>
+     <y>350</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -94,7 +62,7 @@
     <string>读取</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="mqtturl">
+  <widget class="QLineEdit" name="url">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -110,7 +78,7 @@
     <string/>
    </property>
    <property name="placeholderText">
-    <string>tcp://mqttserver.com:1883</string>
+    <string>tcp://serveraddress.com:8888</string>
    </property>
   </widget>
   <widget class="QPushButton" name="refresh">
@@ -126,7 +94,7 @@
     <string>刷新</string>
    </property>
   </widget>
-  <widget class="QLabel" name="mqtturllabel">
+  <widget class="QLabel" name="urllabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -136,10 +104,13 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT URL：</string>
+    <string>URL     ：</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="mqttuser">
+  <widget class="QLineEdit" name="user">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -148,8 +119,11 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="readOnly">
+    <bool>false</bool>
+   </property>
   </widget>
-  <widget class="QLabel" name="mqttuserlabel">
+  <widget class="QLabel" name="userlabel">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -159,7 +133,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT USER：</string>
+    <string>USER    ：</string>
    </property>
   </widget>
   <widget class="QLabel" name="mqttpasslabel">
@@ -172,10 +146,10 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT PASS：</string>
+    <string>PASS    ：</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="mqttpass">
+  <widget class="QLineEdit" name="pass">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -189,7 +163,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>270</y>
+     <y>280</y>
      <width>301</width>
      <height>51</height>
     </rect>
@@ -204,7 +178,7 @@
   <widget class="QRadioButton" name="mqttradio">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>80</x>
      <y>80</y>
      <width>89</width>
      <height>16</height>
@@ -214,30 +188,17 @@
     <string>mqtt模式</string>
    </property>
   </widget>
-  <widget class="QRadioButton" name="tcpradio">
+  <widget class="QRadioButton" name="otherradio">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>250</x>
      <y>80</y>
      <width>89</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>tcp模式</string>
-   </property>
-  </widget>
-  <widget class="QRadioButton" name="udpradio">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>80</y>
-     <width>89</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>udp模式</string>
+    <string>直连模式</string>
    </property>
   </widget>
  </widget>

@@ -19,8 +19,8 @@ public:
 
 private slots:
     void on_actionIoController_triggered();
-
     void on_action485GateWay_triggered();
+    void on_actionAbout_triggered();
 
 private:
     Ui::MainWindow *ui;
