@@ -14,18 +14,26 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    cjson.c \
-    ispiocontroller.cpp \
-    common.c \
-    isp485.cpp
+        mainwindow/mainwindow.cpp \
+    common/cjson.c \
+    ispiocontroller/ispiocontroller.cpp \
+    common/common.c \
+    isp485/isp485.cpp
 
-HEADERS  += mainwindow.h \
-    cjson.h \
-    ispiocontroller.h \
-    common.h \
-    isp485.h
+HEADERS  += mainwindow/mainwindow.h \
+    common/cjson.h \
+    ispiocontroller/ispiocontroller.h \
+    common/common.h \
+    isp485/isp485.h
 
-FORMS    += mainwindow.ui \
-    ispiocontroller.ui \
-    isp485.ui
+FORMS    += mainwindow/mainwindow.ui \
+    ispiocontroller/ispiocontroller.ui \
+    isp485/isp485.ui
+
+DISTFILES += \
+    .gitignore \
+    LICENSE \
+    README.md
+
+RESOURCES += \
+    resources/resources.qrc

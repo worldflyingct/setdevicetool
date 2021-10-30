@@ -2,8 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ispiocontroller.h"
-#include "isp485.h"
+#include "ispiocontroller/ispiocontroller.h"
+#include "isp485/isp485.h"
 
 namespace Ui {
 class MainWindow;

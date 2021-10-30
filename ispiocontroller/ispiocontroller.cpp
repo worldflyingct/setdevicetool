@@ -1,9 +1,9 @@
 #include "ispiocontroller.h"
 #include "ui_ispiocontroller.h"
 // cjson库
-#include "cjson.h"
+#include "common/cjson.h"
 // 公共函数库
-#include "common.h"
+#include "common/common.h"
 
 IspIoController::IspIoController(QWidget *parent) :
     QWidget(parent),
