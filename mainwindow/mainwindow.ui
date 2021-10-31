@@ -24,14 +24,14 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>40</y>
-      <width>321</width>
-      <height>141</height>
+      <x>80</x>
+      <y>60</y>
+      <width>261</width>
+      <height>131</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当前版本为：V0.9.0&lt;/p&gt;&lt;p&gt;产品作者为：&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;沃航科技&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品源码地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;配置设备网络的工具&lt;/a&gt;&lt;/p&gt;&lt;p&gt;请在上方菜单栏选择对应的设备种类。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当前版本为：V1.0.1&lt;/p&gt;&lt;p&gt;产品作者为：&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;沃航科技&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品源码地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;github&lt;/a&gt;&lt;/p&gt;&lt;p&gt;请在上方菜单栏选择对应的设备种类。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="openExternalLinks">
      <bool>true</bool>
@@ -71,11 +71,6 @@
   <action name="action485GateWay">
    <property name="text">
     <string>485网关</string>
-   </property>
-  </action>
-  <action name="actionBanquanxinxi">
-   <property name="text">
-    <string>banquanxinxi</string>
    </property>
   </action>
   <action name="actionAbout">

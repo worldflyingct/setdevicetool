@@ -19,12 +19,11 @@ unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short 
 }
 
 int urldecode (char *url, int urllen, char **protocol, char **serveraddr, unsigned short *port) {
+    unsigned short i, p = 0, state = 0;
     *protocol = url;
-    unsigned short p = 0;
-    char state = 0;
-    for (int i = 0 ; i < urllen ; i++) {
+    for (i = 0 ; i < urllen ; i++) {
         if (state == 0 && url[i] == ':') {
-            if (url[i+1] != '/' || url[i+2] != '/') {
+            if (i+2 < urllen && (url[i+1] != '/' || url[i+2] != '/')) {
                 return 1;
             }
             url[i] = '\0';

@@ -1,5 +1,9 @@
 #include "isp485.h"
 #include "ui_isp485.h"
+// cjson库
+#include "common/cjson.h"
+// 公共函数库
+#include "common/common.h"
 
 Isp485::Isp485(QWidget *parent) :
     QWidget(parent),
@@ -153,7 +157,20 @@ void Isp485::on_setconfig_clicked()
             return;
         }
     } else if (radio == 0) { // tcp或是udp模式
-
+        std::string curl = ui->url->text().toStdString();
+        int len = curl.length();
+        if (len == 0) {
+            ui->tips->setText("URL为空");
+            CloseSerial();
+            return;
+        }
+        char url[len];
+        memcpy(url, curl.c_str(), len);
+        char *protocol;
+        char *serveraddr;
+        unsigned short port;
+        int res = urldecode (url, len, &protocol, &serveraddr, &port);
+        qDebug("res:%d, protocol:%s, serveraddr:%s, port:%u", res, protocol, serveraddr, port);
     }
 }
 
