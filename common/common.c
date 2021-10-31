@@ -17,3 +17,37 @@ unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short 
     }
     return crc;
 }
+
+int urldecode (char *url, int urllen, char **protocol, char **serveraddr, unsigned short *port) {
+    *protocol = url;
+    unsigned short p = 0;
+    char state = 0;
+    for (int i = 0 ; i < urllen ; i++) {
+        if (state == 0 && url[i] == ':') {
+            if (url[i+1] != '/' || url[i+2] != '/') {
+                return 1;
+            }
+            url[i] = '\0';
+            i += 2;
+            *serveraddr = url + i + 1;
+            state = 1;
+        } else if (state == 1 && url[i] == ':') {
+            url[i] = '\0';
+            state = 2;
+        } else if (state == 2) {
+            if ('0' <= url[i] && url[i] <= '9') {
+                p = 10*p + url[i] - '0';
+            } else if (url[i] == '\0') {
+                *port = p;
+                return 0;
+            } else {
+                return 2;
+            }
+        }
+    }
+    if (state != 2) {
+        return 3;
+    }
+    *port = p;
+    return 0;
+}

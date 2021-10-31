@@ -48,10 +48,14 @@ void Isp485::ModeChanged()
         case 0:
             ui->user->setEnabled(true);
             ui->pass->setEnabled(true);
+            ui->sendtopic->setEnabled(true);
+            ui->receivetopic->setEnabled(true);
             break;
         case 1:
             ui->user->setEnabled(false);
             ui->pass->setEnabled(false);
+            ui->sendtopic->setEnabled(false);
+            ui->receivetopic->setEnabled(false);
             break;
     }
 }
@@ -118,10 +122,33 @@ void Isp485::on_setconfig_clicked()
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     int radio = groupRadio->checkedId();
     if (radio == 1) { // mqtt模式
-        btnStatus = 1;
-        std::string curl = ui->url->text().toStdString();
-        if (curl.length() == 0) {
+        std::string url = ui->url->text().toStdString();
+        if (url.length() == 0) {
             ui->tips->setText("URL为空");
+            CloseSerial();
+            return;
+        }
+        std::string user = ui->user->text().toStdString();
+        if (user.length() == 0) {
+            ui->tips->setText("USER为空");
+            CloseSerial();
+            return;
+        }
+        std::string pass = ui->pass->text().toStdString();
+        if (pass.length() == 0) {
+            ui->tips->setText("PASS为空");
+            CloseSerial();
+            return;
+        }
+        std::string sendtopic = ui->sendtopic->text().toStdString();
+        if (sendtopic.length() == 0) {
+            ui->tips->setText("发送topic为空");
+            CloseSerial();
+            return;
+        }
+        std::string receivetopic = ui->receivetopic->text().toStdString();
+        if (receivetopic.length() == 0) {
+            ui->tips->setText("接收topic为空");
             CloseSerial();
             return;
         }
