@@ -123,7 +123,7 @@
     <bool>false</bool>
    </property>
    <property name="placeholderText">
-    <string>Mqtt密码</string>
+    <string>Mqtt用户名</string>
    </property>
   </widget>
   <widget class="QLabel" name="userlabel">
@@ -162,7 +162,7 @@
     </rect>
    </property>
    <property name="placeholderText">
-    <string>Mqtt账号</string>
+    <string>Mqtt密码</string>
    </property>
   </widget>
   <widget class="QLabel" name="tips">
@@ -314,7 +314,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>115200</string>
+    <string>300</string>
    </property>
    <item>
     <property name="text">
@@ -441,7 +441,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>8</string>
+    <string>5</string>
    </property>
    <item>
     <property name="text">

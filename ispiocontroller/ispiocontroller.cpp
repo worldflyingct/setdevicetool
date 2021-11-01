@@ -35,7 +35,9 @@ void IspIoController::TimerOutEvent() {
     if (bufflen) {
         HandleSerialData();
         bufflen = 0;
-    } else {
+    } else if (btnStatus == 1) {
+        ui->tips->setText("设备响应超时");
+    } else if (btnStatus == 2) {
         ui->tips->setText("数据接收超时");
     }
     CloseSerial();
@@ -142,9 +144,9 @@ void IspIoController::HandleSerialData() {
     if (btnStatus == 1) {
         const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35};
         if (bufflen != sizeof(set_success) || memcmp(serialReadBuff, set_success, sizeof(set_success))) {
-            ui->tips->setText("串口设置失败");
+            ui->tips->setText("设置失败");
         } else {
-            ui->tips->setText("串口设置成功");
+            ui->tips->setText("设置成功");
         }
     } else if (btnStatus == 2) {
         unsigned short crc = 0xffff;

@@ -116,6 +116,9 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>Mqtt用户名</string>
+   </property>
   </widget>
   <widget class="QLabel" name="mqttuserlabel">
    <property name="geometry">
@@ -152,6 +155,9 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="placeholderText">
+    <string>Mqtt密码</string>
+   </property>
   </widget>
   <widget class="QLabel" name="tips">
    <property name="geometry">
@@ -159,7 +165,7 @@
      <x>50</x>
      <y>230</y>
      <width>301</width>
-     <height>31</height>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
