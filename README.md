@@ -10,3 +10,6 @@ https://github.com/zserge/lorca
 本公司网站[沃航科技](https://www.worldflying.cn)  
 ### 压缩qt程序体积工具
 本程序使用了可执行文件压缩工具[upx](https://github.com/upx/upx/releases)  
+使用方法为`upx.exe -9 setdevicetool.exe`
+### 可执行文件
+可执行文件请到[github](https://github.com/worldflyingct/setdevicetool/releases)下载  
