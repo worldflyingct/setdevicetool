@@ -7,4 +7,6 @@ https://github.com/tauri-apps/tauri
 基于go的其他方案  
 https://github.com/wailsapp/wails  
 https://github.com/zserge/lorca  
-本公司网站[沃航科技](https://www.worldflying.cn)
+本公司网站[沃航科技](https://www.worldflying.cn)  
+### 压缩qt程序体积工具
+本程序使用了可执行文件压缩工具[upx](https://github.com/upx/upx/releases)  
