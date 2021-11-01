@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>511</height>
+    <height>534</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>460</y>
+     <y>490</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>110</x>
-     <y>30</y>
+     <y>20</y>
      <width>221</width>
      <height>31</height>
     </rect>
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>30</y>
+     <y>20</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -53,7 +53,7 @@
    <property name="geometry">
     <rect>
      <x>230</x>
-     <y>460</y>
+     <y>490</y>
      <width>93</width>
      <height>28</height>
     </rect>
@@ -65,9 +65,9 @@
   <widget class="QLineEdit" name="url">
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>120</y>
-     <width>281</width>
+     <x>100</x>
+     <y>90</y>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -85,7 +85,7 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>30</y>
+     <y>20</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -98,13 +98,13 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>120</y>
-     <width>81</width>
+     <y>90</y>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>URL     ：</string>
+    <string>URL       ：</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="user">
@@ -113,57 +113,63 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>170</y>
-     <width>281</width>
+     <x>100</x>
+     <y>130</y>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
    <property name="readOnly">
     <bool>false</bool>
    </property>
+   <property name="placeholderText">
+    <string>Mqtt密码</string>
+   </property>
   </widget>
   <widget class="QLabel" name="userlabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>170</y>
-     <width>81</width>
+     <y>130</y>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>USER    ：</string>
+    <string>USER      ：</string>
    </property>
   </widget>
-  <widget class="QLabel" name="mqttpasslabel">
+  <widget class="QLabel" name="passlabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>220</y>
-     <width>81</width>
+     <y>170</y>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>PASS    ：</string>
+    <string>PASS      ：</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="pass">
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>220</y>
-     <width>281</width>
+     <x>100</x>
+     <y>170</y>
+     <width>291</width>
      <height>31</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>Mqtt账号</string>
    </property>
   </widget>
   <widget class="QLabel" name="tips">
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>390</y>
+     <y>420</y>
      <width>301</width>
      <height>51</height>
     </rect>
@@ -179,7 +185,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>80</y>
+     <y>60</y>
      <width>89</width>
      <height>16</height>
     </rect>
@@ -192,23 +198,26 @@
    <property name="geometry">
     <rect>
      <x>250</x>
-     <y>80</y>
+     <y>60</y>
      <width>89</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>直连模式</string>
+    <string>tcp/udp模式</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="receivetopic">
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>320</y>
-     <width>281</width>
+     <x>100</x>
+     <y>250</y>
+     <width>291</width>
      <height>31</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>服务器向该Topic发送消息会转为485发送出去</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="sendtopic">
@@ -217,41 +226,303 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>110</x>
-     <y>270</y>
-     <width>281</width>
+     <x>100</x>
+     <y>210</y>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
    <property name="readOnly">
     <bool>false</bool>
    </property>
+   <property name="placeholderText">
+    <string>服务器需订阅，485接收到消息收发给送给该Topic</string>
+   </property>
   </widget>
   <widget class="QLabel" name="receivetopiclabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>320</y>
-     <width>81</width>
+     <y>250</y>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>PASS    ：</string>
+    <string>接收Topic ：</string>
    </property>
   </widget>
   <widget class="QLabel" name="sendtopiclabel">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>270</y>
-     <width>81</width>
+     <y>210</y>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>USER    ：</string>
+    <string>发送Topic ：</string>
    </property>
+  </widget>
+  <widget class="QLabel" name="crcchecklabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>290</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>crc校验   ：</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="crccheck">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>290</y>
+     <width>271</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>485接收到的信息通过modbus crc校验才转发</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="baudratelabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>330</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>波  特  率：</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="baudrate">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>330</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="currentText">
+    <string>115200</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>300</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>600</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>1200</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2400</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>4800</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>9600</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>19200</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>38400</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>57600</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>115200</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>230400</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>460800</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>921600</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>1842000</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>3686400</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="databitslabel">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>330</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>数  据  位：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="parityitlabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>370</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>校  验  位：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="stopbitslabel">
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>370</y>
+     <width>71</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>停  止  位：</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="databits">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>330</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="currentText">
+    <string>8</string>
+   </property>
+   <item>
+    <property name="text">
+     <string>5</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>6</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>7</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>8</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QComboBox" name="paritybit">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>370</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>NONE</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>ODD</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>EVEN</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>MARK</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>SPACE</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QComboBox" name="stopbits">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>370</y>
+     <width>101</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>1.5</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2</string>
+    </property>
+   </item>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

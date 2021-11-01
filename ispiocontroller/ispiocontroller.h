@@ -31,7 +31,7 @@ private:
     Ui::IspIoController *ui;
 
     void GetComList();
-    int OpenSerial();
+    int OpenSerial(char *data, qint64 len);
     void CloseSerial();
     void HandleSerialData();
 
@@ -40,7 +40,7 @@ private:
     int btnStatus = 0;
 
     unsigned char serialReadBuff[1024];
-    unsigned char bufflen = 0;
+    unsigned short bufflen = 0;
 };
 
 #endif // ISPIOCONTROLLER_H

@@ -7,8 +7,7 @@
 
 Isp485::Isp485(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Isp485)
-{
+    ui(new Ui::Isp485) {
     ui->setupUi(this);
     groupRadio = new QButtonGroup(this);
     groupRadio->addButton(ui->mqttradio, 0);
@@ -19,8 +18,7 @@ Isp485::Isp485(QWidget *parent) :
     GetComList();
 }
 
-Isp485::~Isp485()
-{
+Isp485::~Isp485() {
     disconnect(ui->mqttradio, 0, 0, 0);
     disconnect(ui->otherradio, 0, 0, 0);
     delete groupRadio;
@@ -28,26 +26,42 @@ Isp485::~Isp485()
 }
 
 // 获取可用的串口号
-void Isp485::GetComList ()
-{
+void Isp485::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--)
-    {
+    for (int a = c->count() ; a > 0 ; a--) {
         c->removeItem(a-1);
     }
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-    {
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void Isp485::on_refresh_clicked()
-{
+void Isp485::on_refresh_clicked() {
     this->GetComList();
 }
 
-void Isp485::ModeChanged()
-{
+void Isp485::TimerOutEvent() {
+    if (bufflen) {
+        HandleSerialData();
+        bufflen = 0;
+    } else {
+        ui->tips->setText("数据接收超时");
+    }
+    CloseSerial();
+    btnStatus = 0;
+}
+
+void Isp485::ReadSerialData() {
+    QByteArray arr = serial.readAll();
+    int len = arr.length();
+    char *c = arr.data();
+    memcpy(serialReadBuff+bufflen, c, len);
+    bufflen += len;
+    timer.stop();
+    timer.start(500);
+}
+
+void Isp485::ModeChanged() {
     switch(groupRadio->checkedId()) {
         case 0:
             ui->user->setEnabled(true);
@@ -64,31 +78,7 @@ void Isp485::ModeChanged()
     }
 }
 
-void Isp485::TimerOutEvent()
-{
-    if (bufflen) {
-        HandleSerialData();
-        bufflen = 0;
-    } else {
-        ui->tips->setText("数据接收超时");
-        CloseSerial();
-        btnStatus = 0;
-    }
-}
-
-void Isp485::ReadSerialData()
-{
-    QByteArray arr = serial.readAll();
-    int len = arr.length();
-    char *c = arr.data();
-    memcpy(serialReadBuff+bufflen, c, len);
-    bufflen += len;
-    timer.stop();
-    timer.start(500);
-}
-
-int Isp485::OpenSerial()
-{
+int Isp485::OpenSerial(char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -97,71 +87,90 @@ int Isp485::OpenSerial()
     serial.setDataBits(QSerialPort::Data8);
     serial.setStopBits(QSerialPort::OneStop);
     serial.setFlowControl(QSerialPort::NoFlowControl);
-    if (!serial.open(QIODevice::ReadWrite))
-    {
+    if (!serial.open(QIODevice::ReadWrite)) {
         return -1;
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
     timer.start(500);
+    serial.write(data, len);
     return 0;
 }
 
-void Isp485::CloseSerial()
-{
+void Isp485::CloseSerial() {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
     serial.close();
 }
 
-void Isp485::on_setconfig_clicked()
-{
+void Isp485::on_setconfig_clicked() {
     ui->tips->setText("");
-    if (OpenSerial()) {
-        ui->tips->setText("串口打开失败");
-        return;
-    }
-    ui->tips->setText("串口打开成功");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     int radio = groupRadio->checkedId();
-    if (radio == 1) { // mqtt模式
-        std::string url = ui->url->text().toStdString();
-        if (url.length() == 0) {
+    if (radio == 0) { // mqtt模式
+        std::string curl = ui->url->text().toStdString();
+        if (curl.length() == 0) {
             ui->tips->setText("URL为空");
-            CloseSerial();
             return;
         }
-        std::string user = ui->user->text().toStdString();
-        if (user.length() == 0) {
+        const char *url = curl.c_str();
+        if (memcmp(url, "tcp://", 6)) {
+            ui->tips->setText("MQTT协议不正确");
+            return;
+        }
+        std::string cuser = ui->user->text().toStdString();
+        if (cuser.length() == 0) {
             ui->tips->setText("USER为空");
-            CloseSerial();
             return;
         }
-        std::string pass = ui->pass->text().toStdString();
-        if (pass.length() == 0) {
+        std::string cpass = ui->pass->text().toStdString();
+        if (cpass.length() == 0) {
             ui->tips->setText("PASS为空");
-            CloseSerial();
             return;
         }
-        std::string sendtopic = ui->sendtopic->text().toStdString();
-        if (sendtopic.length() == 0) {
+        std::string csendtopic = ui->sendtopic->text().toStdString();
+        if (csendtopic.length() == 0) {
             ui->tips->setText("发送topic为空");
-            CloseSerial();
             return;
         }
-        std::string receivetopic = ui->receivetopic->text().toStdString();
-        if (receivetopic.length() == 0) {
+        std::string creceivetopic = ui->receivetopic->text().toStdString();
+        if (creceivetopic.length() == 0) {
             ui->tips->setText("接收topic为空");
-            CloseSerial();
             return;
         }
-    } else if (radio == 0) { // tcp或是udp模式
+        const char *user = cuser.c_str();
+        const char *pass = cpass.c_str();
+        const char *sendtopic = csendtopic.c_str();
+        const char *receivetopic = creceivetopic.c_str();
+        bool crccheck = ui->crccheck->isChecked();
+        std::string cbaudrate = ui->baudrate->currentText().toStdString();
+        const char *baudrate = cbaudrate.c_str();
+        std::string cdatabits = ui->databits->currentText().toStdString();
+        const char *databits = cdatabits.c_str();
+        std::string cparitybit = ui->paritybit->currentText().toStdString();
+        const char *paritybit = cparitybit.c_str();
+        std::string cstopbits = ui->stopbits->currentText().toStdString();
+        const char *stopbits = cstopbits.c_str();
+        char buff[1024];
+        int len = sprintf(buff, "act=SetMode&Mode=0&Url=%s&UserName=%s&PassWord=%s&SendTopic=%s&ReceiveTopic=%s&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
+                                    url, user, pass, sendtopic, receivetopic, crccheck, baudrate, databits, paritybit, stopbits);
+        unsigned short crc = 0xffff;
+        crc = crc_calc(crc, (unsigned char*)buff, len);
+        buff[len] = crc;
+        buff[len+1] = crc>>8;
+        len += 2;
+        btnStatus = 1;
+        if (OpenSerial(buff, len)) {
+            ui->tips->setText("串口打开失败");
+            return;
+        }
+        ui->tips->setText("数据发送成功");
+    } else if (radio == 1) { // tcp或是udp模式
         std::string curl = ui->url->text().toStdString();
         int len = curl.length();
         if (len == 0) {
             ui->tips->setText("URL为空");
-            CloseSerial();
             return;
         }
         char url[len];
@@ -170,11 +179,161 @@ void Isp485::on_setconfig_clicked()
         char *serveraddr;
         unsigned short port;
         int res = urldecode (url, len, &protocol, &serveraddr, &port);
-        qDebug("res:%d, protocol:%s, serveraddr:%s, port:%u", res, protocol, serveraddr, port);
+        if (res != 0) {
+            ui->tips->setText("url格式错误");
+            return;
+        }
+        unsigned short mode;
+        if (!memcmp(protocol, "tcp", 4)) {
+            mode = 1;
+        } else if (!memcmp(protocol, "udp", 4)) {
+            mode = 0;
+        } else {
+           ui->tips->setText("url格式错误");
+           return;
+        }
+        bool crccheck = ui->crccheck->isChecked();
+        std::string cbaudrate = ui->baudrate->currentText().toStdString();
+        const char *baudrate = cbaudrate.c_str();
+        std::string cdatabits = ui->databits->currentText().toStdString();
+        const char *databits = cdatabits.c_str();
+        std::string cparitybit = ui->paritybit->currentText().toStdString();
+        const char *paritybit = cparitybit.c_str();
+        std::string cstopbits = ui->stopbits->currentText().toStdString();
+        const char *stopbits = cstopbits.c_str();
+        char buff[1024];
+        len = sprintf(buff, "act=SetMode&Mode=%u&Ip=%s&Port=%u&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
+                                    mode, serveraddr, port, crccheck, baudrate, databits, paritybit, stopbits);
+        unsigned short crc = 0xffff;
+        crc = crc_calc(crc, (unsigned char*)buff, len);
+        buff[len] = crc;
+        buff[len+1] = crc>>8;
+        len += 2;
+        btnStatus = 1;
+        if (OpenSerial(buff, len)) {
+            ui->tips->setText("串口打开失败");
+            return;
+        }
+        ui->tips->setText("数据发送成功");
     }
 }
 
-void Isp485::HandleSerialData()
-{
+void Isp485::on_getconfig_clicked() {
+    ui->tips->setText("");
+    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
+    char buff[32];
+    const char cmd[] = "act=GetMode";
+    int len = sizeof(cmd)-1;
+    memcpy(buff, cmd, len);
+    unsigned short crc = 0xffff;
+    crc = crc_calc(crc, (unsigned char*)buff, len);
+    buff[len] = crc;
+    buff[len+1] = crc>>8;
+    len += 2;
+    btnStatus = 2;    
+    if (OpenSerial(buff, len)) {
+        ui->tips->setText("串口打开失败");
+        return;
+    }
+    ui->tips->setText("数据发送成功");
+}
 
+void Isp485::HandleSerialData() {
+    if (btnStatus == 1) {
+        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35};
+        if (bufflen != sizeof(set_success) || memcmp(serialReadBuff, set_success, sizeof(set_success))) {
+            ui->tips->setText("串口设置失败");
+        } else {
+            ui->tips->setText("串口设置成功");
+        }
+    } else if (btnStatus == 2) {
+        unsigned short crc = 0xffff;
+        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        if (crc != 0x00) {
+            ui->tips->setText("crc校验错误");
+            return;
+        }
+        bufflen -= 2;
+        serialReadBuff[bufflen] = '\0';
+        cJSON *json = cJSON_Parse((char*)serialReadBuff);
+        if (!json) {
+            ui->tips->setText("数据解析错误");
+            return;
+        }
+        cJSON *mode = cJSON_GetObjectItem(json, "Mode");
+        if (mode) {
+            if (mode->valueint == 0) { // mqtt
+                ui->mqttradio->setChecked(true);
+                ModeChanged();
+                cJSON *url = cJSON_GetObjectItem(json, "Url");
+                if (url) {
+                    ui->url->setText(url->valuestring);
+                }
+                cJSON *user = cJSON_GetObjectItem(json, "UserName");
+                if (user) {
+                    ui->user->setText(user->valuestring);
+                }
+                cJSON *pass = cJSON_GetObjectItem(json, "PassWord");
+                if (pass) {
+                    ui->pass->setText(pass->valuestring);
+                }
+                cJSON *sendtopic = cJSON_GetObjectItem(json, "SendTopic");
+                if (sendtopic) {
+                    ui->sendtopic->setText(sendtopic->valuestring);
+                }
+                cJSON *receivetopic = cJSON_GetObjectItem(json, "ReceiveTopic");
+                if (receivetopic) {
+                    ui->receivetopic->setText(receivetopic->valuestring);
+                }
+            } else { // tcp或udp
+                ui->otherradio->setChecked(true);
+                ModeChanged();
+                char url[256];
+                cJSON *ip = cJSON_GetObjectItem(json, "Ip");
+                cJSON *port = cJSON_GetObjectItem(json, "Port");
+                if (ip && port) {
+                    if (mode->valueint == 1) { // tcp
+                        sprintf(url, "tcp://%s:%u", ip->valuestring, port->valueint);
+                    } else if (mode->valueint == 2) { // udp
+                        sprintf(url, "udp://%s:%u", ip->valuestring, port->valueint);
+                    }
+                    ui->url->setText(url);
+                }
+            }
+        }
+        cJSON *crccheck = cJSON_GetObjectItem(json, "Crc");
+        if (crccheck) {
+            ui->crccheck->setChecked(crccheck->valueint);
+        }
+        cJSON *baudrate = cJSON_GetObjectItem(json, "BaudRate");
+        char str[16];
+        if (baudrate) {
+            sprintf(str, "%u", baudrate->valueint);
+            ui->baudrate->setCurrentText(str);
+        }
+        cJSON *databits = cJSON_GetObjectItem(json, "DataBits");
+        if (databits) {
+            sprintf(str, "%u", databits->valueint);
+            ui->databits->setCurrentText(str);
+        }
+        cJSON *paritybit = cJSON_GetObjectItem(json, "ParityBit");
+        if (paritybit) {
+            ui->paritybit->setCurrentText(paritybit->valuestring);
+        }
+        cJSON *stopbits = cJSON_GetObjectItem(json, "StopBits");
+        if (stopbits) {
+            sprintf(str, "%.1f", stopbits->valuedouble);
+            ui->stopbits->setCurrentText(str);
+        }
+        const char tip[] = "设备SN:";
+        unsigned short tiplen = sizeof(tip);
+        char buff[64];
+        memcpy(buff, tip, tiplen);
+        cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+        if (serialnumber) {
+            strcpy(buff + tiplen - 1, serialnumber->valuestring);
+            ui->tips->setText(buff);
+        }
+        cJSON_Delete(json);
+    }
 }

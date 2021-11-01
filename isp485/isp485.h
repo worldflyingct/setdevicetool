@@ -23,27 +23,28 @@ public:
 
 private slots:
     void on_refresh_clicked();
+    void on_setconfig_clicked();
+    void on_getconfig_clicked();
     void ReadSerialData();
     void TimerOutEvent();
     void ModeChanged();
-
-    void on_setconfig_clicked();
 
 private:
     Ui::Isp485 *ui;
 
     void GetComList();
-    int OpenSerial();
+    int OpenSerial(char *data, qint64 len);
     void CloseSerial();
     void HandleSerialData();
 
-    QButtonGroup *groupRadio;
     QSerialPort serial;
     QTimer timer;
     int btnStatus = 0;
 
     unsigned char serialReadBuff[1024];
-    unsigned char bufflen = 0;
+    unsigned short bufflen = 0;
+
+    QButtonGroup *groupRadio;
 };
 
 #endif // ISP485_H

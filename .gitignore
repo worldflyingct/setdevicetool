@@ -1,1 +1,13 @@
-*.user
+setdevicetool.pro.user
+setdevicetool_resource.rc
+Makefile
+Makefile.Debug
+Makefile.Release
+dd.qrc
+object_script.setdevicetool.Debug
+object_script.setdevicetool.Release
+release/
+setdevicetool_plugin_import.cpp
+ui_isp485.h
+ui_ispiocontroller.h
+ui_mainwindow.h

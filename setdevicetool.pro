@@ -12,6 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = setdevicetool
 TEMPLATE = app
 
+RC_ICONS = resources/favicon.ico
 
 SOURCES += main.cpp\
         mainwindow/mainwindow.cpp \
