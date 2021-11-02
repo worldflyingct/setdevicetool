@@ -29,9 +29,9 @@
   <widget class="QComboBox" name="com">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>110</x>
      <y>30</y>
-     <width>241</width>
+     <width>221</width>
      <height>31</height>
     </rect>
    </property>
@@ -41,12 +41,12 @@
     <rect>
      <x>20</x>
      <y>30</y>
-     <width>61</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>COM口   ：</string>
+    <string>COM口   :</string>
    </property>
   </widget>
   <widget class="QPushButton" name="readmqtt">
@@ -65,9 +65,9 @@
   <widget class="QLineEdit" name="mqtturl">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>110</x>
      <y>80</y>
-     <width>301</width>
+     <width>281</width>
      <height>31</height>
     </rect>
    </property>
@@ -99,20 +99,20 @@
     <rect>
      <x>20</x>
      <y>80</y>
-     <width>61</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>MQTT URL：</string>
+    <string>MQTT URL:</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="mqttuser">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>110</x>
      <y>130</y>
-     <width>301</width>
+     <width>281</width>
      <height>31</height>
     </rect>
    </property>
@@ -125,12 +125,12 @@
     <rect>
      <x>20</x>
      <y>130</y>
-     <width>61</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>MQTT USER：</string>
+    <string>MQTT USER:</string>
    </property>
   </widget>
   <widget class="QLabel" name="mqttpasslabel">
@@ -138,20 +138,20 @@
     <rect>
      <x>20</x>
      <y>180</y>
-     <width>61</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>MQTT PASS：</string>
+    <string>MQTT PASS:</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="mqttpass">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>110</x>
      <y>180</y>
-     <width>301</width>
+     <width>281</width>
      <height>31</height>
     </rect>
    </property>
