@@ -60,7 +60,7 @@ void Isp485::ReadSerialData() {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     timer.stop();
-    timer.start(800);
+    timer.start(1000);
 }
 
 void Isp485::ModeChanged() {
@@ -94,7 +94,7 @@ int Isp485::OpenSerial(char *data, qint64 len) {
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
-    timer.start(800);
+    timer.start(1000);
     serial.write(data, len);
     return 0;
 }
@@ -204,7 +204,7 @@ void Isp485::on_setconfig_clicked() {
         std::string cstopbits = ui->stopbits->currentText().toStdString();
         const char *stopbits = cstopbits.c_str();
         char buff[1024];
-        len = sprintf(buff, "act=SetMode&Mode=%u&Ip=%s&Port=%u&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
+        len = sprintf(buff, "act=SetMode&Mode=%u&Host=%s&Port=%u&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
                                     mode, serveraddr, port, crccheck, baudrate, databits, paritybit, stopbits);
         unsigned short crc = 0xffff;
         crc = crc_calc(crc, (unsigned char*)buff, len);
@@ -291,13 +291,13 @@ void Isp485::HandleSerialData() {
                 ui->otherradio->setChecked(true);
                 ModeChanged();
                 char url[256];
-                cJSON *ip = cJSON_GetObjectItem(json, "Ip");
+                cJSON *host = cJSON_GetObjectItem(json, "Host");
                 cJSON *port = cJSON_GetObjectItem(json, "Port");
-                if (ip && port) {
+                if (host && port) {
                     if (mode->valueint == 1) { // tcp
-                        sprintf(url, "tcp://%s:%u", ip->valuestring, port->valueint);
+                        sprintf(url, "tcp://%s:%u", host->valuestring, port->valueint);
                     } else if (mode->valueint == 2) { // udp
-                        sprintf(url, "udp://%s:%u", ip->valuestring, port->valueint);
+                        sprintf(url, "udp://%s:%u", host->valuestring, port->valueint);
                     }
                     ui->url->setText(url);
                 }

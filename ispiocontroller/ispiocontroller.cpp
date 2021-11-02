@@ -51,7 +51,7 @@ void IspIoController::ReadSerialData() {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     timer.stop();
-    timer.start(800);
+    timer.start(1000);
 }
 
 int IspIoController::OpenSerial(char *data, qint64 len) {
@@ -68,7 +68,7 @@ int IspIoController::OpenSerial(char *data, qint64 len) {
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
-    timer.start(800);
+    timer.start(1000);
     serial.write(data, len);
     return 0;
 }
