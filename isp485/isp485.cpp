@@ -60,7 +60,7 @@ void Isp485::ReadSerialData() {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     timer.stop();
-    timer.start(500);
+    timer.start(800);
 }
 
 void Isp485::ModeChanged() {
@@ -94,7 +94,7 @@ int Isp485::OpenSerial(char *data, qint64 len) {
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
-    timer.start(500);
+    timer.start(800);
     serial.write(data, len);
     return 0;
 }
