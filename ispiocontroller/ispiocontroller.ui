@@ -46,7 +46,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>COM口   :</string>
+    <string>COM口   ：</string>
    </property>
   </widget>
   <widget class="QPushButton" name="readmqtt">
@@ -104,7 +104,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT URL:</string>
+    <string>MQTT URL：</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="mqttuser">
@@ -130,7 +130,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT USER:</string>
+    <string>MQTT USER：</string>
    </property>
   </widget>
   <widget class="QLabel" name="mqttpasslabel">
@@ -143,7 +143,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>MQTT PASS:</string>
+    <string>MQTT PASS：</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="mqttpass">
