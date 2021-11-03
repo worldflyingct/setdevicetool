@@ -46,7 +46,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>COM口   ：</string>
+    <string>COM口   :</string>
    </property>
   </widget>
   <widget class="QPushButton" name="getconfig">
@@ -301,7 +301,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>波 特 率：</string>
+    <string>波 特 率:</string>
    </property>
   </widget>
   <widget class="QComboBox" name="baudrate">
@@ -415,7 +415,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>校 验 位：</string>
+    <string>校 验 位:</string>
    </property>
   </widget>
   <widget class="QLabel" name="stopbitslabel">
