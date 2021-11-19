@@ -189,7 +189,7 @@ void Isp485::on_setconfig_clicked() {
         if (!memcmp(protocol, "tcp", 4)) {
             mode = 1;
         } else if (!memcmp(protocol, "udp", 4)) {
-            mode = 0;
+            mode = 2;
         } else {
            ui->tips->setText("url格式错误");
            return;
@@ -232,7 +232,7 @@ void Isp485::on_getconfig_clicked() {
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
-    btnStatus = 2;    
+    btnStatus = 2;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
         return;
