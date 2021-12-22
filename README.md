@@ -12,4 +12,4 @@ https://github.com/zserge/lorca
 本程序使用了可执行文件压缩工具[upx](https://github.com/upx/upx/releases)  
 使用方法为`upx.exe -9 setdevicetool.exe`
 ### 可执行文件
-可执行文件请到[github](https://github.com/worldflyingct/setdevicetool/releases)下载  
+可执行文件请到[github](https://github.com/worldflyingct/setdevicetool/releases)或[gitee](https://gitee.com/worldflying/setdevicetool/releases)下载

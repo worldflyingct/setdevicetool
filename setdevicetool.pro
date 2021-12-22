@@ -19,17 +19,20 @@ SOURCES += main.cpp\
     common/cjson.c \
     ispiocontroller/ispiocontroller.cpp \
     common/common.c \
-    isp485/isp485.cpp
+    isp485/isp485.cpp \
+    isplocation/isplocation.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     common/cjson.h \
     ispiocontroller/ispiocontroller.h \
     common/common.h \
-    isp485/isp485.h
+    isp485/isp485.h \
+    isplocation/isplocation.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
-    isp485/isp485.ui
+    isp485/isp485.ui \
+    isplocation/isplocation.ui
 
 DISTFILES += \
     .gitignore \

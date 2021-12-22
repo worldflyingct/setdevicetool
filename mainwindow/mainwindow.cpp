@@ -29,6 +29,17 @@ void MainWindow::FreeOthersWidget(void *widget)
         delete isp485;
         isp485 = NULL;
     }
+    if (isplocation != NULL && isplocation != widget) {
+        delete isplocation;
+        isplocation = NULL;
+    }
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    FreeOthersWidget(ui->label);
+    setFixedSize(400, 300);
+    ui->label->setVisible(true);
 }
 
 void MainWindow::on_actionIoController_triggered()
@@ -55,9 +66,14 @@ void MainWindow::on_action485GateWay_triggered()
     }
 }
 
-void MainWindow::on_actionAbout_triggered()
+void MainWindow::on_actionLocation_triggered()
 {
-    FreeOthersWidget(ui->label);
-    setFixedSize(400, 300);
-    ui->label->setVisible(true);
+    FreeOthersWidget(isplocation);
+    if (isplocation == NULL) {
+        isplocation = new IspLocation(ui->centralWidget);
+        int w = isplocation->width();
+        int h = isplocation->height();
+        setFixedSize(w, h + 23);
+        isplocation->show();
+    }
 }
