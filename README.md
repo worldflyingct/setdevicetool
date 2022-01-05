@@ -13,3 +13,5 @@ https://github.com/zserge/lorca
 使用方法为`upx.exe -9 setdevicetool.exe`
 ### 可执行文件
 可执行文件请到[github](https://github.com/worldflyingct/setdevicetool/releases)或[gitee](https://gitee.com/worldflying/setdevicetool/releases)下载
+### 所用字体
+本程序所使用的字体为[思源宋体 CN](https://github.com/adobe-fonts/source-han-serif/releases)
