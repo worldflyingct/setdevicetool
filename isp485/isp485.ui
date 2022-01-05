@@ -29,9 +29,9 @@
   <widget class="QComboBox" name="com">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>20</y>
-     <width>221</width>
+     <width>231</width>
      <height>31</height>
     </rect>
    </property>
@@ -41,12 +41,12 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>71</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>COM口   ：</string>
+    <string>COM口</string>
    </property>
   </widget>
   <widget class="QPushButton" name="getconfig">
@@ -65,9 +65,9 @@
   <widget class="QLineEdit" name="url">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>90</y>
-     <width>281</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -99,12 +99,12 @@
     <rect>
      <x>20</x>
      <y>90</y>
-     <width>81</width>
+     <width>31</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>URL     ：</string>
+    <string>URL</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="user">
@@ -113,9 +113,9 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>130</y>
-     <width>281</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -131,12 +131,12 @@
     <rect>
      <x>20</x>
      <y>130</y>
-     <width>81</width>
+     <width>41</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>USER    ：</string>
+    <string>USER</string>
    </property>
   </widget>
   <widget class="QLabel" name="passlabel">
@@ -144,20 +144,20 @@
     <rect>
      <x>20</x>
      <y>170</y>
-     <width>81</width>
+     <width>41</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>PASS    ：</string>
+    <string>PASS</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="pass">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>170</y>
-     <width>281</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -210,9 +210,9 @@
   <widget class="QLineEdit" name="receivetopic">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>250</y>
-     <width>281</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -226,9 +226,9 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>210</y>
-     <width>281</width>
+     <width>291</width>
      <height>31</height>
     </rect>
    </property>
@@ -244,12 +244,12 @@
     <rect>
      <x>20</x>
      <y>250</y>
-     <width>81</width>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>接收Topic：</string>
+    <string>接收Topic</string>
    </property>
   </widget>
   <widget class="QLabel" name="sendtopiclabel">
@@ -257,12 +257,12 @@
     <rect>
      <x>20</x>
      <y>210</y>
-     <width>81</width>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>发送Topic：</string>
+    <string>发送Topic</string>
    </property>
   </widget>
   <widget class="QLabel" name="crcchecklabel">
@@ -270,18 +270,18 @@
     <rect>
      <x>20</x>
      <y>290</y>
-     <width>81</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>crc校验  ：</string>
+    <string>crc校验</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="crccheck">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>100</x>
      <y>290</y>
      <width>281</width>
      <height>31</height>
@@ -296,12 +296,12 @@
     <rect>
      <x>20</x>
      <y>330</y>
-     <width>71</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>波 特 率：</string>
+    <string>波 特 率</string>
    </property>
   </widget>
   <widget class="QComboBox" name="baudrate">
@@ -314,7 +314,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>115200</string>
+    <string>300</string>
    </property>
    <item>
     <property name="text">
@@ -410,12 +410,12 @@
     <rect>
      <x>20</x>
      <y>370</y>
-     <width>71</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>校 验 位：</string>
+    <string>校 验 位</string>
    </property>
   </widget>
   <widget class="QLabel" name="stopbitslabel">
@@ -441,7 +441,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>8</string>
+    <string>5</string>
    </property>
    <item>
     <property name="text">
@@ -523,6 +523,123 @@
      <string>2</string>
     </property>
    </item>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>20</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>90</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>130</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>170</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>210</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_6">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>250</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>290</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>330</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>370</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;：&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

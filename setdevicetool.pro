@@ -34,10 +34,7 @@ FORMS    += mainwindow/mainwindow.ui \
     isp485/isp485.ui \
     isplocation/isplocation.ui
 
-DISTFILES += \
-    .gitignore \
-    LICENSE \
-    README.md
+DISTFILES +=
 
 RESOURCES += \
     resources/resources.qrc

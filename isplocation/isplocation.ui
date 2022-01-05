@@ -18,12 +18,12 @@
     <rect>
      <x>10</x>
      <y>20</y>
-     <width>81</width>
+     <width>51</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>COM口       ：</string>
+    <string>COM口</string>
    </property>
   </widget>
   <widget class="QComboBox" name="com">
@@ -54,12 +54,12 @@
     <rect>
      <x>10</x>
      <y>70</y>
-     <width>81</width>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>服务器地址  ：</string>
+    <string>服务器地址</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="serverurl">
@@ -127,7 +127,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>数据间隔时间：</string>
+    <string>数据间隔时间</string>
    </property>
   </widget>
   <widget class="QSpinBox" name="day">
@@ -241,6 +241,45 @@
    </property>
    <property name="text">
     <string>秒</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>20</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>70</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>：</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>120</y>
+     <width>16</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>：</string>
    </property>
   </widget>
  </widget>
