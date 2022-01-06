@@ -47,11 +47,11 @@ void MainWindow::on_actionIoController_triggered()
     FreeOthersWidget(ispiocontroller);
     if (ispiocontroller == NULL) {
         ispiocontroller = new IspIoController(ui->centralWidget);
-        int w = ispiocontroller->width();
-        int h = ispiocontroller->height();
-        setFixedSize(w, h + 23);
-        ispiocontroller->show();
     }
+    int w = ispiocontroller->width();
+    int h = ispiocontroller->height();
+    setFixedSize(w, h + 23);
+    ispiocontroller->show();
 }
 
 void MainWindow::on_action485GateWay_triggered()
@@ -59,11 +59,11 @@ void MainWindow::on_action485GateWay_triggered()
     FreeOthersWidget(isp485);
     if (isp485 == NULL) {
         isp485 = new Isp485(ui->centralWidget);
-        int w = isp485->width();
-        int h = isp485->height();
-        setFixedSize(w, h + 23);
-        isp485->show();
     }
+    int w = isp485->width();
+    int h = isp485->height();
+    setFixedSize(w, h + 23);
+    isp485->show();
 }
 
 void MainWindow::on_actionLocation_triggered()
@@ -71,9 +71,9 @@ void MainWindow::on_actionLocation_triggered()
     FreeOthersWidget(isplocation);
     if (isplocation == NULL) {
         isplocation = new IspLocation(ui->centralWidget);
-        int w = isplocation->width();
-        int h = isplocation->height();
-        setFixedSize(w, h + 23);
-        isplocation->show();
     }
+    int w = isplocation->width();
+    int h = isplocation->height();
+    setFixedSize(w, h + 23);
+    isplocation->show();
 }
