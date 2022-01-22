@@ -1,5 +1,5 @@
-#ifndef ISPLOCATION_H
-#define ISPLOCATION_H
+#ifndef ISPIOTPROGRAM_H
+#define ISPIOTPROGRAM_H
 
 #include <QWidget>
 // 串口相关头文件
@@ -9,26 +9,26 @@
 #include <QTimer>
 
 namespace Ui {
-class IspLocation;
+class IspIotProgram;
 }
 
-class IspLocation : public QWidget
+class IspIotProgram : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit IspLocation(QWidget *parent = 0);
-    ~IspLocation();
+    explicit IspIotProgram(QWidget *parent = 0);
+    ~IspIotProgram();
 
 private slots:
     void on_refresh_clicked();
-    void on_setconfig_clicked();
-    void on_getconfig_clicked();
+    void on_setmode_clicked();
+    void on_readmode_clicked();
     void ReadSerialData();
     void TimerOutEvent();
 
 private:
-    Ui::IspLocation *ui;
+    Ui::IspIotProgram *ui;
 
     void GetComList();
     int OpenSerial(char *data, qint64 len);
@@ -43,4 +43,4 @@ private:
     unsigned short bufflen = 0;
 };
 
-#endif // ISPLOCATION_H
+#endif // ISPIOTPROGRAM_H

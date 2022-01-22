@@ -1,3 +1,6 @@
+#include <stddef.h>
+#include <malloc.h>
+#include <string.h>
 #include "common.h"
 
 unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short len)
@@ -18,35 +21,94 @@ unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short 
     return crc;
 }
 
-int urldecode (char *url, int urllen, char **protocol, char **serveraddr, unsigned short *port) {
-    unsigned short i, p = 0, state = 0;
-    *protocol = url;
+int urldecode (char *url, int urllen, char **protocol, char **host, unsigned short *port, char **path) {
+    unsigned short i, offset, p = 0, state = 0;
+    if (protocol) {
+        *protocol = NULL;
+    }
+    if (host) {
+        *host = NULL;
+    }
+    if (port) {
+        *port = 0;
+    }
+    if (path) {
+        *path = NULL;
+    }
+    if (url[urllen-1] != '\0') {
+        return 1;
+    }
     for (i = 0 ; i < urllen ; i++) {
         if (state == 0 && url[i] == ':') {
             if (i+2 < urllen && (url[i+1] != '/' || url[i+2] != '/')) {
-                return 1;
+                return 2;
             }
-            url[i] = '\0';
-            i += 2;
-            *serveraddr = url + i + 1;
+            if (protocol) {
+                int tlen = i;
+                char *t = (char*)malloc(tlen+1);
+                if (t == NULL) {
+                    return 3;
+                }
+                memcpy(t, url, i);
+                t[i] = '\0';
+                *protocol = t;
+            }
+            i += 3;
+            offset = i;
             state = 1;
-        } else if (state == 1 && url[i] == ':') {
-            url[i] = '\0';
-            state = 2;
+        } else if (state == 1) {
+            if (url[i] == ':' || url[i] == '/' || url[i] == '\0') {
+                if (host) {
+                    int tlen = i-offset;
+                    char *t = (char*)malloc(tlen+1);
+                    if (t == NULL) {
+                        return 5;
+                    }
+                    memcpy(t, url + offset, tlen);
+                    t[tlen] = '\0';
+                    *host = t;
+                }
+                offset = i;
+                if (url[i] == ':') {
+                    state = 2;
+                } else if (url[i] == '/') {
+                    state = 3;
+                } else if (url[i] == '\0') {
+                    return 0;
+                }
+            }
         } else if (state == 2) {
             if ('0' <= url[i] && url[i] <= '9') {
                 p = 10*p + url[i] - '0';
-            } else if (url[i] == '\0') {
-                *port = p;
-                return 0;
+            } else if (url[i] == '/' || url[i] == '\0') {
+                if (port) {
+                    *port = p;
+                }
+                offset = i;
+                if (url[i] == '/') {
+                    state = 3;
+                } else if (url[i] == '\0') {
+                    return 0;
+                }
             } else {
-                return 2;
+                return 6;
+            }
+        } else if (state == 3) {
+            if (url[i] == '\0') {
+                if (path) {
+                    int tlen = i-offset;
+                    char *t = (char*)malloc(tlen+1);
+                    if (t == NULL) {
+                        return 7;
+                    }
+                    memcpy(t, url + offset, tlen);
+                    t[tlen] = '\0';
+                    *path = t;
+                }
+                offset = i;
+                return 0;
             }
         }
     }
-    if (state != 2) {
-        return 3;
-    }
-    *port = p;
     return 0;
 }

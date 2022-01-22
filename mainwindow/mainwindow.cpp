@@ -33,6 +33,10 @@ void MainWindow::FreeOthersWidget(void *widget)
         delete isplocation;
         isplocation = NULL;
     }
+    if (ispiotprogram != NULL && ispiotprogram != widget) {
+        delete ispiotprogram;
+        ispiotprogram = NULL;
+    }
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -76,4 +80,16 @@ void MainWindow::on_actionLocation_triggered()
     int h = isplocation->height();
     setFixedSize(w, h + 23);
     isplocation->show();
+}
+
+void MainWindow::on_actionIspiotprogram_triggered()
+{
+    FreeOthersWidget(ispiotprogram);
+    if (ispiotprogram == NULL) {
+        ispiotprogram = new IspIotProgram(ui->centralWidget);
+    }
+    int w = ispiotprogram->width();
+    int h = ispiotprogram->height();
+    setFixedSize(w, h + 23);
+    ispiotprogram->show();
 }

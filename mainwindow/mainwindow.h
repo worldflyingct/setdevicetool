@@ -5,6 +5,7 @@
 #include "ispiocontroller/ispiocontroller.h"
 #include "isp485/isp485.h"
 #include "isplocation/isplocation.h"
+#include "ispiotprogram/ispiotprogram.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,7 @@ private slots:
     void on_actionIoController_triggered();
     void on_action485GateWay_triggered();
     void on_actionLocation_triggered();
+    void on_actionIspiotprogram_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -30,6 +32,7 @@ private:
     IspIoController *ispiocontroller = NULL;
     Isp485 *isp485 = NULL;
     IspLocation *isplocation = NULL;
+    IspIotProgram * ispiotprogram = NULL;
 };
 
 #endif // MAINWINDOW_H

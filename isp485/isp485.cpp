@@ -175,12 +175,13 @@ void Isp485::on_setconfig_clicked() {
             ui->tips->setText("URL为空");
             return;
         }
-        char url[len];
+        char url[len+1];
         memcpy(url, curl.c_str(), len);
+        url[len] = '\0';
         char *protocol;
-        char *serveraddr;
+        char *host;
         unsigned short port;
-        int res = urldecode (url, len, &protocol, &serveraddr, &port);
+        int res = urldecode (url, len+1, &protocol, &host, &port, NULL);
         if (res != 0) {
             ui->tips->setText("url格式错误");
             return;
@@ -192,6 +193,8 @@ void Isp485::on_setconfig_clicked() {
             mode = 2;
         } else {
            ui->tips->setText("url格式错误");
+           free(protocol);
+           free(host);
            return;
         }
         bool crccheck = ui->crccheck->isChecked();
@@ -205,7 +208,9 @@ void Isp485::on_setconfig_clicked() {
         const char *stopbits = cstopbits.c_str();
         char buff[1024];
         len = sprintf(buff, "act=SetMode&Mode=%u&Host=%s&Port=%u&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
-                                    mode, serveraddr, port, crccheck, baudrate, databits, paritybit, stopbits);
+                                    mode, host, port, crccheck, baudrate, databits, paritybit, stopbits);
+        free(protocol);
+        free(host);
         unsigned short crc = 0xffff;
         crc = crc_calc(crc, (unsigned char*)buff, len);
         buff[len] = crc;
@@ -242,7 +247,7 @@ void Isp485::on_getconfig_clicked() {
 
 void Isp485::HandleSerialData() {
     if (btnStatus == 1) {
-        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35};
+        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
         if (bufflen != sizeof(set_success) || memcmp(serialReadBuff, set_success, sizeof(set_success))) {
             ui->tips->setText("设置失败");
         } else {
@@ -290,10 +295,10 @@ void Isp485::HandleSerialData() {
             } else { // tcp或udp
                 ui->otherradio->setChecked(true);
                 ModeChanged();
-                char url[256];
                 cJSON *host = cJSON_GetObjectItem(json, "Host");
                 cJSON *port = cJSON_GetObjectItem(json, "Port");
                 if (host && port) {
+                    char url[256];
                     if (mode->valueint == 1) { // tcp
                         sprintf(url, "tcp://%s:%u", host->valuestring, port->valueint);
                     } else if (mode->valueint == 2) { // udp

@@ -20,19 +20,22 @@ SOURCES += main.cpp\
     ispiocontroller/ispiocontroller.cpp \
     common/common.c \
     isp485/isp485.cpp \
-    isplocation/isplocation.cpp
+    isplocation/isplocation.cpp \
+    ispiotprogram/ispiotprogram.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     common/cjson.h \
     ispiocontroller/ispiocontroller.h \
     common/common.h \
     isp485/isp485.h \
-    isplocation/isplocation.h
+    isplocation/isplocation.h \
+    ispiotprogram/ispiotprogram.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
     isp485/isp485.ui \
-    isplocation/isplocation.ui
+    isplocation/isplocation.ui \
+    ispiotprogram/ispiotprogram.ui
 
 DISTFILES +=
 
