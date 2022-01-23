@@ -3,8 +3,7 @@
 #include <QFontDatabase>
 #include <QTextCodec>
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     int fontId = QFontDatabase::addApplicationFont(":/fonts.otf");
     QString fontname = QFontDatabase::applicationFontFamilies (fontId).at(0);

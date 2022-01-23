@@ -3,8 +3,7 @@
 #include <string.h>
 #include "common.h"
 
-unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short len)
-{
+unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short len) {
     unsigned short i;
     for (i = 0 ; i < len ; i++) { // 循环计算每个数据
         unsigned char j;

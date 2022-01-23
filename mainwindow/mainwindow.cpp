@@ -3,21 +3,18 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
+    ui(new Ui::MainWindow) {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & ~Qt::WindowMaximizeButtonHint);
     setFixedSize(400, 300);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     FreeOthersWidget(NULL);
     delete ui;
 }
 
-void MainWindow::FreeOthersWidget(void *widget)
-{
+void MainWindow::FreeOthersWidget(void *widget) {
     if (widget != ui->label) {
         ui->label->setVisible(false);
     }
@@ -39,15 +36,13 @@ void MainWindow::FreeOthersWidget(void *widget)
     }
 }
 
-void MainWindow::on_actionAbout_triggered()
-{
+void MainWindow::on_actionAbout_triggered() {
     FreeOthersWidget(ui->label);
     setFixedSize(400, 300);
     ui->label->setVisible(true);
 }
 
-void MainWindow::on_actionIoController_triggered()
-{
+void MainWindow::on_actionIoController_triggered() {
     FreeOthersWidget(ispiocontroller);
     if (ispiocontroller == NULL) {
         ispiocontroller = new IspIoController(ui->centralWidget);
@@ -58,8 +53,7 @@ void MainWindow::on_actionIoController_triggered()
     ispiocontroller->show();
 }
 
-void MainWindow::on_action485GateWay_triggered()
-{
+void MainWindow::on_action485GateWay_triggered() {
     FreeOthersWidget(isp485);
     if (isp485 == NULL) {
         isp485 = new Isp485(ui->centralWidget);
@@ -70,8 +64,7 @@ void MainWindow::on_action485GateWay_triggered()
     isp485->show();
 }
 
-void MainWindow::on_actionLocation_triggered()
-{
+void MainWindow::on_actionLocation_triggered() {
     FreeOthersWidget(isplocation);
     if (isplocation == NULL) {
         isplocation = new IspLocation(ui->centralWidget);
@@ -82,8 +75,7 @@ void MainWindow::on_actionLocation_triggered()
     isplocation->show();
 }
 
-void MainWindow::on_actionIspiotprogram_triggered()
-{
+void MainWindow::on_actionIspiotprogram_triggered() {
     FreeOthersWidget(ispiotprogram);
     if (ispiotprogram == NULL) {
         ispiotprogram = new IspIotProgram(ui->centralWidget);

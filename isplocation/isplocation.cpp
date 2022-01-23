@@ -1,7 +1,5 @@
 #include "isplocation.h"
 #include "ui_isplocation.h"
-// cjson库
-#include "common/cjson.h"
 // 公共函数库
 #include "common/common.h"
 
@@ -12,8 +10,7 @@ IspLocation::IspLocation(QWidget *parent) :
     GetComList();
 }
 
-IspLocation::~IspLocation()
-{
+IspLocation::~IspLocation() {
     delete ui;
 }
 
@@ -29,10 +26,7 @@ void IspLocation::GetComList () {
 }
 
 void IspLocation::TimerOutEvent() {
-    if (bufflen) {
-        HandleSerialData();
-        bufflen = 0;
-    } else if (btnStatus == 1) {
+    if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
         ui->tips->setText("数据接收超时");
@@ -47,6 +41,34 @@ void IspLocation::ReadSerialData() {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+    if (btnStatus == 1) {
+        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
+        if (bufflen == sizeof(set_success)) {
+            if (!memcmp(serialReadBuff, set_success, sizeof(set_success))) {
+                ui->tips->setText("设置成功");
+            } else {
+                ui->tips->setText("设置失败");
+            }
+            CloseSerial();
+            btnStatus = 0;
+            return;
+        }
+    } else if (btnStatus == 2) {
+        unsigned short crc = 0xffff;
+        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        if (crc == 0x00) {
+            bufflen -= 2;
+            serialReadBuff[bufflen] = '\0';
+            cJSON *json = cJSON_Parse((char*)serialReadBuff);
+            if (json != NULL) {
+                HandleSerialData(json);
+                cJSON_Delete(json);
+                CloseSerial();
+                btnStatus = 0;
+                return;
+            }
+        }
+    }
     timer.stop();
     timer.start(5000);
 }
@@ -75,15 +97,14 @@ void IspLocation::CloseSerial() {
     timer.stop();
     disconnect(&serial, 0, 0, 0);
     serial.close();
+    bufflen = 0;
 }
 
-void IspLocation::on_refresh_clicked()
-{
+void IspLocation::on_refresh_clicked() {
     this->GetComList();
 }
 
-void IspLocation::on_setconfig_clicked()
-{
+void IspLocation::on_setconfig_clicked() {
     std::string cserverurl = ui->serverurl->text().toStdString();
     int len = cserverurl.length();
     if (len == 0) {
@@ -145,8 +166,7 @@ void IspLocation::on_setconfig_clicked()
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::on_getconfig_clicked()
-{
+void IspLocation::on_getconfig_clicked() {
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     char buff[32];
@@ -166,64 +186,41 @@ void IspLocation::on_getconfig_clicked()
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::HandleSerialData() {
-    if (btnStatus == 1) {
-        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
-        if (bufflen != sizeof(set_success) || memcmp(serialReadBuff, set_success, sizeof(set_success))) {
-            ui->tips->setText("设置失败");
-        } else {
-            ui->tips->setText("设置成功");
+void IspLocation::HandleSerialData(cJSON *json) {
+    cJSON *mode = cJSON_GetObjectItem(json, "Mode");
+    cJSON *host = cJSON_GetObjectItem(json, "Host");
+    cJSON *port = cJSON_GetObjectItem(json, "Port");
+    cJSON *path = cJSON_GetObjectItem(json, "Path");
+    if (mode && host && port && path) {
+        char url[256];
+        if (mode->valueint == 0) { // coap
+            sprintf(url, "coap://%s:%u/%s", host->valuestring, port->valueint, path->valuestring);
+        } else if (mode->valueint == 1) { // udp
+            sprintf(url, "udp://%s:%u", host->valuestring, port->valueint);
         }
-    } else if (btnStatus == 2) {
-        unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
-        if (crc != 0x00) {
-            ui->tips->setText("crc校验错误");
-            return;
-        }
-        bufflen -= 2;
-        serialReadBuff[bufflen] = '\0';
-        cJSON *json = cJSON_Parse((char*)serialReadBuff);
-        if (!json) {
-            ui->tips->setText("数据解析错误");
-            return;
-        }
-        cJSON *mode = cJSON_GetObjectItem(json, "Mode");
-        cJSON *host = cJSON_GetObjectItem(json, "Host");
-        cJSON *port = cJSON_GetObjectItem(json, "Port");
-        cJSON *path = cJSON_GetObjectItem(json, "Path");
-        if (mode && host && port && path) {
-            char url[256];
-            if (mode->valueint == 0) { // coap
-                sprintf(url, "coap://%s:%u/%s", host->valuestring, port->valueint, path->valuestring);
-            } else if (mode->valueint == 1) { // udp
-                sprintf(url, "udp://%s:%u", host->valuestring, port->valueint);
-            }
-            ui->serverurl->setText(url);
-        }
-        cJSON *secondobj = cJSON_GetObjectItem(json, "Second");
-        if (secondobj) {
-            int second = secondobj->valueint;
-            int day = second / (24*60*60);
-            second = second % (24*60*60);
-            int hour = second / 3600;
-            second = second % 3600;
-            int minute = second / 60;
-            second = second % 60;
-            ui->day->setValue(day);
-            ui->hour->setValue(hour);
-            ui->minute->setValue(minute);
-            ui->second->setValue(second);
-        }
-        const char tip[] = "设备SN:";
-        unsigned short tiplen = sizeof(tip);
-        char buff[64];
-        memcpy(buff, tip, tiplen);
-        cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
-        if (serialnumber) {
-            strcpy(buff + tiplen - 1, serialnumber->valuestring);
-            ui->tips->setText(buff);
-        }
-        cJSON_Delete(json);
+        ui->serverurl->setText(url);
+    }
+    cJSON *secondobj = cJSON_GetObjectItem(json, "Second");
+    if (secondobj) {
+        int second = secondobj->valueint;
+        int day = second / (24*60*60);
+        second = second % (24*60*60);
+        int hour = second / 3600;
+        second = second % 3600;
+        int minute = second / 60;
+        second = second % 60;
+        ui->day->setValue(day);
+        ui->hour->setValue(hour);
+        ui->minute->setValue(minute);
+        ui->second->setValue(second);
+    }
+    const char tip[] = "设备SN:";
+    unsigned short tiplen = sizeof(tip);
+    char buff[64];
+    memcpy(buff, tip, tiplen);
+    cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+    if (serialnumber) {
+        strcpy(buff + tiplen - 1, serialnumber->valuestring);
+        ui->tips->setText(buff);
     }
 }

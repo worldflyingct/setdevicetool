@@ -1,7 +1,5 @@
 #include "ispiocontroller.h"
 #include "ui_ispiocontroller.h"
-// cjson库
-#include "common/cjson.h"
 // 公共函数库
 #include "common/common.h"
 
@@ -32,10 +30,7 @@ void IspIoController::on_refresh_clicked() {
 }
 
 void IspIoController::TimerOutEvent() {
-    if (bufflen) {
-        HandleSerialData();
-        bufflen = 0;
-    } else if (btnStatus == 1) {
+    if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
         ui->tips->setText("数据接收超时");
@@ -50,6 +45,34 @@ void IspIoController::ReadSerialData() {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+    if (btnStatus == 1) {
+        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
+        if (bufflen == sizeof(set_success)) {
+            if (!memcmp(serialReadBuff, set_success, sizeof(set_success))) {
+                ui->tips->setText("设置成功");
+            } else {
+                ui->tips->setText("设置失败");
+            }
+            CloseSerial();
+            btnStatus = 0;
+            return;
+        }
+    } else if (btnStatus == 2) {
+        unsigned short crc = 0xffff;
+        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        if (crc == 0x00) {
+            bufflen -= 2;
+            serialReadBuff[bufflen] = '\0';
+            cJSON *json = cJSON_Parse((char*)serialReadBuff);
+            if (json != NULL) {
+                HandleSerialData(json);
+                cJSON_Delete(json);
+                CloseSerial();
+                btnStatus = 0;
+                return;
+            }
+        }
+    }
     timer.stop();
     timer.start(5000);
 }
@@ -78,6 +101,7 @@ void IspIoController::CloseSerial() {
     timer.stop();
     disconnect(&serial, 0, 0, 0);
     serial.close();
+    bufflen = 0;
 }
 
 void IspIoController::on_setmqtt_clicked() {
@@ -140,49 +164,26 @@ void IspIoController::on_readmqtt_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void IspIoController::HandleSerialData() {
-    if (btnStatus == 1) {
-        const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
-        if (bufflen != sizeof(set_success) || memcmp(serialReadBuff, set_success, sizeof(set_success))) {
-            ui->tips->setText("设置失败");
-        } else {
-            ui->tips->setText("设置成功");
-        }
-    } else if (btnStatus == 2) {
-        unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
-        if (crc != 0x00) {
-            ui->tips->setText("crc校验错误");
-            return;
-        }
-        bufflen -= 2;
-        serialReadBuff[bufflen] = '\0';
-        cJSON *json = cJSON_Parse((char*)serialReadBuff);
-        if (!json) {
-            ui->tips->setText("数据解析错误");
-            return;
-        }
-        cJSON *mqtturl = cJSON_GetObjectItem(json, "Url");
-        if (mqtturl) {
-            ui->mqtturl->setText(mqtturl->valuestring);
-        }
-        cJSON *mqttuser = cJSON_GetObjectItem(json, "UserName");
-        if (mqttuser) {
-            ui->mqttuser->setText(mqttuser->valuestring);
-        }
-        cJSON *mqttpass = cJSON_GetObjectItem(json, "PassWord");
-        if (mqttpass) {
-            ui->mqttpass->setText(mqttpass->valuestring);
-        }
-        const char tip[] = "设备SN:";
-        unsigned short tiplen = sizeof(tip);
-        char buff[64];
-        memcpy(buff, tip, tiplen);
-        cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
-        if (serialnumber) {
-            strcpy(buff + tiplen - 1, serialnumber->valuestring);
-            ui->tips->setText(buff);
-        }
-        cJSON_Delete(json);
+void IspIoController::HandleSerialData(cJSON *json) {
+    cJSON *mqtturl = cJSON_GetObjectItem(json, "Url");
+    if (mqtturl) {
+        ui->mqtturl->setText(mqtturl->valuestring);
+    }
+    cJSON *mqttuser = cJSON_GetObjectItem(json, "UserName");
+    if (mqttuser) {
+        ui->mqttuser->setText(mqttuser->valuestring);
+    }
+    cJSON *mqttpass = cJSON_GetObjectItem(json, "PassWord");
+    if (mqttpass) {
+        ui->mqttpass->setText(mqttpass->valuestring);
+    }
+    const char tip[] = "设备SN:";
+    unsigned short tiplen = sizeof(tip);
+    char buff[64];
+    memcpy(buff, tip, tiplen);
+    cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+    if (serialnumber) {
+        strcpy(buff + tiplen - 1, serialnumber->valuestring);
+        ui->tips->setText(buff);
     }
 }
