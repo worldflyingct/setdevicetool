@@ -46,7 +46,6 @@ void IspIotProgram::ReadSerialData() {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     if (btnStatus == 1) {
-        qDebug("in %s, at %d\n", __FILE__, __LINE__);
         const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
         if (bufflen == sizeof(set_success)) {
             if (!memcmp(serialReadBuff, set_success, sizeof(set_success))) {
