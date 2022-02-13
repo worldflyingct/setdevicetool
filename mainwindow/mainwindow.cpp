@@ -34,6 +34,10 @@ void MainWindow::FreeOthersWidget(void *widget) {
         delete ispiotprogram;
         ispiotprogram = NULL;
     }
+    if (stm32isp != NULL && stm32isp != widget) {
+        delete stm32isp;
+        stm32isp = NULL;
+    }
 }
 
 void MainWindow::on_actionAbout_triggered() {
@@ -84,4 +88,15 @@ void MainWindow::on_actionIspiotprogram_triggered() {
     int h = ispiotprogram->height();
     setFixedSize(w, h + 23);
     ispiotprogram->show();
+}
+
+void MainWindow::on_actionStm32Isp_triggered() {
+    FreeOthersWidget(stm32isp);
+    if (stm32isp == NULL) {
+        stm32isp = new Stm32Isp(ui->centralWidget);
+    }
+    int w = stm32isp->width();
+    int h = stm32isp->height();
+    setFixedSize(w, h + 23);
+    stm32isp->show();
 }

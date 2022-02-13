@@ -15,13 +15,15 @@ TEMPLATE = app
 RC_ICONS = resources/favicon.ico
 
 SOURCES += main.cpp\
-        mainwindow/mainwindow.cpp \
+    mainwindow/mainwindow.cpp \
     common/cjson.c \
     ispiocontroller/ispiocontroller.cpp \
     common/common.c \
     isp485/isp485.cpp \
     isplocation/isplocation.cpp \
-    ispiotprogram/ispiotprogram.cpp
+    ispiotprogram/ispiotprogram.cpp \
+    stm32isp/stm32isp.cpp \
+    common/hextobin.c
 
 HEADERS  += mainwindow/mainwindow.h \
     common/cjson.h \
@@ -29,13 +31,16 @@ HEADERS  += mainwindow/mainwindow.h \
     common/common.h \
     isp485/isp485.h \
     isplocation/isplocation.h \
-    ispiotprogram/ispiotprogram.h
+    ispiotprogram/ispiotprogram.h \
+    stm32isp/stm32isp.h \
+    common/hextobin.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
     isp485/isp485.ui \
     isplocation/isplocation.ui \
-    ispiotprogram/ispiotprogram.ui
+    ispiotprogram/ispiotprogram.ui \
+    stm32isp/stm32isp.ui
 
 DISTFILES +=
 

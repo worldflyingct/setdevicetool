@@ -35,7 +35,7 @@ void Isp485::GetComList () {
 }
 
 void Isp485::on_refresh_clicked() {
-    this->GetComList();
+    GetComList();
 }
 
 void Isp485::TimerOutEvent() {

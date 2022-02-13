@@ -25,6 +25,10 @@ void IspLocation::GetComList () {
     }
 }
 
+void IspLocation::on_refresh_clicked() {
+    GetComList();
+}
+
 void IspLocation::TimerOutEvent() {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
@@ -98,10 +102,6 @@ void IspLocation::CloseSerial() {
     disconnect(&serial, 0, 0, 0);
     serial.close();
     bufflen = 0;
-}
-
-void IspLocation::on_refresh_clicked() {
-    this->GetComList();
 }
 
 void IspLocation::on_setconfig_clicked() {

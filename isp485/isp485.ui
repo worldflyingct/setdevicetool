@@ -172,9 +172,9 @@
   <widget class="QLabel" name="tips">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>20</x>
      <y>420</y>
-     <width>301</width>
+     <width>371</width>
      <height>51</height>
     </rect>
    </property>
@@ -182,7 +182,7 @@
     <string/>
    </property>
    <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+    <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
    </property>
   </widget>
   <widget class="QRadioButton" name="mqttradio">

@@ -31,10 +31,13 @@
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当前版本为：V1.5.3&lt;/p&gt;&lt;p&gt;产品作者为：&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;沃航科技&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品源码地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github&lt;/span&gt;&lt;/a&gt;，&lt;a href=&quot;https://gitee.com/worldflying/setdevicetool&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;gitee&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品最新版下载地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github&lt;/span&gt;&lt;/a&gt;，&lt;a href=&quot;https://gitee.com/worldflying/setdevicetool/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;gitee&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;请在上方菜单栏选择对应的设备种类。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;当前版本为：V1.6.0&lt;/p&gt;&lt;p&gt;产品作者为：&lt;a href=&quot;https://www.worldflying.cn&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;沃航科技&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品源码地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github&lt;/span&gt;&lt;/a&gt;，&lt;a href=&quot;https://gitee.com/worldflying/setdevicetool&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;gitee&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;产品最新版下载地址：&lt;a href=&quot;https://github.com/worldflyingct/setdevicetool/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;github&lt;/span&gt;&lt;/a&gt;，&lt;a href=&quot;https://gitee.com/worldflying/setdevicetool/releases&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;gitee&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;p&gt;请在上方菜单栏选择对应的设备种类。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="openExternalLinks">
      <bool>true</bool>
+    </property>
+    <property name="textInteractionFlags">
+     <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse</set>
     </property>
    </widget>
   </widget>
@@ -59,12 +62,19 @@
    </widget>
    <widget class="QMenu" name="menu2">
     <property name="title">
+     <string>其他工具</string>
+    </property>
+    <addaction name="actionStm32Isp"/>
+   </widget>
+   <widget class="QMenu" name="menu3">
+    <property name="title">
      <string>软件信息</string>
     </property>
     <addaction name="actionAbout"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu2"/>
+   <addaction name="menu3"/>
   </widget>
   <action name="actionIoController">
    <property name="text">
@@ -89,6 +99,11 @@
   <action name="actionIspiotprogram">
    <property name="text">
     <string>可编程网络IO控制器</string>
+   </property>
+  </action>
+  <action name="actionStm32Isp">
+   <property name="text">
+    <string>stm32烧录工具</string>
    </property>
   </action>
  </widget>

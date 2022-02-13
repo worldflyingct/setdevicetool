@@ -26,7 +26,7 @@ void IspIoController::GetComList () {
 }
 
 void IspIoController::on_refresh_clicked() {
-    this->GetComList();
+    GetComList();
 }
 
 void IspIoController::TimerOutEvent() {

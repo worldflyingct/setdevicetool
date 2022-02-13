@@ -26,7 +26,7 @@ void IspIotProgram::GetComList () {
 }
 
 void IspIotProgram::on_refresh_clicked() {
-    this->GetComList();
+    GetComList();
 }
 
 void IspIotProgram::TimerOutEvent() {
