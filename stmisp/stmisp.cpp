@@ -5,7 +5,7 @@
 #include "common/hextobin.h"
 
 /* 参考文件
-https://github.com/nicekwell/StmIsp/raw/master/documents/StmIsp%20application%20note.pdf
+https://github.com/nicekwell/stm32ISP/raw/master/documents/stm32isp%20application%20note.pdf
 http://nicekwell.net/blog/20180118/stm32chuan-kou-isp.html
 https://blog.csdn.net/xld_19920728/article/details/85336107
 */
