@@ -1,5 +1,5 @@
-#ifndef STM32ISP_H
-#define STM32ISP_H
+#ifndef STMISP_H
+#define STMISP_H
 
 #include <QWidget>
 // 串口相关头文件
@@ -12,16 +12,16 @@
 #include <QFileDialog>
 
 namespace Ui {
-class Stm32Isp;
+class StmIsp;
 }
 
-class Stm32Isp : public QWidget
+class StmIsp : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Stm32Isp(QWidget *parent = 0);
-    ~Stm32Isp();
+    explicit StmIsp(QWidget *parent = 0);
+    ~StmIsp();
 
 private slots:
     void on_openfile_clicked();
@@ -42,7 +42,7 @@ private slots:
     void on_readunprotect_clicked();
 
 private:
-    Ui::Stm32Isp *ui;
+    Ui::StmIsp *ui;
 
     void GetComList();
     int OpenSerial(char *data, qint64 len);
@@ -64,4 +64,4 @@ private:
     unsigned int addr = 0;
 };
 
-#endif // STM32ISP_H
+#endif // STMISP_H

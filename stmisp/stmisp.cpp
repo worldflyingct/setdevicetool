@@ -1,11 +1,11 @@
-#include "stm32isp.h"
-#include "ui_stm32isp.h"
+#include "stmisp.h"
+#include "ui_stmisp.h"
 // 公共函数库
 #include "common/common.h"
 #include "common/hextobin.h"
 
 /* 参考文件
-https://github.com/nicekwell/stm32ISP/raw/master/documents/stm32isp%20application%20note.pdf
+https://github.com/nicekwell/StmIsp/raw/master/documents/StmIsp%20application%20note.pdf
 http://nicekwell.net/blog/20180118/stm32chuan-kou-isp.html
 https://blog.csdn.net/xld_19920728/article/details/85336107
 */
@@ -39,19 +39,19 @@ https://blog.csdn.net/xld_19920728/article/details/85336107
 #define BTN_STATUS_WRITE_PROTECT    0x07
 #define BTN_STATUS_READ_PROTECT     0x08
 
-Stm32Isp::Stm32Isp(QWidget *parent) :
+StmIsp::StmIsp(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Stm32Isp) {
+    ui(new Ui::StmIsp) {
     ui->setupUi(this);
     GetComList();
 }
 
-Stm32Isp::~Stm32Isp() {
+StmIsp::~StmIsp() {
     delete ui;
 }
 
 // 获取可用的串口号
-void Stm32Isp::GetComList () {
+void StmIsp::GetComList () {
     QComboBox *c = ui->com;
     for (int a = c->count() ; a > 0 ; a--) {
         c->removeItem(a-1);
@@ -61,17 +61,17 @@ void Stm32Isp::GetComList () {
     }
 }
 
-void Stm32Isp::on_refresh_clicked() {
+void StmIsp::on_refresh_clicked() {
     GetComList();
 }
 
-void Stm32Isp::TimerOutEvent() {
+void StmIsp::TimerOutEvent() {
     ui->tips->appendPlainText("设备响应超时");
     CloseSerial();
     btnStatus = BTN_STATUS_IDLE;
 }
 
-void Stm32Isp::ReadSerialData() {
+void StmIsp::ReadSerialData() {
     unsigned int i;
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -660,7 +660,7 @@ void Stm32Isp::ReadSerialData() {
     timer.start(5000);
 }
 
-int Stm32Isp::OpenSerial(char *data, qint64 len) {
+int StmIsp::OpenSerial(char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -679,7 +679,7 @@ int Stm32Isp::OpenSerial(char *data, qint64 len) {
     return 0;
 }
 
-void Stm32Isp::CloseSerial() {
+void StmIsp::CloseSerial() {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -687,14 +687,14 @@ void Stm32Isp::CloseSerial() {
     bufflen = 0;
 }
 
-void Stm32Isp::on_openfile_clicked() {
+void StmIsp::on_openfile_clicked() {
     QString filepath = QFileDialog::getOpenFileName(this, "选择镜像", NULL, "镜像文件(*.hex *.bin)");
     if (filepath.length()) {
         ui->filepath->setText(filepath);
     }
 }
 
-void Stm32Isp::on_readchip_clicked() {
+void StmIsp::on_readchip_clicked() {
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
         ui->tips->appendPlainText("保存文件路径配置错误");
@@ -728,7 +728,7 @@ void Stm32Isp::on_readchip_clicked() {
     }
 }
 
-void Stm32Isp::on_readchipmsg_clicked() {
+void StmIsp::on_readchipmsg_clicked() {
     btnStatus = BTN_STATUS_READ_MSG;
     retrytime = 0;
     if (issynced) {
@@ -753,7 +753,7 @@ void Stm32Isp::on_readchipmsg_clicked() {
     }
 }
 
-void Stm32Isp::on_writechip_clicked() {
+void StmIsp::on_writechip_clicked() {
     QString filepath = ui->filepath->text();
     int pos = filepath.lastIndexOf(".");
     QString suffix = filepath.mid(pos);
@@ -812,7 +812,7 @@ void Stm32Isp::on_writechip_clicked() {
     }
 }
 
-void Stm32Isp::on_erasechip_clicked() {
+void StmIsp::on_erasechip_clicked() {
     btnStatus = BTN_STATUS_ERASE;
     retrytime = 0;
     if (issynced) {
@@ -837,11 +837,11 @@ void Stm32Isp::on_erasechip_clicked() {
     }
 }
 
-void Stm32Isp::on_clearlog_clicked() {
+void StmIsp::on_clearlog_clicked() {
     ui->tips->clear();
 }
 
-void Stm32Isp::on_writeprotect_clicked() {
+void StmIsp::on_writeprotect_clicked() {
     btnStatus = BTN_STATUS_WRITE_PROTECT;
     retrytime = 0;
     if (issynced) {
@@ -866,7 +866,7 @@ void Stm32Isp::on_writeprotect_clicked() {
     }
 }
 
-void Stm32Isp::on_writeunprotect_clicked() {
+void StmIsp::on_writeunprotect_clicked() {
     btnStatus = BTN_STATUS_WRITE_UNPROTECT;
     retrytime = 0;
     if (issynced) {
@@ -891,7 +891,7 @@ void Stm32Isp::on_writeunprotect_clicked() {
     }
 }
 
-void Stm32Isp::on_readprotect_clicked() {
+void StmIsp::on_readprotect_clicked() {
     btnStatus = BTN_STATUS_READ_PROTECT;
     retrytime = 0;
     if (issynced) {
@@ -916,7 +916,7 @@ void Stm32Isp::on_readprotect_clicked() {
     }
 }
 
-void Stm32Isp::on_readunprotect_clicked() {
+void StmIsp::on_readunprotect_clicked() {
     btnStatus = BTN_STATUS_READ_UNPROTECT;
     retrytime = 0;
     if (issynced) {

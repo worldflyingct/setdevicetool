@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     isp485/isp485.cpp \
     isplocation/isplocation.cpp \
     ispiotprogram/ispiotprogram.cpp \
-    stm32isp/stm32isp.cpp \
+    stmisp/stmisp.cpp \
     common/hextobin.c
 
 HEADERS  += mainwindow/mainwindow.h \
@@ -32,7 +32,7 @@ HEADERS  += mainwindow/mainwindow.h \
     isp485/isp485.h \
     isplocation/isplocation.h \
     ispiotprogram/ispiotprogram.h \
-    stm32isp/stm32isp.h \
+    stmisp/stmisp.h \
     common/hextobin.h
 
 FORMS    += mainwindow/mainwindow.ui \
@@ -40,7 +40,7 @@ FORMS    += mainwindow/mainwindow.ui \
     isp485/isp485.ui \
     isplocation/isplocation.ui \
     ispiotprogram/ispiotprogram.ui \
-    stm32isp/stm32isp.ui
+    stmisp/stmisp.ui
 
 DISTFILES +=
 
