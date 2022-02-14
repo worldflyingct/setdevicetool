@@ -169,8 +169,8 @@
   <widget class="QPushButton" name="clearlog">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>400</y>
+     <x>390</x>
+     <y>320</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -208,7 +208,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>512</string>
+    <string>32</string>
    </property>
    <item>
     <property name="text">

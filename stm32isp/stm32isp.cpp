@@ -6,6 +6,8 @@
 
 /* 参考文件
 https://github.com/nicekwell/stm32ISP/raw/master/documents/stm32isp%20application%20note.pdf
+http://nicekwell.net/blog/20180118/stm32chuan-kou-isp.html
+https://blog.csdn.net/xld_19920728/article/details/85336107
 */
 
 #define ISP_SYNC                0x7f
@@ -149,7 +151,9 @@ void Stm32Isp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else {
-                ui->tips->appendPlainText("程序内部错误1");
+                char buff[64];
+                sprintf(buff, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(buff);
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -195,7 +199,7 @@ void Stm32Isp::ReadSerialData() {
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
             if (retrytime == 50) {
-                ui->tips->appendPlainText("擦除初始化失败");
+                ui->tips->appendPlainText("写保护失败");
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -209,7 +213,8 @@ void Stm32Isp::ReadSerialData() {
         } else {
             retrytime = 0;
             bufflen = 0;
-            ui->tips->appendPlainText("写保护完成，请重启单片机与本软件");
+            ui->tips->appendPlainText("写保护完成，请重启单片机");
+            issynced = 0;
             CloseSerial();
             btnStatus = BTN_STATUS_IDLE;
             return;
@@ -217,30 +222,34 @@ void Stm32Isp::ReadSerialData() {
     } else if (chipstep == ISP_WRITEUNPROTECT || chipstep == ISP_READPROTECT || chipstep == ISP_READUNPROTECT) {
         if (serialReadBuff[0] != 0x79 || (bufflen == 2 && serialReadBuff[1] != 0x79)) {
             retrytime++;
+            char buff[64];
             if (retrytime == 50) {
-                ui->tips->appendPlainText("擦除初始化失败");
+                switch (chipstep) {
+                    case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护失败");break;
+                    case ISP_READPROTECT    : sprintf(buff, "读保护失败");break;
+                    case ISP_READUNPROTECT  : sprintf(buff, "解除读保护失败");break;
+                    default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
+                }
+                ui->tips->appendPlainText(buff);
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
             }
             bufflen = 0;
-            char buff[2];
             buff[0] = chipstep;
             buff[1] = ~buff[0];
             serial.write(buff, 2);
         } else if (bufflen == 2 && serialReadBuff[1] == 0x79) {
             retrytime = 0;
             bufflen = 0;
+            char buff[64];
             switch (chipstep) {
-                case ISP_WRITEUNPROTECT : ui->tips->appendPlainText("解除写保护完成，请重启单片机与本软件");break;
-                case ISP_READPROTECT    : ui->tips->appendPlainText("读保护完成，请重启单片机与本软件");break;
-                case ISP_READUNPROTECT  : ui->tips->appendPlainText("解除读保护完成，请重启单片机与本软件");break;
-                default:
-                    ui->tips->appendPlainText("程序内部错误2");
-                    CloseSerial();
-                    btnStatus = BTN_STATUS_IDLE;
-                    return;
+                case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护完成，请重启单片机");issynced = 0;break;
+                case ISP_READPROTECT    : sprintf(buff, "读保护完成，请重启单片机");issynced = 0;break;
+                case ISP_READUNPROTECT  : sprintf(buff, "解除读保护完成，请重启单片机");issynced = 0;break;
+                default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
             }
+            ui->tips->appendPlainText(buff);
             CloseSerial();
             btnStatus = BTN_STATUS_IDLE;
             return;
@@ -359,7 +368,9 @@ void Stm32Isp::ReadSerialData() {
                     return;
                 }
             } else {
-                ui->tips->appendPlainText("程序内部错误3");
+                char buff[64];
+                sprintf(buff, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(buff);
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -461,7 +472,9 @@ void Stm32Isp::ReadSerialData() {
                     return;
                 }
             } else {
-                ui->tips->appendPlainText("程序内部错误4");
+                char buff[64];
+                sprintf(buff, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(buff);
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -549,7 +562,8 @@ void Stm32Isp::ReadSerialData() {
             } else if (btnStatus == BTN_STATUS_READ) {
                 memcpy(bin+addr, serialReadBuff+1, 256);
             } else {
-                ui->tips->appendPlainText("程序内部错误5");
+                sprintf(buff, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(buff);
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -566,7 +580,8 @@ void Stm32Isp::ReadSerialData() {
                 } else if (btnStatus == BTN_STATUS_READ) {
                     sprintf(buff, "已读出%uk数据", addr / 1024);
                 } else {
-                    ui->tips->appendPlainText("程序内部错误6");
+                    sprintf(buff, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(buff);
                     CloseSerial();
                     btnStatus = BTN_STATUS_IDLE;
                     return;
@@ -626,7 +641,7 @@ void Stm32Isp::ReadSerialData() {
                     file.close();
                 }
             } else {
-                sprintf(buff, "程序内部错误7");
+                sprintf(buff, "程序内部错误%d", __LINE__);
             }
             ui->tips->appendPlainText(buff);
             CloseSerial();
