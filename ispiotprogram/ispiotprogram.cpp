@@ -39,6 +39,10 @@ void IspIotProgram::TimerOutEvent() {
     btnStatus = 0;
 }
 
+int IspIotProgram::GetBtnStatus () {
+    return btnStatus;
+}
+
 void IspIotProgram::ReadSerialData() {
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -105,6 +109,9 @@ void IspIotProgram::CloseSerial() {
 }
 
 void IspIotProgram::on_setmode_clicked() {
+    if (btnStatus) {
+        return;
+    }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     std::string cmqtturl = ui->mqtturl->text().toStdString();
@@ -151,6 +158,9 @@ void IspIotProgram::on_setmode_clicked() {
 }
 
 void IspIotProgram::on_readmode_clicked() {
+    if (btnStatus) {
+        return;
+    }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     char buff[32];

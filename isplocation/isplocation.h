@@ -20,6 +20,7 @@ class IspLocation : public QWidget {
 public:
     explicit IspLocation(QWidget *parent = 0);
     ~IspLocation();
+    int GetBtnStatus();
 
 private slots:
     void on_refresh_clicked();

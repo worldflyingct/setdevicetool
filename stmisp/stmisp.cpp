@@ -71,6 +71,10 @@ void StmIsp::TimerOutEvent() {
     btnStatus = BTN_STATUS_IDLE;
 }
 
+int StmIsp::GetBtnStatus () {
+    return btnStatus;
+}
+
 void StmIsp::ReadSerialData() {
     unsigned int i;
     QByteArray arr = serial.readAll();
@@ -695,6 +699,9 @@ void StmIsp::on_openfile_clicked() {
 }
 
 void StmIsp::on_readchip_clicked() {
+    if (btnStatus) {
+        return;
+    }
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
         ui->tips->appendPlainText("保存文件路径配置错误");
@@ -729,6 +736,9 @@ void StmIsp::on_readchip_clicked() {
 }
 
 void StmIsp::on_readchipmsg_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_READ_MSG;
     retrytime = 0;
     if (issynced) {
@@ -754,6 +764,9 @@ void StmIsp::on_readchipmsg_clicked() {
 }
 
 void StmIsp::on_writechip_clicked() {
+    if (btnStatus) {
+        return;
+    }
     QString filepath = ui->filepath->text();
     int pos = filepath.lastIndexOf(".");
     QString suffix = filepath.mid(pos);
@@ -813,6 +826,9 @@ void StmIsp::on_writechip_clicked() {
 }
 
 void StmIsp::on_erasechip_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_ERASE;
     retrytime = 0;
     if (issynced) {
@@ -842,6 +858,9 @@ void StmIsp::on_clearlog_clicked() {
 }
 
 void StmIsp::on_writeprotect_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_WRITE_PROTECT;
     retrytime = 0;
     if (issynced) {
@@ -867,6 +886,9 @@ void StmIsp::on_writeprotect_clicked() {
 }
 
 void StmIsp::on_writeunprotect_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_WRITE_UNPROTECT;
     retrytime = 0;
     if (issynced) {
@@ -892,6 +914,9 @@ void StmIsp::on_writeunprotect_clicked() {
 }
 
 void StmIsp::on_readprotect_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_READ_PROTECT;
     retrytime = 0;
     if (issynced) {
@@ -917,6 +942,9 @@ void StmIsp::on_readprotect_clicked() {
 }
 
 void StmIsp::on_readunprotect_clicked() {
+    if (btnStatus) {
+        return;
+    }
     btnStatus = BTN_STATUS_READ_UNPROTECT;
     retrytime = 0;
     if (issynced) {

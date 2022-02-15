@@ -21,6 +21,7 @@ class Isp485 : public QWidget {
 public:
     explicit Isp485(QWidget *parent = 0);
     ~Isp485();
+    int GetBtnStatus();
 
 private slots:
     void on_refresh_clicked();

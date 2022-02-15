@@ -39,6 +39,10 @@ void IspLocation::TimerOutEvent() {
     btnStatus = 0;
 }
 
+int IspLocation::GetBtnStatus () {
+    return btnStatus;
+}
+
 void IspLocation::ReadSerialData() {
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -105,6 +109,9 @@ void IspLocation::CloseSerial() {
 }
 
 void IspLocation::on_setconfig_clicked() {
+    if (btnStatus) {
+        return;
+    }
     std::string cserverurl = ui->serverurl->text().toStdString();
     int len = cserverurl.length();
     if (len == 0) {
@@ -167,6 +174,9 @@ void IspLocation::on_setconfig_clicked() {
 }
 
 void IspLocation::on_getconfig_clicked() {
+    if (btnStatus) {
+        return;
+    }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     char buff[32];

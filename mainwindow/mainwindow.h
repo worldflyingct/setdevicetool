@@ -29,7 +29,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    void FreeOthersWidget(void *widget);
+    int FreeOthersWidget(void *widget);
     IspIoController *ispiocontroller = NULL;
     Isp485 *isp485 = NULL;
     IspLocation *isplocation = NULL;

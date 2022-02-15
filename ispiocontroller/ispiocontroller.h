@@ -20,6 +20,7 @@ class IspIoController : public QWidget {
 public:
     explicit IspIoController(QWidget *parent = 0);
     ~IspIoController();
+    int GetBtnStatus();
 
 private slots:
     void on_refresh_clicked();

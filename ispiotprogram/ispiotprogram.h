@@ -20,6 +20,7 @@ class IspIotProgram : public QWidget {
 public:
     explicit IspIotProgram(QWidget *parent = 0);
     ~IspIotProgram();
+    int GetBtnStatus();
 
 private slots:
     void on_refresh_clicked();

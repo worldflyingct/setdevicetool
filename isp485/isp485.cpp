@@ -48,6 +48,10 @@ void Isp485::TimerOutEvent() {
     btnStatus = 0;
 }
 
+int Isp485::GetBtnStatus () {
+    return btnStatus;
+}
+
 void Isp485::ReadSerialData() {
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -131,6 +135,9 @@ void Isp485::CloseSerial() {
 }
 
 void Isp485::on_setconfig_clicked() {
+    if (btnStatus) {
+        return;
+    }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     int radio = groupRadio->checkedId();
@@ -250,6 +257,9 @@ void Isp485::on_setconfig_clicked() {
 }
 
 void Isp485::on_getconfig_clicked() {
+    if (btnStatus) {
+        return;
+    }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
     char buff[32];

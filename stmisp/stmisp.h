@@ -22,6 +22,7 @@ class StmIsp : public QWidget
 public:
     explicit StmIsp(QWidget *parent = 0);
     ~StmIsp();
+    int GetBtnStatus();
 
 private slots:
     void on_openfile_clicked();
