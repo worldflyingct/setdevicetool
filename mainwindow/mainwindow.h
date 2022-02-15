@@ -21,10 +21,10 @@ public:
 
 private slots:
     void on_actionAbout_triggered();
-    void on_actionIoController_triggered();
-    void on_action485GateWay_triggered();
-    void on_actionLocation_triggered();
-    void on_actionIspiotprogram_triggered();
+    void on_actionIspIoController_triggered();
+    void on_actionIsp485GateWay_triggered();
+    void on_actionIspLocation_triggered();
+    void on_actionIspIotProgram_triggered();
     void on_actionStmIsp_triggered();
 
 private:

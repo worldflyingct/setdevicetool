@@ -18,37 +18,52 @@ int MainWindow::FreeOthersWidget(void *widget) {
     if (widget != ui->label) {
         ui->label->setVisible(false);
     }
-    if (ispiocontroller != NULL && ispiocontroller != widget) {
-        if (ispiocontroller->GetBtnStatus()) {
+    if (ispiocontroller != NULL) {
+        if (ispiocontroller == widget) {
             return -1;
+        }
+        if (ispiocontroller->GetBtnStatus()) {
+            return -2;
         }
         delete ispiocontroller;
         ispiocontroller = NULL;
     }
-    if (isp485 != NULL && isp485 != widget) {
-        if (isp485->GetBtnStatus()) {
+    if (isp485 != NULL) {
+        if (isp485 == widget) {
             return -1;
+        }
+        if (isp485->GetBtnStatus()) {
+            return -2;
         }
         delete isp485;
         isp485 = NULL;
     }
-    if (isplocation != NULL && isplocation != widget) {
-        if (isplocation->GetBtnStatus()) {
+    if (isplocation != NULL) {
+        if (isplocation == widget) {
             return -1;
+        }
+        if (isplocation->GetBtnStatus()) {
+            return -2;
         }
         delete isplocation;
         isplocation = NULL;
     }
-    if (ispiotprogram != NULL && ispiotprogram != widget) {
-        if (ispiotprogram->GetBtnStatus()) {
+    if (ispiotprogram != NULL) {
+        if (ispiotprogram == widget) {
             return -1;
+        }
+        if (ispiotprogram->GetBtnStatus()) {
+            return -2;
         }
         delete ispiotprogram;
         ispiotprogram = NULL;
     }
-    if (stmisp != NULL && stmisp != widget) {
-        if (stmisp->GetBtnStatus()) {
+    if (stmisp != NULL) {
+        if (stmisp == widget) {
             return -1;
+        }
+        if (stmisp->GetBtnStatus()) {
+            return -2;
         }
         delete stmisp;
         stmisp = NULL;
@@ -64,7 +79,7 @@ void MainWindow::on_actionAbout_triggered() {
     ui->label->setVisible(true);
 }
 
-void MainWindow::on_actionIoController_triggered() {
+void MainWindow::on_actionIspIoController_triggered() {
     if (FreeOthersWidget(ispiocontroller)) {
         return;
     }
@@ -77,7 +92,7 @@ void MainWindow::on_actionIoController_triggered() {
     ispiocontroller->show();
 }
 
-void MainWindow::on_action485GateWay_triggered() {
+void MainWindow::on_actionIsp485GateWay_triggered() {
     if (FreeOthersWidget(isp485)) {
         return;
     }
@@ -90,7 +105,7 @@ void MainWindow::on_action485GateWay_triggered() {
     isp485->show();
 }
 
-void MainWindow::on_actionLocation_triggered() {
+void MainWindow::on_actionIspLocation_triggered() {
     if (FreeOthersWidget(isplocation)) {
         return;
     }
@@ -103,7 +118,7 @@ void MainWindow::on_actionLocation_triggered() {
     isplocation->show();
 }
 
-void MainWindow::on_actionIspiotprogram_triggered() {
+void MainWindow::on_actionIspIotProgram_triggered() {
     if (FreeOthersWidget(ispiotprogram)) {
         return;
     }

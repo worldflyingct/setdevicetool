@@ -7,9 +7,6 @@
 #include <QtSerialPort/QSerialPortInfo>
 // 定时器相关头文件
 #include <QTimer>
-// cjson库
-#include "common/cjson.h"
-#include <QFileDialog>
 
 namespace Ui {
 class StmIsp;
@@ -35,11 +32,8 @@ private slots:
     void on_clearlog_clicked();
     void on_erasechip_clicked();
     void on_writeunprotect_clicked();
-
     void on_writeprotect_clicked();
-
     void on_readprotect_clicked();
-
     void on_readunprotect_clicked();
 
 private:
@@ -48,7 +42,6 @@ private:
     void GetComList();
     int OpenSerial(char *data, qint64 len);
     void CloseSerial();
-    void HandleSerialData(cJSON *json);
 
     QSerialPort serial;
     QTimer timer;

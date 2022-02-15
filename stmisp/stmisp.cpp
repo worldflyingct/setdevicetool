@@ -1,5 +1,6 @@
 #include "stmisp.h"
 #include "ui_stmisp.h"
+#include <QFileDialog>
 // 公共函数库
 #include "common/common.h"
 #include "common/hextobin.h"
@@ -704,7 +705,6 @@ void StmIsp::on_readchip_clicked() {
     }
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
-        ui->tips->appendPlainText("保存文件路径配置错误");
         return;
     }
     savefilepath = filepath;
