@@ -25,7 +25,7 @@ public:
 private slots:
     void on_refresh_clicked();
     void on_setmqtt_clicked();
-    void on_readmqtt_clicked();
+    void on_getmqtt_clicked();
     void ReadSerialData();
     void TimerOutEvent();
 

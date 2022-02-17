@@ -179,7 +179,7 @@
     <string>拥有者手机号</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="readmode">
+  <widget class="QPushButton" name="getmode">
    <property name="geometry">
     <rect>
      <x>260</x>

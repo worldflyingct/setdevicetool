@@ -152,12 +152,13 @@ void IspIotProgram::on_setmode_clicked() {
     btnStatus = 1;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
+        btnStatus = 0;
         return;
     }
     ui->tips->setText("数据发送成功");
 }
 
-void IspIotProgram::on_readmode_clicked() {
+void IspIotProgram::on_getmode_clicked() {
     if (btnStatus) {
         return;
     }
@@ -175,6 +176,7 @@ void IspIotProgram::on_readmode_clicked() {
     btnStatus = 2;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
+        btnStatus = 0;
         return;
     }
     ui->tips->setText("数据发送成功");

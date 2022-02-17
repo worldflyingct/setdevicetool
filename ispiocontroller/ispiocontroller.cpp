@@ -146,12 +146,13 @@ void IspIoController::on_setmqtt_clicked() {
     btnStatus = 1;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
+        btnStatus = 0;
         return;
     }
     ui->tips->setText("数据发送成功");
 }
 
-void IspIoController::on_readmqtt_clicked() {
+void IspIoController::on_getmqtt_clicked() {
     if (btnStatus) {
         return;
     }
@@ -169,6 +170,7 @@ void IspIoController::on_readmqtt_clicked() {
     btnStatus = 2;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
+        btnStatus = 0;
         return;
     }
     ui->tips->setText("数据发送成功");

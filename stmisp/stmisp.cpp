@@ -720,6 +720,7 @@ void StmIsp::on_readchip_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始读取操作");
@@ -729,6 +730,7 @@ void StmIsp::on_readchip_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -748,6 +750,7 @@ void StmIsp::on_readchipmsg_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始擦除操作");
@@ -757,6 +760,7 @@ void StmIsp::on_readchipmsg_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -810,6 +814,7 @@ void StmIsp::on_writechip_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始擦除操作");
@@ -819,6 +824,7 @@ void StmIsp::on_writechip_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -838,6 +844,7 @@ void StmIsp::on_erasechip_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始擦除操作");
@@ -847,6 +854,7 @@ void StmIsp::on_erasechip_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -870,6 +878,7 @@ void StmIsp::on_writeprotect_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始添加写保护操作");
@@ -879,6 +888,7 @@ void StmIsp::on_writeprotect_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -898,6 +908,7 @@ void StmIsp::on_writeunprotect_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始解除写保护操作");
@@ -907,6 +918,7 @@ void StmIsp::on_writeunprotect_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -926,6 +938,7 @@ void StmIsp::on_readprotect_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始添加读操作");
@@ -935,6 +948,7 @@ void StmIsp::on_readprotect_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");
@@ -954,6 +968,7 @@ void StmIsp::on_readunprotect_clicked() {
         buff[1] = ~buff[0];
         if (OpenSerial(buff, 2)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始解除读保护操作");
@@ -963,6 +978,7 @@ void StmIsp::on_readunprotect_clicked() {
         buff[0] = ISP_SYNC;
         if (OpenSerial(buff, 1)) {
             ui->tips->appendPlainText("串口打开失败");
+            btnStatus = BTN_STATUS_IDLE;
             return;
         }
         ui->tips->appendPlainText("开始同步串口");

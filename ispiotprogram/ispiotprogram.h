@@ -25,7 +25,7 @@ public:
 private slots:
     void on_refresh_clicked();
     void on_setmode_clicked();
-    void on_readmode_clicked();
+    void on_getmode_clicked();
     void ReadSerialData();
     void TimerOutEvent();
 

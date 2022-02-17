@@ -53,7 +53,7 @@
     <string>COM口</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="readmqtt">
+  <widget class="QPushButton" name="getmqtt">
    <property name="geometry">
     <rect>
      <x>250</x>
