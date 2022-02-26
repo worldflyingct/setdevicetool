@@ -22,19 +22,19 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSerialData();
+    void TimerOutEvent();
     void on_openfile_clicked();
     void on_readchip_clicked();
     void on_readchipmsg_clicked();
     void on_writechip_clicked();
-    void ReadSerialData();
-    void TimerOutEvent();
     void on_refresh_clicked();
-    void on_clearlog_clicked();
     void on_erasechip_clicked();
     void on_writeunprotect_clicked();
     void on_writeprotect_clicked();
     void on_readprotect_clicked();
     void on_readunprotect_clicked();
+    void on_clearlog_clicked();
 
 private:
     Ui::StmIsp *ui;
@@ -50,12 +50,12 @@ private:
     QString savefilepath;
     unsigned char serialReadBuff[1024];
     unsigned short bufflen = 0;
-    unsigned char issynced = 0;
     unsigned char bin[512*1024];
     unsigned int binlen;
     unsigned char chipstep = 0;
     unsigned char retrytime = 0;
     unsigned int addr = 0;
+    bool needcheck = 0;
 };
 
 #endif // STMISP_H

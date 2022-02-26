@@ -63,11 +63,35 @@ void StmIsp::GetComList () {
 }
 
 void StmIsp::on_refresh_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
+        return;
+    }
     GetComList();
 }
 
 void StmIsp::TimerOutEvent() {
-    ui->tips->appendPlainText("设备响应超时");
+    if (chipstep == ISP_SYNC) { // sync
+        retrytime++;
+        if (retrytime < 50) {
+            char buff[64];
+            buff[0] = 0x7f;
+            serial.write(buff, 1);
+            QTextCursor pos = ui->tips->textCursor();
+            pos.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+            pos.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
+            pos.removeSelectedText();
+            pos.deletePreviousChar();
+            sprintf(buff, "开始同步串口...%u", retrytime);
+            ui->tips->appendPlainText(buff);
+            return;
+        }
+        ui->tips->appendPlainText("串口同步失败");
+    } else {
+        ui->tips->appendPlainText("设备响应超时");
+    }
     CloseSerial();
     btnStatus = BTN_STATUS_IDLE;
 }
@@ -87,7 +111,7 @@ void StmIsp::ReadSerialData() {
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
             if (retrytime == 50) {
-                ui->tips->appendPlainText("波特率同步失败");
+                ui->tips->appendPlainText("串口同步失败");
                 CloseSerial();
                 btnStatus = BTN_STATUS_IDLE;
                 return;
@@ -99,16 +123,15 @@ void StmIsp::ReadSerialData() {
         } else {
             retrytime = 0;
             bufflen = 0;
-            issynced = 1;
             if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
-                ui->tips->appendPlainText("波特率同步成功，开始擦除操作");
+                ui->tips->appendPlainText("串口同步成功，开始擦除操作");
                 chipstep = ISP_ERASE;
                 char buff[2];
                 buff[0] = ISP_ERASE;
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ) {
-                ui->tips->appendPlainText("波特率同步成功，开始读取操作");
+                ui->tips->appendPlainText("串口同步成功，开始读取操作");
                 addr = 0;
                 chipstep = ISP_READ;
                 char buff[2];
@@ -116,7 +139,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_MSG) {
-                ui->tips->appendPlainText("波特率同步成功，开始读取芯片信息操作");
+                ui->tips->appendPlainText("串口同步成功，开始读取芯片信息操作");
                 addr = 0;
                 chipstep = ISP_GETINFO;
                 char buff[2];
@@ -124,7 +147,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_WRITE_PROTECT) {
-                ui->tips->appendPlainText("波特率同步成功，开始添加写保护");
+                ui->tips->appendPlainText("串口同步成功，开始添加写保护");
                 addr = 0;
                 chipstep = ISP_WRITEPROTECT;
                 char buff[2];
@@ -132,7 +155,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_WRITE_UNPROTECT) {
-                ui->tips->appendPlainText("波特率同步成功，开始解除写保护");
+                ui->tips->appendPlainText("串口同步成功，开始解除写保护");
                 addr = 0;
                 chipstep = ISP_WRITEUNPROTECT;
                 char buff[2];
@@ -140,7 +163,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_PROTECT) {
-                ui->tips->appendPlainText("波特率同步成功，开始添加读保护");
+                ui->tips->appendPlainText("串口同步成功，开始添加读保护");
                 addr = 0;
                 chipstep = ISP_READPROTECT;
                 char buff[2];
@@ -148,7 +171,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = ~buff[0];
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_UNPROTECT) {
-                ui->tips->appendPlainText("波特率同步成功，开始解除读保护");
+                ui->tips->appendPlainText("串口同步成功，开始解除读保护");
                 addr = 0;
                 chipstep = ISP_READUNPROTECT;
                 char buff[2];
@@ -182,14 +205,12 @@ void StmIsp::ReadSerialData() {
         } else {
             retrytime = 0;
             bufflen = 0;
+            chipstep = ISP_WRITEPROTECT_TWO;
             char checksum = 0;
-            sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
-            binlen *= 1024;
             unsigned char sectornum = binlen / 4096;
             if (binlen % 4096 != 0) {
                 sectornum++;
             }
-            chipstep = ISP_WRITEPROTECT_TWO;
             char buff[sectornum+2];
             buff[0] = sectornum - 1;
             checksum ^= buff[0];
@@ -219,7 +240,6 @@ void StmIsp::ReadSerialData() {
             retrytime = 0;
             bufflen = 0;
             ui->tips->appendPlainText("写保护完成，请重启单片机");
-            issynced = 0;
             CloseSerial();
             btnStatus = BTN_STATUS_IDLE;
             return;
@@ -249,9 +269,9 @@ void StmIsp::ReadSerialData() {
             bufflen = 0;
             char buff[64];
             switch (chipstep) {
-                case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护完成，请重启单片机");issynced = 0;break;
-                case ISP_READPROTECT    : sprintf(buff, "读保护完成，请重启单片机");issynced = 0;break;
-                case ISP_READUNPROTECT  : sprintf(buff, "解除读保护完成，请重启单片机");issynced = 0;break;
+                case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护完成，请重启单片机");break;
+                case ISP_READPROTECT    : sprintf(buff, "读保护完成，请重启单片机");break;
+                case ISP_READUNPROTECT  : sprintf(buff, "解除读保护完成，请重启单片机");break;
                 default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
             }
             ui->tips->appendPlainText(buff);
@@ -458,7 +478,7 @@ void StmIsp::ReadSerialData() {
                 buff[1] = 0xce;
                 serial.write(buff, 2);
             } else if (chipstep == ISP_WRITE_FOUR) {
-                if (ui->checkwrite->isChecked()) {
+                if (needcheck) {
                     char buff[64];
                     sprintf(buff, "全部写入完成，一共写入%uk数据，开始校验", addr / 1024);
                     ui->tips->appendPlainText(buff);
@@ -662,7 +682,7 @@ void StmIsp::ReadSerialData() {
         return;
     }
     timer.stop();
-    timer.start(5000);
+    timer.start(1000);
 }
 
 int StmIsp::OpenSerial(char *data, qint64 len) {
@@ -679,7 +699,7 @@ int StmIsp::OpenSerial(char *data, qint64 len) {
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
-    timer.start(5000);
+    timer.start(1000);
     serial.write(data, len);
     return 0;
 }
@@ -693,6 +713,12 @@ void StmIsp::CloseSerial() {
 }
 
 void StmIsp::on_openfile_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
+        return;
+    }
     QString filepath = QFileDialog::getOpenFileName(this, "选择镜像", NULL, "镜像文件(*.hex *.bin)");
     if (filepath.length()) {
         ui->filepath->setText(filepath);
@@ -701,76 +727,61 @@ void StmIsp::on_openfile_clicked() {
 
 void StmIsp::on_readchip_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
+    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
+    binlen *= 1024;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
         return;
     }
     savefilepath = filepath;
-    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
-    binlen *= 1024;
     btnStatus = BTN_STATUS_READ;
     retrytime = 0;
-    if (issynced) {
-        addr = 0;
-        chipstep = ISP_READ;
-        char buff[2];
-        buff[0] = ISP_READ;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始读取操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_readchipmsg_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
     btnStatus = BTN_STATUS_READ_MSG;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_GETINFO;
-        char buff[2];
-        buff[0] = ISP_GETINFO;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始擦除操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_writechip_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
+    needcheck = ui->checkwrite->isChecked();
     QString filepath = ui->filepath->text();
     int pos = filepath.lastIndexOf(".");
     QString suffix = filepath.mid(pos);
@@ -807,58 +818,37 @@ void StmIsp::on_writechip_clicked() {
 */
     btnStatus = BTN_STATUS_WRITE;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_ERASE;
-        char buff[2];
-        buff[0] = ISP_ERASE;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始擦除操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_erasechip_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
     btnStatus = BTN_STATUS_ERASE;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_ERASE;
-        char buff[2];
-        buff[0] = ISP_ERASE;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始擦除操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_clearlog_clicked() {
@@ -867,120 +857,86 @@ void StmIsp::on_clearlog_clicked() {
 
 void StmIsp::on_writeprotect_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
+    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
+    binlen *= 1024;
     btnStatus = BTN_STATUS_WRITE_PROTECT;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_WRITEPROTECT;
-        char buff[2];
-        buff[0] = ISP_WRITEPROTECT;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始添加写保护操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_writeunprotect_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
     btnStatus = BTN_STATUS_WRITE_UNPROTECT;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_WRITEUNPROTECT;
-        char buff[2];
-        buff[0] = ISP_WRITEUNPROTECT;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始解除写保护操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_readprotect_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
     btnStatus = BTN_STATUS_READ_PROTECT;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_READPROTECT;
-        char buff[2];
-        buff[0] = ISP_READPROTECT;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始添加读操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
 
 void StmIsp::on_readunprotect_clicked() {
     if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        btnStatus = BTN_STATUS_IDLE;
         return;
     }
     btnStatus = BTN_STATUS_READ_UNPROTECT;
     retrytime = 0;
-    if (issynced) {
-        chipstep = ISP_READUNPROTECT;
-        char buff[2];
-        buff[0] = ISP_READUNPROTECT;
-        buff[1] = ~buff[0];
-        if (OpenSerial(buff, 2)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始解除读保护操作");
-    } else {
-        chipstep = ISP_SYNC; // sync
-        char buff[1];
-        buff[0] = ISP_SYNC;
-        if (OpenSerial(buff, 1)) {
-            ui->tips->appendPlainText("串口打开失败");
-            btnStatus = BTN_STATUS_IDLE;
-            return;
-        }
-        ui->tips->appendPlainText("开始同步串口");
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial(buff, 1)) {
+        ui->tips->appendPlainText("串口打开失败");
+        btnStatus = BTN_STATUS_IDLE;
+        return;
     }
+    sprintf(buff, "开始同步串口...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
 }
