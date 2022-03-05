@@ -23,6 +23,7 @@ SOURCES += main.cpp\
     isplocation/isplocation.cpp \
     ispiotprogram/ispiotprogram.cpp \
     stmisp/stmisp.cpp \
+    uartassist/uartassist.cpp \
     common/hextobin.c
 
 HEADERS  += mainwindow/mainwindow.h \
@@ -33,6 +34,7 @@ HEADERS  += mainwindow/mainwindow.h \
     isplocation/isplocation.h \
     ispiotprogram/ispiotprogram.h \
     stmisp/stmisp.h \
+    uartassist/uartassist.h \
     common/hextobin.h
 
 FORMS    += mainwindow/mainwindow.ui \
@@ -40,7 +42,8 @@ FORMS    += mainwindow/mainwindow.ui \
     isp485/isp485.ui \
     isplocation/isplocation.ui \
     ispiotprogram/ispiotprogram.ui \
-    stmisp/stmisp.ui
+    stmisp/stmisp.ui \
+    uartassist/uartassist.ui
 
 DISTFILES +=
 

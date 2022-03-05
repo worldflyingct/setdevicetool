@@ -7,6 +7,7 @@
 #include "isplocation/isplocation.h"
 #include "ispiotprogram/ispiotprogram.h"
 #include "stmisp/stmisp.h"
+#include "uartassist/uartassist.h"
 
 namespace Ui {
 class MainWindow;
@@ -26,6 +27,7 @@ private slots:
     void on_actionIspLocation_triggered();
     void on_actionIspIotProgram_triggered();
     void on_actionStmIsp_triggered();
+    void on_actionUartAssist_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -33,8 +35,9 @@ private:
     IspIoController *ispiocontroller = NULL;
     Isp485 *isp485 = NULL;
     IspLocation *isplocation = NULL;
-    IspIotProgram * ispiotprogram = NULL;
-    StmIsp * stmisp = NULL;
+    IspIotProgram *ispiotprogram = NULL;
+    StmIsp *stmisp = NULL;
+    UartAssist *uartassist = NULL;
 };
 
 #endif // MAINWINDOW_H

@@ -45,7 +45,6 @@ void Isp485::TimerOutEvent() {
         ui->tips->setText("数据接收超时");
     }
     CloseSerial();
-    btnStatus = 0;
 }
 
 int Isp485::GetBtnStatus () {
@@ -67,7 +66,6 @@ void Isp485::ReadSerialData() {
                 ui->tips->setText("设置失败");
             }
             CloseSerial();
-            btnStatus = 0;
             return;
         }
     } else if (btnStatus == 2) {
@@ -81,7 +79,6 @@ void Isp485::ReadSerialData() {
                 HandleSerialData(json);
                 cJSON_Delete(json);
                 CloseSerial();
-                btnStatus = 0;
                 return;
             }
         }
@@ -132,6 +129,7 @@ void Isp485::CloseSerial() {
     disconnect(&serial, 0, 0, 0);
     serial.close();
     bufflen = 0;
+    btnStatus = 0;
 }
 
 void Isp485::on_setconfig_clicked() {
@@ -193,11 +191,11 @@ void Isp485::on_setconfig_clicked() {
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
-        btnStatus = 1;
         if (OpenSerial(buff, len)) {
             ui->tips->setText("串口打开失败");
             return;
         }
+        btnStatus = 1;
         ui->tips->setText("数据发送成功");
     } else if (radio == 1) { // tcp或是udp模式
         std::string curl = ui->url->text().toStdString();
@@ -247,12 +245,11 @@ void Isp485::on_setconfig_clicked() {
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
-        btnStatus = 1;
         if (OpenSerial(buff, len)) {
             ui->tips->setText("串口打开失败");
-            btnStatus = 0;
             return;
         }
+        btnStatus = 1;
         ui->tips->setText("数据发送成功");
     }
 }
@@ -272,12 +269,11 @@ void Isp485::on_getconfig_clicked() {
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
-    btnStatus = 2;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
-        btnStatus = 0;
         return;
     }
+    btnStatus = 2;
     ui->tips->setText("数据发送成功");
 }
 

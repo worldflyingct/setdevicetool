@@ -68,6 +68,16 @@ int MainWindow::FreeOthersWidget(void *widget) {
         delete stmisp;
         stmisp = NULL;
     }
+    if (uartassist != NULL) {
+        if (uartassist == widget) {
+            return -1;
+        }
+        if (uartassist->GetBtnStatus()) {
+            return -2;
+        }
+        delete uartassist;
+        uartassist = NULL;
+    }
     return 0;
 }
 
@@ -142,4 +152,17 @@ void MainWindow::on_actionStmIsp_triggered() {
     int h = stmisp->height();
     setFixedSize(w, h + 23);
     stmisp->show();
+}
+
+void MainWindow::on_actionUartAssist_triggered() {
+    if (FreeOthersWidget(uartassist)) {
+        return;
+    }
+    if (uartassist == NULL) {
+        uartassist = new UartAssist(ui->centralWidget);
+    }
+    int w = uartassist->width();
+    int h = uartassist->height();
+    setFixedSize(w, h + 23);
+    uartassist->show();
 }

@@ -36,7 +36,6 @@ void IspIotProgram::TimerOutEvent() {
         ui->tips->setText("数据接收超时");
     }
     CloseSerial();
-    btnStatus = 0;
 }
 
 int IspIotProgram::GetBtnStatus () {
@@ -58,7 +57,6 @@ void IspIotProgram::ReadSerialData() {
                 ui->tips->setText("设置失败");
             }
             CloseSerial();
-            btnStatus = 0;
             return;
         }
     } else if (btnStatus == 2) {
@@ -72,7 +70,6 @@ void IspIotProgram::ReadSerialData() {
                 HandleSerialData(json);
                 cJSON_Delete(json);
                 CloseSerial();
-                btnStatus = 0;
                 return;
             }
         }
@@ -106,6 +103,7 @@ void IspIotProgram::CloseSerial() {
     disconnect(&serial, 0, 0, 0);
     serial.close();
     bufflen = 0;
+    btnStatus = 0;
 }
 
 void IspIotProgram::on_setmode_clicked() {
@@ -149,12 +147,11 @@ void IspIotProgram::on_setmode_clicked() {
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
-    btnStatus = 1;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
-        btnStatus = 0;
         return;
     }
+    btnStatus = 1;
     ui->tips->setText("数据发送成功");
 }
 
@@ -173,12 +170,11 @@ void IspIotProgram::on_getmode_clicked() {
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
-    btnStatus = 2;
     if (OpenSerial(buff, len)) {
         ui->tips->setText("串口打开失败");
-        btnStatus = 0;
         return;
     }
+    btnStatus = 2;
     ui->tips->setText("数据发送成功");
 }
 
