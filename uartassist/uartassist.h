@@ -24,6 +24,7 @@ private slots:
     void on_send_clicked();
     void on_clearsend_clicked();
     void on_clearreceive_clicked();
+    void on_sendHex_clicked();
     void ReadSerialData();
 
 private:

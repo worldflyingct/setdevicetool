@@ -25,6 +25,7 @@ typedef enum {
     RES_HEX_NO_END      //hex文件没有结束符
 } RESULT_STATUS;
 
+uchar HexCharToBinChar(char c);
 // src为hex的二进制文件
 // slength为hex的二进制文件大小
 // dest为目标bin的缓存

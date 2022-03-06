@@ -2,6 +2,8 @@
 #include "ui_uartassist.h"
 #include <QDateTime>
 #include <QTextCodec>
+// 公共函数库
+#include "common/hextobin.h"
 
 UartAssist::UartAssist(QWidget *parent) :
     QWidget(parent),
@@ -40,6 +42,19 @@ void UartAssist::ReadSerialData() {
     QByteArray ba = serial.readAll();
     if (ui->receivenoshow->isChecked()) {
         return;
+    }
+    if (ui->receiveHex->isChecked()) {
+        uchar *s = (uchar*)ba.data();
+        int size = ba.size();
+        char dat[3*size];
+        for (int i = 0 ; i < size ; i++) {
+            uchar tmp = s[i] >> 4;
+            dat[3*i] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
+            tmp = s[i] & 0x0f;
+            dat[3*i+1] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
+            dat[3*i+2] = ' ';
+        }
+        ba = QByteArray(dat, 3*size);
     }
     QTextCodec *tc = QTextCodec::codecForName("UTF8");
     QString str = tc->toUnicode(ba);
@@ -153,15 +168,38 @@ void UartAssist::on_send_clicked() {
     }
     QString txt = ui->sendEdit->toPlainText();
     QByteArray ba = txt.toUtf8();
+    char *s = ba.data();
+    int len = ba.size();
+    char dat[len+2];
+    if (ui->sendHex->isChecked()) {
+        int n = 0;
+        for (int i = 1 ; i < len ; i+=3) {
+            if (i > 2 && s[i-2] != ' ') {
+                ui->receiveEdit->append("发送数据格式错误");
+                return;
+            }
+            uchar tmp1 = HexCharToBinChar(s[i-1]);
+            if (tmp1 == 0xff) {
+                ui->receiveEdit->append("发送数据格式错误");
+                return;
+            }
+            uchar tmp2 = HexCharToBinChar(s[i]);
+            if (tmp2 == 0xff) {
+                ui->receiveEdit->append("发送数据格式错误");
+                return;
+            }
+            dat[n++] = (tmp1<<4) + tmp2;
+        }
+        len = n;
+    } else {
+        memcpy(dat, s, len);
+    }
     if (ui->atnewline->isChecked()) {
-        int len = ba.size();
-        char dat[len+2];
-        memcpy(dat, ba.data(), len);
         dat[len++] = '\r';
         dat[len++] = '\n';
         serial.write(dat, len);
     } else {
-        serial.write(ba.data(), ba.size());
+        serial.write(dat, len);
     }
     if (!ui->islogmode->isChecked()) {
         return;
@@ -182,4 +220,46 @@ void UartAssist::on_clearsend_clicked() {
 
 void UartAssist::on_clearreceive_clicked() {
     ui->receiveEdit->clear();
+}
+
+void UartAssist::on_sendHex_clicked() {
+    QString txt = ui->sendEdit->toPlainText();
+    QByteArray ba = txt.toUtf8();
+    if (ui->sendHex->isChecked()) {
+        uchar *s = (uchar*)ba.data();
+        int size = ba.size();
+        char dat[3*size];
+        for (int i = 0 ; i < size ; i++) {
+            uchar tmp = s[i] >> 4;
+            dat[3*i] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
+            tmp = s[i] & 0x0f;
+            dat[3*i+1] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
+            dat[3*i+2] = ' ';
+        }
+        ba = QByteArray(dat, 3*size);
+    } else {
+        char *s = ba.data();
+        int len = ba.size();
+        char dat[len/3+1];
+        int n = 0;
+        for (int i = 1 ; i < len ; i+=3) {
+            if (i > 2 && s[i-2] != ' ') {
+                return;
+            }
+            uchar tmp1 = HexCharToBinChar(s[i-1]);
+            if (tmp1 == 0xff) {
+                return;
+            }
+            uchar tmp2 = HexCharToBinChar(s[i]);
+            if (tmp2 == 0xff) {
+                return;
+            }
+            dat[n++] = (tmp1<<4) + tmp2;
+        }
+        ba = QByteArray(dat, n);
+    }
+    QTextCodec *tc = QTextCodec::codecForName("UTF8");
+    QString str = tc->toUnicode(ba);
+    ui->sendEdit->clear();
+    ui->sendEdit->appendPlainText(str);
 }

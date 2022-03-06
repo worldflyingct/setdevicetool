@@ -15,7 +15,7 @@ input:
 output:
     单个字符转化为单个字符
 ********************************************************************************/
-static uchar HexCharToBinChar (char c) {
+uchar HexCharToBinChar (char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
     } else if (c >= 'a' && c <= 'z') {
