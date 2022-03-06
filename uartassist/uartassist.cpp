@@ -1,6 +1,7 @@
 #include "uartassist.h"
 #include "ui_uartassist.h"
 #include <QDateTime>
+#include <QTextCodec>
 
 UartAssist::UartAssist(QWidget *parent) :
     QWidget(parent),
@@ -36,21 +37,24 @@ int UartAssist::GetBtnStatus () {
 }
 
 void UartAssist::ReadSerialData() {
-    QByteArray arr = serial.readAll();
+    QByteArray ba = serial.readAll();
+    if (ui->receivenoshow->isChecked()) {
+        return;
+    }
+    QTextCodec *tc = QTextCodec::codecForName("UTF8");
+    QString str = tc->toUnicode(ba);
     if (ui->islogmode->isChecked()) {
         QDateTime current_date_time = QDateTime::currentDateTime();
-        QString txt = ui->sendEdit->toPlainText();
-        ui->receiveEdit->setAlignment(Qt::AlignLeft);
         ui->receiveEdit->setTextColor(Qt::blue);
         ui->receiveEdit->append(current_date_time.toString("[yyyy-MM-dd hh:mm:ss.zzz]"));
         ui->receiveEdit->setTextColor(Qt::black);
-        ui->receiveEdit->append(arr);
+        ui->receiveEdit->append(str);
         ui->receiveEdit->append("");
     } else if (ui->autonewline->isChecked()) {
-        ui->receiveEdit->append(arr);
+        ui->receiveEdit->append(str);
     } else {
         ui->receiveEdit->moveCursor(QTextCursor::End);
-        ui->receiveEdit->insertPlainText(arr);
+        ui->receiveEdit->insertPlainText(str);
     }
 }
 
@@ -114,8 +118,6 @@ void UartAssist::on_startclose_clicked() {
         serial.setStopBits(stopbit);
         serial.setFlowControl(flowcontrol);
         if (!serial.open(QIODevice::ReadWrite)) {
-            ui->receiveEdit->setAlignment(Qt::AlignLeft);
-            ui->receiveEdit->setTextColor(Qt::black);
             ui->receiveEdit->append("串口打开失败");
             ui->receiveEdit->append("");
             return;
@@ -145,22 +147,21 @@ void UartAssist::on_startclose_clicked() {
 
 void UartAssist::on_send_clicked() {
     if (ui->startclose->text() == "开始") {
-        ui->receiveEdit->setAlignment(Qt::AlignLeft);
-        ui->receiveEdit->setTextColor(Qt::black);
-        ui->receiveEdit->append("串口还没打开，请先打开串口");
+        ui->receiveEdit->append("串口未打开，请先打开串口");
         ui->receiveEdit->append("");
         return;
     }
     QString txt = ui->sendEdit->toPlainText();
+    QByteArray ba = txt.toUtf8();
     if (ui->atnewline->isChecked()) {
-        int len = txt.length();
+        int len = ba.size();
         char dat[len+2];
-        memcpy(dat, txt.toStdString().c_str(), len);
+        memcpy(dat, ba.data(), len);
         dat[len++] = '\r';
         dat[len++] = '\n';
         serial.write(dat, len);
     } else {
-        serial.write(txt.toStdString().c_str(), txt.length());
+        serial.write(ba.data(), ba.size());
     }
     if (!ui->islogmode->isChecked()) {
         return;
@@ -172,6 +173,7 @@ void UartAssist::on_send_clicked() {
     ui->receiveEdit->setTextColor(Qt::black);
     ui->receiveEdit->append(txt);
     ui->receiveEdit->append("");
+    ui->receiveEdit->setAlignment(Qt::AlignLeft);
 }
 
 void UartAssist::on_clearsend_clicked() {
