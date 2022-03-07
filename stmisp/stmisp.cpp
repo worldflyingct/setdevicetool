@@ -74,7 +74,7 @@ void StmIsp::on_refresh_clicked() {
 void StmIsp::TimerOutEvent() {
     if (chipstep == ISP_SYNC) { // sync
         retrytime++;
-        if (retrytime < 50) {
+        if (retrytime < 250) {
             char buff[64];
             buff[0] = 0x7f;
             serial.write(buff, 1);
@@ -655,7 +655,7 @@ void StmIsp::ReadSerialData() {
         return;
     }
     timer.stop();
-    timer.start(1000);
+    timer.start(10000);
 }
 
 int StmIsp::OpenSerial(char *data, qint64 len) {
