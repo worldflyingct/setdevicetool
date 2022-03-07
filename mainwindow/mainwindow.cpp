@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -79,6 +80,10 @@ int MainWindow::FreeOthersWidget(void *widget) {
         uartassist = NULL;
     }
     return 0;
+}
+
+void MainWindow::on_actionAboutQt_triggered() {
+    QMessageBox::aboutQt(NULL, "关于Qt");
 }
 
 void MainWindow::on_actionAbout_triggered() {
