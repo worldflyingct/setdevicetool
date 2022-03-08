@@ -672,7 +672,7 @@ int StmIsp::OpenSerial(char *data, qint64 len) {
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
-    timer.start(500); // ISP_SYNC命令超时
+    timer.start(800); // ISP_SYNC命令超时
     serial.write(data, len);
     return 0;
 }
