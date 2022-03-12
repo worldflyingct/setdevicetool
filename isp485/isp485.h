@@ -29,7 +29,8 @@ private slots:
     void on_getconfig_clicked();
     void ReadSerialData();
     void TimerOutEvent();
-    void ModeChanged();
+    void on_mqttradio_clicked();
+    void on_otherradio_clicked();
 
 private:
     Ui::Isp485 *ui;
@@ -45,8 +46,6 @@ private:
 
     unsigned char serialReadBuff[1024];
     unsigned short bufflen = 0;
-
-    QButtonGroup *groupRadio;
 };
 
 #endif // ISP485_H

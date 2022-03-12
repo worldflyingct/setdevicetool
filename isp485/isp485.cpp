@@ -7,19 +7,10 @@ Isp485::Isp485(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Isp485) {
     ui->setupUi(this);
-    groupRadio = new QButtonGroup(this);
-    groupRadio->addButton(ui->mqttradio, 0);
-    groupRadio->addButton(ui->otherradio, 1);
-    ui->mqttradio->setChecked(true);
-    connect(ui->mqttradio, SIGNAL(clicked(bool)), this, SLOT(ModeChanged()));
-    connect(ui->otherradio, SIGNAL(clicked(bool)), this, SLOT(ModeChanged()));
     GetComList();
 }
 
 Isp485::~Isp485() {
-    disconnect(ui->mqttradio, 0, 0, 0);
-    disconnect(ui->otherradio, 0, 0, 0);
-    delete groupRadio;
     delete ui;
 }
 
@@ -87,23 +78,6 @@ void Isp485::ReadSerialData() {
     timer.start(5000);
 }
 
-void Isp485::ModeChanged() {
-    switch(groupRadio->checkedId()) {
-        case 0:
-            ui->user->setEnabled(true);
-            ui->pass->setEnabled(true);
-            ui->sendtopic->setEnabled(true);
-            ui->receivetopic->setEnabled(true);
-            break;
-        case 1:
-            ui->user->setEnabled(false);
-            ui->pass->setEnabled(false);
-            ui->sendtopic->setEnabled(false);
-            ui->receivetopic->setEnabled(false);
-            break;
-    }
-}
-
 int Isp485::OpenSerial(char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
@@ -132,14 +106,27 @@ void Isp485::CloseSerial() {
     btnStatus = 0;
 }
 
+void Isp485::on_mqttradio_clicked() {
+    ui->user->setEnabled(true);
+    ui->pass->setEnabled(true);
+    ui->sendtopic->setEnabled(true);
+    ui->receivetopic->setEnabled(true);
+}
+
+void Isp485::on_otherradio_clicked() {
+    ui->user->setEnabled(false);
+    ui->pass->setEnabled(false);
+    ui->sendtopic->setEnabled(false);
+    ui->receivetopic->setEnabled(false);
+}
+
 void Isp485::on_setconfig_clicked() {
     if (btnStatus) {
         return;
     }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
-    int radio = groupRadio->checkedId();
-    if (radio == 0) { // mqtt模式
+    if (ui->mqttradio->isChecked()) { // mqtt模式
         std::string curl = ui->url->text().toStdString();
         if (curl.length() == 0) {
             ui->tips->setText("URL为空");
@@ -197,7 +184,7 @@ void Isp485::on_setconfig_clicked() {
         }
         btnStatus = 1;
         ui->tips->setText("数据发送成功");
-    } else if (radio == 1) { // tcp或是udp模式
+    } else if (ui->otherradio->isChecked()) { // tcp或是udp模式
         std::string curl = ui->url->text().toStdString();
         int len = curl.length();
         if (len == 0) {
@@ -282,7 +269,7 @@ void Isp485::HandleSerialData(cJSON *json) {
     if (mode) {
         if (mode->valueint == 0) { // mqtt
             ui->mqttradio->setChecked(true);
-            ModeChanged();
+            on_mqttradio_clicked();
             cJSON *url = cJSON_GetObjectItem(json, "Url");
             if (url) {
                 ui->url->setText(url->valuestring);
@@ -305,7 +292,7 @@ void Isp485::HandleSerialData(cJSON *json) {
             }
         } else { // tcp或udp
             ui->otherradio->setChecked(true);
-            ModeChanged();
+            on_otherradio_clicked();
             cJSON *host = cJSON_GetObjectItem(json, "Host");
             cJSON *port = cJSON_GetObjectItem(json, "Port");
             if (host && port) {
