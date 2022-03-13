@@ -8,6 +8,7 @@
 #include "ispiotprogram/ispiotprogram.h"
 #include "stmisp/stmisp.h"
 #include "uartassist/uartassist.h"
+#include "netassist/netassist.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,6 +30,7 @@ private slots:
     void on_actionIspIotProgram_triggered();
     void on_actionStmIsp_triggered();
     void on_actionUartAssist_triggered();
+    void on_actionNetAssist_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -39,6 +41,7 @@ private:
     IspIotProgram *ispiotprogram = NULL;
     StmIsp *stmisp = NULL;
     UartAssist *uartassist = NULL;
+    NetAssist *netassist = NULL;
 };
 
 #endif // MAINWINDOW_H

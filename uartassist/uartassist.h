@@ -29,9 +29,7 @@ private slots:
 
 private:
     Ui::UartAssist *ui;
-
     void GetComList();
-
     QSerialPort serial;
     int btnStatus = 0;
 };

@@ -2,7 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow (QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow) {
     ui->setupUi(this);
@@ -10,12 +10,12 @@ MainWindow::MainWindow(QWidget *parent) :
     setFixedSize(400, 300);
 }
 
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow () {
     FreeOthersWidget(NULL);
     delete ui;
 }
 
-int MainWindow::FreeOthersWidget(void *widget) {
+int MainWindow::FreeOthersWidget (void *widget) {
     if (widget != ui->label) {
         ui->label->setVisible(false);
     }
@@ -79,14 +79,24 @@ int MainWindow::FreeOthersWidget(void *widget) {
         delete uartassist;
         uartassist = NULL;
     }
+    if (netassist != NULL) {
+        if (netassist == widget) {
+            return -1;
+        }
+        if (netassist->GetBtnStatus()) {
+            return -2;
+        }
+        delete netassist;
+        netassist = NULL;
+    }
     return 0;
 }
 
-void MainWindow::on_actionAboutQt_triggered() {
+void MainWindow::on_actionAboutQt_triggered () {
     QMessageBox::aboutQt(NULL, "关于Qt");
 }
 
-void MainWindow::on_actionAbout_triggered() {
+void MainWindow::on_actionAbout_triggered () {
     if (FreeOthersWidget(ui->label)) {
         return;
     }
@@ -94,7 +104,7 @@ void MainWindow::on_actionAbout_triggered() {
     ui->label->setVisible(true);
 }
 
-void MainWindow::on_actionIspIoController_triggered() {
+void MainWindow::on_actionIspIoController_triggered () {
     if (FreeOthersWidget(ispiocontroller)) {
         return;
     }
@@ -107,7 +117,7 @@ void MainWindow::on_actionIspIoController_triggered() {
     ispiocontroller->show();
 }
 
-void MainWindow::on_actionIsp485GateWay_triggered() {
+void MainWindow::on_actionIsp485GateWay_triggered () {
     if (FreeOthersWidget(isp485)) {
         return;
     }
@@ -120,7 +130,7 @@ void MainWindow::on_actionIsp485GateWay_triggered() {
     isp485->show();
 }
 
-void MainWindow::on_actionIspLocation_triggered() {
+void MainWindow::on_actionIspLocation_triggered () {
     if (FreeOthersWidget(isplocation)) {
         return;
     }
@@ -133,7 +143,7 @@ void MainWindow::on_actionIspLocation_triggered() {
     isplocation->show();
 }
 
-void MainWindow::on_actionIspIotProgram_triggered() {
+void MainWindow::on_actionIspIotProgram_triggered () {
     if (FreeOthersWidget(ispiotprogram)) {
         return;
     }
@@ -146,7 +156,7 @@ void MainWindow::on_actionIspIotProgram_triggered() {
     ispiotprogram->show();
 }
 
-void MainWindow::on_actionStmIsp_triggered() {
+void MainWindow::on_actionStmIsp_triggered () {
     if (FreeOthersWidget(stmisp)) {
         return;
     }
@@ -159,7 +169,7 @@ void MainWindow::on_actionStmIsp_triggered() {
     stmisp->show();
 }
 
-void MainWindow::on_actionUartAssist_triggered() {
+void MainWindow::on_actionUartAssist_triggered () {
     if (FreeOthersWidget(uartassist)) {
         return;
     }
@@ -170,4 +180,17 @@ void MainWindow::on_actionUartAssist_triggered() {
     int h = uartassist->height();
     setFixedSize(w, h + 23);
     uartassist->show();
+}
+
+void MainWindow::on_actionNetAssist_triggered () {
+    if (FreeOthersWidget(netassist)) {
+        return;
+    }
+    if (netassist == NULL) {
+        netassist = new NetAssist(ui->centralWidget);
+    }
+    int w = netassist->width();
+    int h = netassist->height();
+    setFixedSize(w, h + 23);
+    netassist->show();
 }

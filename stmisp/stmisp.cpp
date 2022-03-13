@@ -40,29 +40,27 @@ https://blog.csdn.net/xld_19920728/article/details/85336107
 #define BTN_STATUS_WRITE_PROTECT    0x07
 #define BTN_STATUS_READ_PROTECT     0x08
 
-StmIsp::StmIsp(QWidget *parent) :
+StmIsp::StmIsp (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::StmIsp) {
     ui->setupUi(this);
     GetComList();
 }
 
-StmIsp::~StmIsp() {
+StmIsp::~StmIsp () {
     delete ui;
 }
 
 // 获取可用的串口号
 void StmIsp::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--) {
-        c->removeItem(a-1);
-    }
+    c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void StmIsp::on_refresh_clicked() {
+void StmIsp::on_refresh_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -71,7 +69,7 @@ void StmIsp::on_refresh_clicked() {
     GetComList();
 }
 
-void StmIsp::TimerOutEvent() {
+void StmIsp::TimerOutEvent () {
     if (chipstep == ISP_SYNC) { // sync
         retrytime++;
         if (retrytime < 250) {
@@ -98,7 +96,7 @@ int StmIsp::GetBtnStatus () {
     return btnStatus;
 }
 
-void StmIsp::ReadSerialData() {
+void StmIsp::ReadSerialData () {
     unsigned int i;
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -658,7 +656,7 @@ void StmIsp::ReadSerialData() {
     timer.start(10000); // 非ISP_SYNC命令超时
 }
 
-int StmIsp::OpenSerial(char *data, qint64 len) {
+int StmIsp::OpenSerial (char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -677,7 +675,7 @@ int StmIsp::OpenSerial(char *data, qint64 len) {
     return 0;
 }
 
-void StmIsp::CloseSerial() {
+void StmIsp::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -686,7 +684,7 @@ void StmIsp::CloseSerial() {
     btnStatus = BTN_STATUS_IDLE;
 }
 
-void StmIsp::on_openfile_clicked() {
+void StmIsp::on_openfile_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -698,7 +696,7 @@ void StmIsp::on_openfile_clicked() {
     }
 }
 
-void StmIsp::on_readchip_clicked() {
+void StmIsp::on_readchip_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -724,7 +722,7 @@ void StmIsp::on_readchip_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_readchipmsg_clicked() {
+void StmIsp::on_readchipmsg_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -743,7 +741,7 @@ void StmIsp::on_readchipmsg_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_writechip_clicked() {
+void StmIsp::on_writechip_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -797,7 +795,7 @@ void StmIsp::on_writechip_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_erasechip_clicked() {
+void StmIsp::on_erasechip_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -817,11 +815,11 @@ void StmIsp::on_erasechip_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_clearlog_clicked() {
+void StmIsp::on_clearlog_clicked () {
     ui->tips->clear();
 }
 
-void StmIsp::on_writeprotect_clicked() {
+void StmIsp::on_writeprotect_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -842,7 +840,7 @@ void StmIsp::on_writeprotect_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_writeunprotect_clicked() {
+void StmIsp::on_writeunprotect_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -861,7 +859,7 @@ void StmIsp::on_writeunprotect_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_readprotect_clicked() {
+void StmIsp::on_readprotect_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
@@ -880,7 +878,7 @@ void StmIsp::on_readprotect_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
-void StmIsp::on_readunprotect_clicked() {
+void StmIsp::on_readunprotect_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();

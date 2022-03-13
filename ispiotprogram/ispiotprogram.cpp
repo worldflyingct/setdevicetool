@@ -3,33 +3,31 @@
 // 公共函数库
 #include "common/common.h"
 
-IspIotProgram::IspIotProgram(QWidget *parent) :
+IspIotProgram::IspIotProgram (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::IspIotProgram) {
     ui->setupUi(this);
     GetComList();
 }
 
-IspIotProgram::~IspIotProgram() {
+IspIotProgram::~IspIotProgram () {
     delete ui;
 }
 
 // 获取可用的串口号
 void IspIotProgram::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--) {
-        c->removeItem(a-1);
-    }
+    c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void IspIotProgram::on_refresh_clicked() {
+void IspIotProgram::on_refresh_clicked () {
     GetComList();
 }
 
-void IspIotProgram::TimerOutEvent() {
+void IspIotProgram::TimerOutEvent () {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
@@ -42,7 +40,7 @@ int IspIotProgram::GetBtnStatus () {
     return btnStatus;
 }
 
-void IspIotProgram::ReadSerialData() {
+void IspIotProgram::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -78,7 +76,7 @@ void IspIotProgram::ReadSerialData() {
     timer.start(5000);
 }
 
-int IspIotProgram::OpenSerial(char *data, qint64 len) {
+int IspIotProgram::OpenSerial (char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -97,7 +95,7 @@ int IspIotProgram::OpenSerial(char *data, qint64 len) {
     return 0;
 }
 
-void IspIotProgram::CloseSerial() {
+void IspIotProgram::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -106,7 +104,7 @@ void IspIotProgram::CloseSerial() {
     btnStatus = 0;
 }
 
-void IspIotProgram::on_setmode_clicked() {
+void IspIotProgram::on_setmode_clicked () {
     if (btnStatus) {
         return;
     }
@@ -155,7 +153,7 @@ void IspIotProgram::on_setmode_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void IspIotProgram::on_getmode_clicked() {
+void IspIotProgram::on_getmode_clicked () {
     if (btnStatus) {
         return;
     }
@@ -178,7 +176,7 @@ void IspIotProgram::on_getmode_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void IspIotProgram::HandleSerialData(cJSON *json) {
+void IspIotProgram::HandleSerialData (cJSON *json) {
     cJSON *mqtturl = cJSON_GetObjectItem(json, "Url");
     if (mqtturl) {
         ui->mqtturl->setText(mqtturl->valuestring);

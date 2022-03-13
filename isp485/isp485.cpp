@@ -3,33 +3,31 @@
 // 公共函数库
 #include "common/common.h"
 
-Isp485::Isp485(QWidget *parent) :
+Isp485::Isp485 (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Isp485) {
     ui->setupUi(this);
     GetComList();
 }
 
-Isp485::~Isp485() {
+Isp485::~Isp485 () {
     delete ui;
 }
 
 // 获取可用的串口号
 void Isp485::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--) {
-        c->removeItem(a-1);
-    }
+    c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void Isp485::on_refresh_clicked() {
+void Isp485::on_refresh_clicked () {
     GetComList();
 }
 
-void Isp485::TimerOutEvent() {
+void Isp485::TimerOutEvent () {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
@@ -42,7 +40,7 @@ int Isp485::GetBtnStatus () {
     return btnStatus;
 }
 
-void Isp485::ReadSerialData() {
+void Isp485::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -78,7 +76,7 @@ void Isp485::ReadSerialData() {
     timer.start(5000);
 }
 
-int Isp485::OpenSerial(char *data, qint64 len) {
+int Isp485::OpenSerial (char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -97,7 +95,7 @@ int Isp485::OpenSerial(char *data, qint64 len) {
     return 0;
 }
 
-void Isp485::CloseSerial() {
+void Isp485::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -106,21 +104,21 @@ void Isp485::CloseSerial() {
     btnStatus = 0;
 }
 
-void Isp485::on_mqttradio_clicked() {
+void Isp485::on_mqttradio_clicked () {
     ui->user->setEnabled(true);
     ui->pass->setEnabled(true);
     ui->sendtopic->setEnabled(true);
     ui->receivetopic->setEnabled(true);
 }
 
-void Isp485::on_otherradio_clicked() {
+void Isp485::on_otherradio_clicked () {
     ui->user->setEnabled(false);
     ui->pass->setEnabled(false);
     ui->sendtopic->setEnabled(false);
     ui->receivetopic->setEnabled(false);
 }
 
-void Isp485::on_setconfig_clicked() {
+void Isp485::on_setconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -241,7 +239,7 @@ void Isp485::on_setconfig_clicked() {
     }
 }
 
-void Isp485::on_getconfig_clicked() {
+void Isp485::on_getconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -264,7 +262,7 @@ void Isp485::on_getconfig_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void Isp485::HandleSerialData(cJSON *json) {
+void Isp485::HandleSerialData (cJSON *json) {
     cJSON *mode = cJSON_GetObjectItem(json, "Mode");
     if (mode) {
         if (mode->valueint == 0) { // mqtt

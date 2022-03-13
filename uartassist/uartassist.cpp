@@ -5,29 +5,27 @@
 // 公共函数库
 #include "common/hextobin.h"
 
-UartAssist::UartAssist(QWidget *parent) :
+UartAssist::UartAssist (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::UartAssist) {
     ui->setupUi(this);
     GetComList();
 }
 
-UartAssist::~UartAssist() {    
+UartAssist::~UartAssist () {
     delete ui;
 }
 
 // 获取可用的串口号
 void UartAssist::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--) {
-        c->removeItem(a-1);
-    }
+    c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void UartAssist::on_refresh_clicked() {
+void UartAssist::on_refresh_clicked () {
     if (ui->startclose->text() == "停止") {
         return;
     }
@@ -38,7 +36,7 @@ int UartAssist::GetBtnStatus () {
     return btnStatus;
 }
 
-void UartAssist::ReadSerialData() {
+void UartAssist::ReadSerialData () {
     QByteArray ba = serial.readAll();
     if (ui->receivenoshow->isChecked()) {
         return;
@@ -73,8 +71,8 @@ void UartAssist::ReadSerialData() {
     }
 }
 
-void UartAssist::on_startclose_clicked() {
-    if (ui->startclose->text() == "开始") {
+void UartAssist::on_startclose_clicked () {
+    if (btnStatus == 0) {
         char comname[12];
         QSerialPort::BaudRate baudrate;
         QSerialPort::Parity parity;
@@ -146,7 +144,7 @@ void UartAssist::on_startclose_clicked() {
         ui->databit->setEnabled(false);
         ui->stopbit->setEnabled(false);
         ui->flowcontrol->setEnabled(false);
-    } else if (ui->startclose->text() == "停止") {
+    } else if (btnStatus == 1) {
         disconnect(&serial, 0, 0, 0);
         serial.close();
         ui->startclose->setText("开始");
@@ -160,8 +158,8 @@ void UartAssist::on_startclose_clicked() {
     }
 }
 
-void UartAssist::on_send_clicked() {
-    if (ui->startclose->text() == "开始") {
+void UartAssist::on_send_clicked () {
+    if (btnStatus == 0) {
         ui->receiveEdit->append("串口未打开，请先打开串口");
         ui->receiveEdit->append("");
         return;
@@ -197,10 +195,8 @@ void UartAssist::on_send_clicked() {
     if (ui->atnewline->isChecked()) {
         dat[len++] = '\r';
         dat[len++] = '\n';
-        serial.write(dat, len);
-    } else {
-        serial.write(dat, len);
     }
+    serial.write(dat, len);
     if (!ui->islogmode->isChecked()) {
         return;
     }
@@ -214,15 +210,15 @@ void UartAssist::on_send_clicked() {
     ui->receiveEdit->setAlignment(Qt::AlignLeft);
 }
 
-void UartAssist::on_clearsend_clicked() {
+void UartAssist::on_clearsend_clicked () {
     ui->sendEdit->clear();
 }
 
-void UartAssist::on_clearreceive_clicked() {
+void UartAssist::on_clearreceive_clicked () {
     ui->receiveEdit->clear();
 }
 
-void UartAssist::on_sendHex_clicked() {
+void UartAssist::on_sendHex_clicked () {
     QString txt = ui->sendEdit->toPlainText();
     QByteArray ba = txt.toUtf8();
     if (ui->sendHex->isChecked()) {

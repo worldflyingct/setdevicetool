@@ -3,33 +3,31 @@
 // 公共函数库
 #include "common/common.h"
 
-IspLocation::IspLocation(QWidget *parent) :
+IspLocation::IspLocation (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::IspLocation) {
     ui->setupUi(this);
     GetComList();
 }
 
-IspLocation::~IspLocation() {
+IspLocation::~IspLocation () {
     delete ui;
 }
 
 // 获取可用的串口号
 void IspLocation::GetComList () {
     QComboBox *c = ui->com;
-    for (int a = c->count() ; a > 0 ; a--) {
-        c->removeItem(a-1);
-    }
+    c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
         c->addItem(info.portName() + " " + info.description());
     }
 }
 
-void IspLocation::on_refresh_clicked() {
+void IspLocation::on_refresh_clicked () {
     GetComList();
 }
 
-void IspLocation::TimerOutEvent() {
+void IspLocation::TimerOutEvent () {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
@@ -42,7 +40,7 @@ int IspLocation::GetBtnStatus () {
     return btnStatus;
 }
 
-void IspLocation::ReadSerialData() {
+void IspLocation::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -78,7 +76,7 @@ void IspLocation::ReadSerialData() {
     timer.start(5000);
 }
 
-int IspLocation::OpenSerial(char *data, qint64 len) {
+int IspLocation::OpenSerial (char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -97,7 +95,7 @@ int IspLocation::OpenSerial(char *data, qint64 len) {
     return 0;
 }
 
-void IspLocation::CloseSerial() {
+void IspLocation::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -106,7 +104,7 @@ void IspLocation::CloseSerial() {
     btnStatus = 0;
 }
 
-void IspLocation::on_setconfig_clicked() {
+void IspLocation::on_setconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -171,7 +169,7 @@ void IspLocation::on_setconfig_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::on_getconfig_clicked() {
+void IspLocation::on_getconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -194,7 +192,7 @@ void IspLocation::on_getconfig_clicked() {
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::HandleSerialData(cJSON *json) {
+void IspLocation::HandleSerialData (cJSON *json) {
     cJSON *mode = cJSON_GetObjectItem(json, "Mode");
     cJSON *host = cJSON_GetObjectItem(json, "Host");
     cJSON *port = cJSON_GetObjectItem(json, "Port");
