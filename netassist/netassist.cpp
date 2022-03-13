@@ -33,7 +33,7 @@ void NetAssist::ReadSocketData () {
         ba = tc->readAll();
         srcAddress = tc->peerAddress();
         srcPort = tc->peerPort();
-    } else if (prot == "UDP") {
+    } else { // prot == "UDP"
         int size = 0;
         while(udpSocket.hasPendingDatagrams()) {
             int lastsize = size;
@@ -130,7 +130,7 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 ui->receiveEdit->append("");
                 return;
             }
-        } else if (prot == "UDP") {
+        } else { // prot == "UDP"
             if (!udpSocket.open(QIODevice::ReadWrite)) {
                 ui->receiveEdit->append("打开套接字失败");
                 ui->receiveEdit->append("");
@@ -182,7 +182,7 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 ui->clientlist->clear();
                 ui->clientlist->setEnabled(false);
             }
-        } else if (prot == "UDP") {
+        } else { // prot == "UDP"
             disconnect(&udpSocket, 0, 0, 0);
             udpSocket.close();
             btnStatus = 0;
@@ -202,7 +202,7 @@ void NetAssist::on_protocol_activated (const QString &prot) {
         ui->remoteaddr->setEnabled(false);
         ui->remoteport->setEnabled(false);
         ui->localport->setEnabled(true);
-    } else if (prot == "UDP") {
+    } else { // prot == "UDP"
         ui->remoteaddr->setEnabled(true);
         ui->remoteport->setEnabled(true);
         ui->localport->setEnabled(true);
@@ -273,7 +273,7 @@ void NetAssist::on_send_clicked () {
         tc->write(dat, len);
         dstAddress = tc->peerAddress();
         dstPort = tc->peerPort();
-    } else if (prot == "UDP") {
+    } else { // prot == "UDP"
         QString remoteaddr = ui->remoteaddr->text();
         if (remoteaddr.size() == 0) {
             ui->receiveEdit->append("远程地址为空");
