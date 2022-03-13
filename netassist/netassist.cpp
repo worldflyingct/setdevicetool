@@ -96,7 +96,6 @@ void NetAssist::AcceptNewConnect () {
 
 void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
     if (state == 1) {
-        ui->protocol->setEnabled(false);
         QString prot = ui->protocol->currentText();
         if (prot == "TCP Client") {
             QString remoteaddr = ui->remoteaddr->text();
@@ -106,30 +105,30 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 return;
             }
             tcpClient.connectToHost(remoteaddr, ui->remoteport->value());
-            if (tcpClient.waitForConnected(3000)) {
-                ui->remoteaddr->setEnabled(false);
-                ui->remoteport->setEnabled(false);
-                ui->startclose->setText("停止");
-                btnStatus = 1;
-                connect(&tcpClient, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
-                connect(&tcpClient, SIGNAL(disconnected()),this,SLOT(DisconnectSocket()));
-            } else {
+            if (!tcpClient.waitForConnected(3000)) {
                 ui->receiveEdit->append("连接失败");
                 ui->receiveEdit->append("");
                 return;
             }
+            ui->protocol->setEnabled(false);
+            ui->remoteaddr->setEnabled(false);
+            ui->remoteport->setEnabled(false);
+            ui->startclose->setText("停止");
+            btnStatus = 1;
+            connect(&tcpClient, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
+            connect(&tcpClient, SIGNAL(disconnected()),this,SLOT(DisconnectSocket()));
         } else if (prot == "TCP Server") {
-            if (tcpServer.listen(QHostAddress::Any, ui->localport->value())) {
-                ui->localport->setEnabled(false);
-                ui->startclose->setText("停止");
-                ui->clientlist->setEnabled(true);
-                btnStatus = 1;
-                connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(AcceptNewConnect()));
-            } else {
+            if (!tcpServer.listen(QHostAddress::Any, ui->localport->value())) {
                 ui->receiveEdit->append("启动失败");
                 ui->receiveEdit->append("");
                 return;
             }
+            ui->protocol->setEnabled(false);
+            ui->localport->setEnabled(false);
+            ui->startclose->setText("停止");
+            ui->clientlist->setEnabled(true);
+            btnStatus = 1;
+            connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(AcceptNewConnect()));
         } else { // prot == "UDP"
             if (!udpSocket.open(QIODevice::ReadWrite)) {
                 ui->receiveEdit->append("打开套接字失败");
@@ -137,15 +136,15 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 return;
             }
             if (udpSocket.bind(QHostAddress::Any, ui->localport->value())) {
-                ui->localport->setEnabled(false);
-                ui->startclose->setText("停止");
-                btnStatus = 1;
-                connect(&udpSocket, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
-            } else {
                 ui->receiveEdit->append("绑定失败");
                 ui->receiveEdit->append("");
                 return;
             }
+            ui->protocol->setEnabled(false);
+            ui->localport->setEnabled(false);
+            ui->startclose->setText("停止");
+            btnStatus = 1;
+            connect(&udpSocket, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
         }
     } else {
         QString prot = ui->protocol->currentText();
