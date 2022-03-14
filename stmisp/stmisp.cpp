@@ -73,8 +73,9 @@ void StmIsp::TimerOutEvent () {
     if (chipstep == ISP_SYNC) { // sync
         retrytime++;
         if (retrytime < 250) {
+            bufflen = 0;
             char buff[64];
-            buff[0] = 0x7f;
+            buff[0] = ISP_SYNC;
             serial.write(buff, 1);
             QTextCursor pos = ui->tips->textCursor();
             pos.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
@@ -105,16 +106,8 @@ void StmIsp::ReadSerialData () {
     bufflen += len;
     if (chipstep == ISP_SYNC) { // sync
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
-            retrytime++;
-            if (retrytime == 50) {
-                ui->tips->appendPlainText("串口同步失败");
-                CloseSerial();
-                return;
-            }
             bufflen = 0;
-            char buff[1];
-            buff[0] = ISP_SYNC;
-            serial.write(buff, 1);
+            return;
         } else {
             retrytime = 0;
             bufflen = 0;
@@ -184,8 +177,8 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_WRITEPROTECT) {
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
-                ui->tips->appendPlainText("擦除初始化失败");
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("写保护失败");
                 CloseSerial();
                 return;
             }
@@ -217,7 +210,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_WRITEPROTECT_TWO) {
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("写保护失败");
                 CloseSerial();
                 return;
@@ -239,7 +232,7 @@ void StmIsp::ReadSerialData () {
         if (serialReadBuff[0] != 0x79 || (bufflen == 2 && serialReadBuff[1] != 0x79)) {
             retrytime++;
             char buff[64];
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 switch (chipstep) {
                     case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护失败");break;
                     case ISP_READPROTECT    : sprintf(buff, "读保护失败");break;
@@ -271,8 +264,8 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_GETINFO) { // get infomation
         if (serialReadBuff[0] != 0x79 || (bufflen == 5 && serialReadBuff[4] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
-                ui->tips->appendPlainText("擦除初始化失败");
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("获取芯片信息失败");
                 CloseSerial();
                 return;
             }
@@ -296,8 +289,8 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_GETINFO_TWO) { // get infomation two
         if (serialReadBuff[0] != 0x79 || (bufflen >= 2 && bufflen == serialReadBuff[1]+4 && serialReadBuff[bufflen-1] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
-                ui->tips->appendPlainText("擦除初始化失败");
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("获取芯片信息失败");
                 CloseSerial();
                 return;
             }
@@ -323,7 +316,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_ERASE || chipstep == ISP_ERASE_TWO) { // erase
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("擦除初始化失败");
                 CloseSerial();
                 return;
@@ -387,7 +380,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_WRITE || chipstep == ISP_WRITE_TWO || chipstep == ISP_WRITE_THREE || chipstep == ISP_WRITE_FOUR) { // write
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("写入失败");
                 CloseSerial();
                 return;
@@ -488,7 +481,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_READ || chipstep == ISP_READ_TWO) { // read
         if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
                 CloseSerial();
                 return;
@@ -537,7 +530,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_READ_THREE) { // read
         if (serialReadBuff[0] != 0x79) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
                 CloseSerial();
                 return;
@@ -596,7 +589,7 @@ void StmIsp::ReadSerialData () {
     } else if (chipstep == ISP_READ_FOUR) { // read
         if (serialReadBuff[0] != 0x79) {
             retrytime++;
-            if (retrytime == 50) {
+            if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
                 CloseSerial();
                 return;
