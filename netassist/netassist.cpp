@@ -135,7 +135,8 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 ui->receiveEdit->append("");
                 return;
             }
-            if (udpSocket.bind(QHostAddress::Any, ui->localport->value())) {
+            if (!udpSocket.bind(QHostAddress::Any, ui->localport->value())) {
+                udpSocket.close();
                 ui->receiveEdit->append("绑定失败");
                 ui->receiveEdit->append("");
                 return;
