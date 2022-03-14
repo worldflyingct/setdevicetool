@@ -88,6 +88,7 @@ int IspLocation::OpenSerial (char *data, qint64 len) {
     if (!serial.open(QIODevice::ReadWrite)) {
         return -1;
     }
+    serial.clear();
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
     timer.start(5000);

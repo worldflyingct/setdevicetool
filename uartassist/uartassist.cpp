@@ -135,6 +135,7 @@ void UartAssist::on_startclose_clicked () {
             ui->receiveEdit->append("");
             return;
         }
+        serial.clear();
         connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
         ui->startclose->setText("停止");
         btnStatus = 1;
