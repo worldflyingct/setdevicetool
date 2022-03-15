@@ -73,7 +73,6 @@ void StmIsp::TimerOutEvent () {
     if (chipstep == ISP_SYNC) { // sync
         retrytime++;
         if (retrytime < 250) {
-            bufflen = 0;
             char buff[64];
             buff[0] = ISP_SYNC;
             serial.write(buff, 1);
@@ -105,7 +104,7 @@ void StmIsp::ReadSerialData () {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     if (chipstep == ISP_SYNC) { // sync
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             bufflen = 0;
             return;
         } else {
@@ -175,7 +174,7 @@ void StmIsp::ReadSerialData () {
             }
         }
     } else if (chipstep == ISP_WRITEPROTECT) {
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("写保护失败");
@@ -208,7 +207,7 @@ void StmIsp::ReadSerialData () {
             serial.write(buff, sectornum+2);
         }
     } else if (chipstep == ISP_WRITEPROTECT_TWO) {
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("写保护失败");
@@ -247,7 +246,7 @@ void StmIsp::ReadSerialData () {
             buff[0] = chipstep;
             buff[1] = ~buff[0];
             serial.write(buff, 2);
-        } else if (bufflen == 2 && serialReadBuff[1] == 0x79) {
+        } else if (bufflen == 2) {
             retrytime = 0;
             bufflen = 0;
             char buff[64];
@@ -287,7 +286,7 @@ void StmIsp::ReadSerialData () {
             serial.write(buff, 2);
         }
     } else if (chipstep == ISP_GETINFO_TWO) { // get infomation two
-        if (serialReadBuff[0] != 0x79 || (bufflen >= 2 && bufflen == serialReadBuff[1]+4 && serialReadBuff[bufflen-1] != 0x79)) {
+        if (serialReadBuff[0] != 0x79 || (bufflen == (unsigned short)serialReadBuff[1]+4 && serialReadBuff[bufflen-1] != 0x79)) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("获取芯片信息失败");
@@ -300,7 +299,7 @@ void StmIsp::ReadSerialData () {
             buff[0] = ISP_GETINFO_TWO;
             buff[1] = ~buff[0];
             serial.write(buff, 2);
-        } else if (bufflen >= 2 && bufflen == serialReadBuff[1]+4) {
+        } else if (bufflen == (unsigned short)serialReadBuff[1]+4) {
             retrytime = 0;
             bufflen = 0;
             char buff[64];
@@ -314,7 +313,7 @@ void StmIsp::ReadSerialData () {
             return;
         }
     } else if (chipstep == ISP_ERASE || chipstep == ISP_ERASE_TWO) { // erase
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("擦除初始化失败");
@@ -378,7 +377,7 @@ void StmIsp::ReadSerialData () {
             }
         }
     } else if (chipstep == ISP_WRITE || chipstep == ISP_WRITE_TWO || chipstep == ISP_WRITE_THREE || chipstep == ISP_WRITE_FOUR) { // write
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("写入失败");
@@ -479,7 +478,7 @@ void StmIsp::ReadSerialData () {
             }
         }
     } else if (chipstep == ISP_READ || chipstep == ISP_READ_TWO) { // read
-        if (bufflen != 1 || (bufflen == 1 && serialReadBuff[0] != 0x79)) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
@@ -638,7 +637,7 @@ void StmIsp::ReadSerialData () {
             CloseSerial();
             return;
         }
-    } else if (chipstep != ISP_READ_THREE && chipstep != ISP_READ_FOUR){
+    } else {
         char buff[64];
         sprintf(buff, "chipstep:0x%02x, bufflen:%d, ack:0x%02x", chipstep, bufflen, serialReadBuff[0]);
         ui->tips->appendPlainText(buff);
