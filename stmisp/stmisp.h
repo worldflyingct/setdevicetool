@@ -23,6 +23,7 @@ public:
 
 private slots:
     void ReadSerialData();
+    void SerialErrorEvent();
     void TimerOutEvent();
     void on_openfile_clicked();
     void on_readchip_clicked();

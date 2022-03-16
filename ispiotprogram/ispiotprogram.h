@@ -23,11 +23,12 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSerialData();
+    void SerialErrorEvent();
+    void TimerOutEvent();
     void on_refresh_clicked();
     void on_setmode_clicked();
     void on_getmode_clicked();
-    void ReadSerialData();
-    void TimerOutEvent();
 
 private:
     Ui::IspIotProgram *ui;

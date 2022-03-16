@@ -24,11 +24,12 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSerialData();
+    void SerialErrorEvent();
+    void TimerOutEvent();
     void on_refresh_clicked();
     void on_setconfig_clicked();
     void on_getconfig_clicked();
-    void ReadSerialData();
-    void TimerOutEvent();
     void on_mqttradio_clicked();
     void on_otherradio_clicked();
 

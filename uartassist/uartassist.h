@@ -19,13 +19,14 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSerialData();
+    void SerialErrorEvent();
     void on_refresh_clicked();
     void on_startclose_clicked();
     void on_send_clicked();
     void on_clearsend_clicked();
     void on_clearreceive_clicked();
     void on_sendHex_clicked();
-    void ReadSerialData();
 
 private:
     Ui::UartAssist *ui;

@@ -36,6 +36,11 @@ void IspIotProgram::TimerOutEvent () {
     CloseSerial();
 }
 
+void IspIotProgram::SerialErrorEvent () {
+    ui->tips->setText("串口错误");
+    CloseSerial();
+}
+
 int IspIotProgram::GetBtnStatus () {
     return btnStatus;
 }
@@ -91,6 +96,7 @@ int IspIotProgram::OpenSerial (char *data, qint64 len) {
     serial.clear();
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
+    connect(&serial, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(SerialErrorEvent()));
     timer.start(5000);
     serial.write(data, len);
     return 0;

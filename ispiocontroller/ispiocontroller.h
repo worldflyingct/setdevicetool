@@ -23,11 +23,12 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSerialData();
+    void SerialErrorEvent();
+    void TimerOutEvent();
     void on_refresh_clicked();
     void on_setmqtt_clicked();
     void on_getmqtt_clicked();
-    void ReadSerialData();
-    void TimerOutEvent();
 
 private:
     Ui::IspIoController *ui;

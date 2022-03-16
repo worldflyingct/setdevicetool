@@ -92,6 +92,12 @@ void StmIsp::TimerOutEvent () {
     CloseSerial();
 }
 
+void StmIsp::SerialErrorEvent () {
+    ui->tips->appendPlainText("串口错误");
+    ui->tips->appendPlainText("");
+    CloseSerial();
+}
+
 int StmIsp::GetBtnStatus () {
     return btnStatus;
 }
@@ -663,6 +669,7 @@ int StmIsp::OpenSerial (char *data, qint64 len) {
     serial.clear();
     connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
     connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
+    connect(&serial, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(SerialErrorEvent()));
     timer.start(800); // ISP_SYNC命令超时
     serial.write(data, len);
     return 0;

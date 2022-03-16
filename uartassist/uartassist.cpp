@@ -32,6 +32,12 @@ void UartAssist::on_refresh_clicked () {
     GetComList();
 }
 
+void UartAssist::SerialErrorEvent () {
+    ui->receiveEdit->append("串口错误");
+    ui->receiveEdit->append("");
+    on_startclose_clicked();
+}
+
 int UartAssist::GetBtnStatus () {
     return btnStatus;
 }
@@ -137,6 +143,7 @@ void UartAssist::on_startclose_clicked () {
         }
         serial.clear();
         connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
+        connect(&serial, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(SerialErrorEvent()));
         ui->startclose->setText("停止");
         btnStatus = 1;
         ui->com->setEnabled(false);

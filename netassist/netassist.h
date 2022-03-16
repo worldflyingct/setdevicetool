@@ -20,12 +20,12 @@ public:
     int GetBtnStatus();
 
 private slots:
-    void on_protocol_activated(const QString &prot);
-    void on_startclose_clicked();
     void ReadSocketData();
     void DisconnectSocket();
     void AcceptNewConnect();
     void on_send_clicked();
+    void on_protocol_activated(const QString &prot);
+    void on_startclose_clicked();
     void on_disconnclient_clicked();
     void on_clearreceive_clicked();
     void on_clearsend_clicked();
