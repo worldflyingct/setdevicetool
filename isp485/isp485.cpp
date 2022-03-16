@@ -39,6 +39,7 @@ void Isp485::TimerOutEvent () {
 void Isp485::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
+    GetComList();
 }
 
 int Isp485::GetBtnStatus () {

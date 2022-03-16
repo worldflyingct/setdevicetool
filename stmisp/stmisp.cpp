@@ -96,6 +96,7 @@ void StmIsp::SerialErrorEvent () {
     ui->tips->appendPlainText("串口错误");
     ui->tips->appendPlainText("");
     CloseSerial();
+    GetComList();
 }
 
 int StmIsp::GetBtnStatus () {

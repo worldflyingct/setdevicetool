@@ -39,6 +39,7 @@ void IspIotProgram::TimerOutEvent () {
 void IspIotProgram::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
+    GetComList();
 }
 
 int IspIotProgram::GetBtnStatus () {

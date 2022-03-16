@@ -39,6 +39,7 @@ void IspLocation::TimerOutEvent () {
 void IspLocation::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
+    GetComList();
 }
 
 int IspLocation::GetBtnStatus () {

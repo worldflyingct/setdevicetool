@@ -26,7 +26,7 @@ void UartAssist::GetComList () {
 }
 
 void UartAssist::on_refresh_clicked () {
-    if (ui->startclose->text() == "停止") {
+    if (btnStatus) {
         return;
     }
     GetComList();
@@ -36,6 +36,7 @@ void UartAssist::SerialErrorEvent () {
     ui->receiveEdit->append("串口错误");
     ui->receiveEdit->append("");
     on_startclose_clicked();
+    GetComList();
 }
 
 int UartAssist::GetBtnStatus () {

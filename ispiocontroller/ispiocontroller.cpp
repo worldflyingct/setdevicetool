@@ -39,6 +39,7 @@ void IspIoController::TimerOutEvent () {
 void IspIoController::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
+    GetComList();
 }
 
 int IspIoController::GetBtnStatus () {
