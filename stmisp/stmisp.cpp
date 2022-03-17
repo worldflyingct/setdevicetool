@@ -652,7 +652,11 @@ void StmIsp::ReadSerialData () {
         return;
     }
     timer.stop();
-    timer.start(10000); // 非ISP_SYNC命令超时
+    if (chipstep == ISP_ERASE_TWO) {
+        timer.start(20000); // 正在擦除，所需时间比较长
+    } else {
+        timer.start(3000); // 非ISP_SYNC命令，非擦除命令，统一等待3s
+    }
 }
 
 int StmIsp::OpenSerial (char *data, qint64 len) {
