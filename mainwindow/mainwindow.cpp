@@ -39,15 +39,15 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete isp485;
         isp485 = NULL;
     }
-    if (isplocation != NULL) {
-        if (isplocation == widget) {
+    if (ispcollector != NULL) {
+        if (ispcollector == widget) {
             return -1;
         }
-        if (isplocation->GetBtnStatus()) {
+        if (ispcollector->GetBtnStatus()) {
             return -2;
         }
-        delete isplocation;
-        isplocation = NULL;
+        delete ispcollector;
+        ispcollector = NULL;
     }
     if (ispiotprogram != NULL) {
         if (ispiotprogram == widget) {
@@ -130,17 +130,17 @@ void MainWindow::on_actionIsp485GateWay_triggered () {
     isp485->show();
 }
 
-void MainWindow::on_actionIspLocation_triggered () {
-    if (FreeOthersWidget(isplocation)) {
+void MainWindow::on_actionIspCollector_triggered () {
+    if (FreeOthersWidget(ispcollector)) {
         return;
     }
-    if (isplocation == NULL) {
-        isplocation = new IspLocation(ui->centralWidget);
+    if (ispcollector == NULL) {
+        ispcollector = new IspCollector(ui->centralWidget);
     }
-    int w = isplocation->width();
-    int h = isplocation->height();
+    int w = ispcollector->width();
+    int h = ispcollector->height();
     setFixedSize(w, h + 23);
-    isplocation->show();
+    ispcollector->show();
 }
 
 void MainWindow::on_actionIspIotProgram_triggered () {

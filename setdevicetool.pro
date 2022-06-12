@@ -22,7 +22,7 @@ SOURCES += main.cpp\
     common/hextobin.c \
     ispiocontroller/ispiocontroller.cpp \
     isp485/isp485.cpp \
-    isplocation/isplocation.cpp \
+    ispcollector/ispcollector.cpp \
     ispiotprogram/ispiotprogram.cpp \
     stmisp/stmisp.cpp \
     uartassist/uartassist.cpp \
@@ -34,7 +34,7 @@ HEADERS  += mainwindow/mainwindow.h \
     common/hextobin.h \
     ispiocontroller/ispiocontroller.h \
     isp485/isp485.h \
-    isplocation/isplocation.h \
+    ispcollector/ispcollector.h \
     ispiotprogram/ispiotprogram.h \
     stmisp/stmisp.h \
     uartassist/uartassist.h \
@@ -43,7 +43,7 @@ HEADERS  += mainwindow/mainwindow.h \
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
     isp485/isp485.ui \
-    isplocation/isplocation.ui \
+    ispcollector/ispcollector.ui \
     ispiotprogram/ispiotprogram.ui \
     stmisp/stmisp.ui \
     uartassist/uartassist.ui \

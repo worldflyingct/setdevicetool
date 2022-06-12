@@ -1,21 +1,21 @@
-#include "isplocation.h"
-#include "ui_isplocation.h"
+#include "ispcollector.h"
+#include "ui_ispcollector.h"
 // 公共函数库
 #include "common/common.h"
 
-IspLocation::IspLocation (QWidget *parent) :
+IspCollector::IspCollector (QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::IspLocation) {
+    ui(new Ui::IspCollector) {
     ui->setupUi(this);
     GetComList();
 }
 
-IspLocation::~IspLocation () {
+IspCollector::~IspCollector () {
     delete ui;
 }
 
 // 获取可用的串口号
-void IspLocation::GetComList () {
+void IspCollector::GetComList () {
     QComboBox *c = ui->com;
     c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -23,11 +23,11 @@ void IspLocation::GetComList () {
     }
 }
 
-void IspLocation::on_refresh_clicked () {
+void IspCollector::on_refresh_clicked () {
     GetComList();
 }
 
-void IspLocation::TimerOutEvent () {
+void IspCollector::TimerOutEvent () {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
@@ -36,17 +36,17 @@ void IspLocation::TimerOutEvent () {
     CloseSerial();
 }
 
-void IspLocation::SerialErrorEvent () {
+void IspCollector::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
     GetComList();
 }
 
-int IspLocation::GetBtnStatus () {
+int IspCollector::GetBtnStatus () {
     return btnStatus;
 }
 
-void IspLocation::ReadSerialData () {
+void IspCollector::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -83,7 +83,7 @@ void IspLocation::ReadSerialData () {
     timer.start(5000);
 }
 
-int IspLocation::OpenSerial (char *data, qint64 len) {
+int IspCollector::OpenSerial (char *data, qint64 len) {
     char comname[12];
     sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
     serial.setPortName(comname);
@@ -104,7 +104,7 @@ int IspLocation::OpenSerial (char *data, qint64 len) {
     return 0;
 }
 
-void IspLocation::CloseSerial () {
+void IspCollector::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -113,7 +113,7 @@ void IspLocation::CloseSerial () {
     btnStatus = 0;
 }
 
-void IspLocation::on_setconfig_clicked () {
+void IspCollector::on_setconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -178,7 +178,7 @@ void IspLocation::on_setconfig_clicked () {
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::on_getconfig_clicked () {
+void IspCollector::on_getconfig_clicked () {
     if (btnStatus) {
         return;
     }
@@ -201,7 +201,7 @@ void IspLocation::on_getconfig_clicked () {
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::HandleSerialData (yyjson_val *json) {
+void IspCollector::HandleSerialData (yyjson_val *json) {
     yyjson_val *mode = yyjson_obj_get(json, "Mode");
     yyjson_val *host = yyjson_obj_get(json, "Host");
     yyjson_val *port = yyjson_obj_get(json, "Port");

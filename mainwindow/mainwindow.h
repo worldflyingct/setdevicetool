@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include "ispiocontroller/ispiocontroller.h"
 #include "isp485/isp485.h"
-#include "isplocation/isplocation.h"
+#include "ispcollector/ispcollector.h"
 #include "ispiotprogram/ispiotprogram.h"
 #include "stmisp/stmisp.h"
 #include "uartassist/uartassist.h"
@@ -26,7 +26,7 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionIspIoController_triggered();
     void on_actionIsp485GateWay_triggered();
-    void on_actionIspLocation_triggered();
+    void on_actionIspCollector_triggered();
     void on_actionIspIotProgram_triggered();
     void on_actionStmIsp_triggered();
     void on_actionUartAssist_triggered();
@@ -37,7 +37,7 @@ private:
     int FreeOthersWidget(void *widget);
     IspIoController *ispiocontroller = NULL;
     Isp485 *isp485 = NULL;
-    IspLocation *isplocation = NULL;
+    IspCollector *ispcollector = NULL;
     IspIotProgram *ispiotprogram = NULL;
     StmIsp *stmisp = NULL;
     UartAssist *uartassist = NULL;

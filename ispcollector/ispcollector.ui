@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>IspLocation</class>
- <widget class="QWidget" name="IspLocation">
+ <class>IspCollector</class>
+ <widget class="QWidget" name="IspCollector">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -11,15 +11,15 @@
 #include "common/yyjson.h"
 
 namespace Ui {
-class IspLocation;
+class IspCollector;
 }
 
-class IspLocation : public QWidget {
+class IspCollector : public QWidget {
     Q_OBJECT
 
 public:
-    explicit IspLocation(QWidget *parent = 0);
-    ~IspLocation();
+    explicit IspCollector(QWidget *parent = 0);
+    ~IspCollector();
     int GetBtnStatus();
 
 private slots:
@@ -31,7 +31,7 @@ private slots:
     void on_getconfig_clicked();
 
 private:
-    Ui::IspLocation *ui;
+    Ui::IspCollector *ui;
 
     void GetComList();
     int OpenSerial(char *data, qint64 len);
