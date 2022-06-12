@@ -69,10 +69,11 @@ void IspIoController::ReadSerialData () {
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
-            cJSON *json = cJSON_Parse((char*)serialReadBuff);
-            if (json != NULL) {
+            yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
+            if (doc != NULL) {
+                yyjson_val *json = yyjson_doc_get_root(doc);
                 HandleSerialData(json);
-                cJSON_Delete(json);
+                yyjson_doc_free(doc);
                 CloseSerial();
                 return;
             }
@@ -178,26 +179,26 @@ void IspIoController::on_getmqtt_clicked () {
     ui->tips->setText("数据发送成功");
 }
 
-void IspIoController::HandleSerialData (cJSON *json) {
-    cJSON *mqtturl = cJSON_GetObjectItem(json, "Url");
+void IspIoController::HandleSerialData (yyjson_val *json) {
+    yyjson_val *mqtturl = yyjson_obj_get(json, "Url");
     if (mqtturl) {
-        ui->mqtturl->setText(mqtturl->valuestring);
+        ui->mqtturl->setText(yyjson_get_str(mqtturl));
     }
-    cJSON *mqttuser = cJSON_GetObjectItem(json, "UserName");
+    yyjson_val *mqttuser = yyjson_obj_get(json, "UserName");
     if (mqttuser) {
-        ui->mqttuser->setText(mqttuser->valuestring);
+        ui->mqttuser->setText(yyjson_get_str(mqttuser));
     }
-    cJSON *mqttpass = cJSON_GetObjectItem(json, "PassWord");
+    yyjson_val *mqttpass = yyjson_obj_get(json, "PassWord");
     if (mqttpass) {
-        ui->mqttpass->setText(mqttpass->valuestring);
+        ui->mqttpass->setText(yyjson_get_str(mqttpass));
     }
     const char tip[] = "设备SN:";
     unsigned short tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
-    cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+    yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, serialnumber->valuestring);
+        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
         ui->tips->setText(buff);
     }
 }

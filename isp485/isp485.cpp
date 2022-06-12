@@ -69,10 +69,11 @@ void Isp485::ReadSerialData () {
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
-            cJSON *json = cJSON_Parse((char*)serialReadBuff);
-            if (json != NULL) {
+            yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
+            if (doc != NULL) {
+                yyjson_val *json = yyjson_doc_get_root(doc);
                 HandleSerialData(json);
-                cJSON_Delete(json);
+                yyjson_doc_free(doc);
                 CloseSerial();
                 return;
             }
@@ -270,79 +271,80 @@ void Isp485::on_getconfig_clicked () {
     ui->tips->setText("数据发送成功");
 }
 
-void Isp485::HandleSerialData (cJSON *json) {
-    cJSON *mode = cJSON_GetObjectItem(json, "Mode");
+void Isp485::HandleSerialData (yyjson_val *json) {
+    yyjson_val *mode = yyjson_obj_get(json, "Mode");
     if (mode) {
-        if (mode->valueint == 0) { // mqtt
+        int m = yyjson_get_int(mode);
+        if (m == 0) { // mqtt
             ui->mqttradio->setChecked(true);
             on_mqttradio_clicked();
-            cJSON *url = cJSON_GetObjectItem(json, "Url");
+            yyjson_val *url = yyjson_obj_get(json, "Url");
             if (url) {
-                ui->url->setText(url->valuestring);
+                ui->url->setText(yyjson_get_str(url));
             }
-            cJSON *user = cJSON_GetObjectItem(json, "UserName");
+            yyjson_val *user = yyjson_obj_get(json, "UserName");
             if (user) {
-                ui->user->setText(user->valuestring);
+                ui->user->setText(yyjson_get_str(user));
             }
-            cJSON *pass = cJSON_GetObjectItem(json, "PassWord");
+            yyjson_val *pass = yyjson_obj_get(json, "PassWord");
             if (pass) {
-                ui->pass->setText(pass->valuestring);
+                ui->pass->setText(yyjson_get_str(pass));
             }
-            cJSON *sendtopic = cJSON_GetObjectItem(json, "SendTopic");
+            yyjson_val *sendtopic = yyjson_obj_get(json, "SendTopic");
             if (sendtopic) {
-                ui->sendtopic->setText(sendtopic->valuestring);
+                ui->sendtopic->setText(yyjson_get_str(sendtopic));
             }
-            cJSON *receivetopic = cJSON_GetObjectItem(json, "ReceiveTopic");
+            yyjson_val *receivetopic = yyjson_obj_get(json, "ReceiveTopic");
             if (receivetopic) {
-                ui->receivetopic->setText(receivetopic->valuestring);
+                ui->receivetopic->setText(yyjson_get_str(receivetopic));
             }
         } else { // tcp或udp
             ui->otherradio->setChecked(true);
             on_otherradio_clicked();
-            cJSON *host = cJSON_GetObjectItem(json, "Host");
-            cJSON *port = cJSON_GetObjectItem(json, "Port");
+            yyjson_val *host = yyjson_obj_get(json, "Host");
+            yyjson_val *port = yyjson_obj_get(json, "Port");
             if (host && port) {
                 char url[256];
-                if (mode->valueint == 1) { // tcp
-                    sprintf(url, "tcp://%s:%u", host->valuestring, port->valueint);
-                } else if (mode->valueint == 2) { // udp
-                    sprintf(url, "udp://%s:%u", host->valuestring, port->valueint);
+                if (m == 1) { // tcp
+                    sprintf(url, "tcp://%s:%u", yyjson_get_str(host), yyjson_get_int(port));
+                } else if (m == 2) { // udp
+                    sprintf(url, "udp://%s:%u", yyjson_get_str(host), yyjson_get_int(port));
                 }
                 ui->url->setText(url);
             }
         }
     }
-    cJSON *crccheck = cJSON_GetObjectItem(json, "Crc");
+    yyjson_val *crccheck = yyjson_obj_get(json, "Crc");
     if (crccheck) {
-        ui->crccheck->setChecked(crccheck->valueint);
+        ui->crccheck->setChecked(yyjson_get_int(crccheck));
     }
-    cJSON *baudrate = cJSON_GetObjectItem(json, "BaudRate");
+    yyjson_val *baudrate = yyjson_obj_get(json, "BaudRate");
     char str[16];
     if (baudrate) {
-        sprintf(str, "%u", baudrate->valueint);
+        sprintf(str, "%u", yyjson_get_int(baudrate));
         ui->baudrate->setCurrentText(str);
     }
-    cJSON *databits = cJSON_GetObjectItem(json, "DataBits");
+    yyjson_val *databits = yyjson_obj_get(json, "DataBits");
     if (databits) {
-        sprintf(str, "%u", databits->valueint);
+        sprintf(str, "%u", yyjson_get_int(databits));
         ui->databits->setCurrentText(str);
     }
-    cJSON *paritybit = cJSON_GetObjectItem(json, "ParityBit");
+    yyjson_val *paritybit = yyjson_obj_get(json, "ParityBit");
     if (paritybit) {
-        ui->paritybit->setCurrentText(paritybit->valuestring);
+        ui->paritybit->setCurrentText(yyjson_get_str(paritybit));
     }
-    cJSON *stopbits = cJSON_GetObjectItem(json, "StopBits");
+    yyjson_val *stopbits = yyjson_obj_get(json, "StopBits");
     if (stopbits) {
-        sprintf(str, "%.1f", stopbits->valuedouble);
+        sprintf(str, "%.1f", yyjson_get_real(stopbits));
         ui->stopbits->setCurrentText(str);
     }
     const char tip[] = "设备SN:";
     unsigned short tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
-    cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+    yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, serialnumber->valuestring);
+        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
         ui->tips->setText(buff);
     }
 }

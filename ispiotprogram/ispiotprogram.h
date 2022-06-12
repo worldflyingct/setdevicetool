@@ -7,8 +7,8 @@
 #include <QtSerialPort/QSerialPortInfo>
 // 定时器相关头文件
 #include <QTimer>
-// cjson库
-#include "common/cjson.h"
+// yyjson库
+#include "common/yyjson.h"
 
 namespace Ui {
 class IspIotProgram;
@@ -36,7 +36,7 @@ private:
     void GetComList();
     int OpenSerial(char *data, qint64 len);
     void CloseSerial();
-    void HandleSerialData(cJSON *json);
+    void HandleSerialData(yyjson_val *json);
 
     QSerialPort serial;
     QTimer timer;

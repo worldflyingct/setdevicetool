@@ -69,10 +69,11 @@ void IspLocation::ReadSerialData () {
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
-            cJSON *json = cJSON_Parse((char*)serialReadBuff);
-            if (json != NULL) {
+            yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
+            if (doc != NULL) {
+                yyjson_val *json = yyjson_doc_get_root(doc);
                 HandleSerialData(json);
-                cJSON_Delete(json);
+                yyjson_doc_free(doc);
                 CloseSerial();
                 return;
             }
@@ -200,23 +201,24 @@ void IspLocation::on_getconfig_clicked () {
     ui->tips->setText("数据发送成功");
 }
 
-void IspLocation::HandleSerialData (cJSON *json) {
-    cJSON *mode = cJSON_GetObjectItem(json, "Mode");
-    cJSON *host = cJSON_GetObjectItem(json, "Host");
-    cJSON *port = cJSON_GetObjectItem(json, "Port");
-    cJSON *path = cJSON_GetObjectItem(json, "Path");
+void IspLocation::HandleSerialData (yyjson_val *json) {
+    yyjson_val *mode = yyjson_obj_get(json, "Mode");
+    yyjson_val *host = yyjson_obj_get(json, "Host");
+    yyjson_val *port = yyjson_obj_get(json, "Port");
+    yyjson_val *path = yyjson_obj_get(json, "Path");
     if (mode && host && port && path) {
         char url[256];
-        if (mode->valueint == 0) { // coap
-            sprintf(url, "coap://%s:%u/%s", host->valuestring, port->valueint, path->valuestring);
-        } else if (mode->valueint == 1) { // udp
-            sprintf(url, "udp://%s:%u", host->valuestring, port->valueint);
+        int m = yyjson_get_int(mode);
+        if (m == 0) { // coap
+            sprintf(url, "coap://%s:%u/%s", yyjson_get_str(host), yyjson_get_int(port), yyjson_get_str(path));
+        } else if (m == 1) { // udp
+            sprintf(url, "udp://%s:%u", yyjson_get_str(host), yyjson_get_int(port));
         }
         ui->serverurl->setText(url);
     }
-    cJSON *secondobj = cJSON_GetObjectItem(json, "Second");
+    yyjson_val *secondobj = yyjson_obj_get(json, "Second");
     if (secondobj) {
-        int second = secondobj->valueint;
+        int second = yyjson_get_int(secondobj);
         int day = second / (24*60*60);
         second = second % (24*60*60);
         int hour = second / 3600;
@@ -232,9 +234,9 @@ void IspLocation::HandleSerialData (cJSON *json) {
     unsigned short tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
-    cJSON *serialnumber = cJSON_GetObjectItem(json, "Sn");
+    yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, serialnumber->valuestring);
+        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
         ui->tips->setText(buff);
     }
 }

@@ -17,7 +17,7 @@ RC_ICONS = resources/favicon.ico
 
 SOURCES += main.cpp\
     mainwindow/mainwindow.cpp \
-    common/cjson.c \
+    common/yyjson.c \
     common/common.c \
     common/hextobin.c \
     ispiocontroller/ispiocontroller.cpp \
@@ -29,7 +29,7 @@ SOURCES += main.cpp\
     netassist/netassist.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
-    common/cjson.h \
+    common/yyjson.h \
     common/common.h \
     common/hextobin.h \
     ispiocontroller/ispiocontroller.h \
