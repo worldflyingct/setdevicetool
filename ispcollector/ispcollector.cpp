@@ -150,7 +150,7 @@ void IspCollector::on_setconfig_clicked () {
     int day = ui->day->value();
     int hour = ui->hour->value();
     int minute = ui->minute->value();
-    int second = ui->day->value();
+    int second = ui->second->value();
     int totalsecond = 24*60*60*day + 60*60*hour + 60*minute + second;
     if (!totalsecond) {
         ui->tips->setText("时间间隔不能为0");
