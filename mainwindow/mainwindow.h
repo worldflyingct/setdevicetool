@@ -7,6 +7,7 @@
 #include "ispcollector/ispcollector.h"
 #include "ispiotprogram/ispiotprogram.h"
 #include "stmisp/stmisp.h"
+#include "tkmisp/tkmisp.h"
 #include "uartassist/uartassist.h"
 #include "netassist/netassist.h"
 
@@ -31,6 +32,7 @@ private slots:
     void on_actionStmIsp_triggered();
     void on_actionUartAssist_triggered();
     void on_actionNetAssist_triggered();
+    void on_actiontkm_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -40,6 +42,7 @@ private:
     IspCollector *ispcollector = NULL;
     IspIotProgram *ispiotprogram = NULL;
     StmIsp *stmisp = NULL;
+    TkmIsp *tkmisp = NULL;
     UartAssist *uartassist = NULL;
     NetAssist *netassist = NULL;
 };

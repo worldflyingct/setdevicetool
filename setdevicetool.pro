@@ -25,6 +25,7 @@ SOURCES += main.cpp\
     ispcollector/ispcollector.cpp \
     ispiotprogram/ispiotprogram.cpp \
     stmisp/stmisp.cpp \
+    tkmisp/tkmisp.cpp \
     uartassist/uartassist.cpp \
     netassist/netassist.cpp
 
@@ -37,6 +38,7 @@ HEADERS  += mainwindow/mainwindow.h \
     ispcollector/ispcollector.h \
     ispiotprogram/ispiotprogram.h \
     stmisp/stmisp.h \
+    tkmisp/tkmisp.h \
     uartassist/uartassist.h \
     netassist/netassist.h
 
@@ -46,6 +48,7 @@ FORMS    += mainwindow/mainwindow.ui \
     ispcollector/ispcollector.ui \
     ispiotprogram/ispiotprogram.ui \
     stmisp/stmisp.ui \
+    tkmisp/tkmisp.ui \
     uartassist/uartassist.ui \
     netassist/netassist.ui
 

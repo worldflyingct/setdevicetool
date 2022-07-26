@@ -2,7 +2,6 @@
 #include "ui_stmisp.h"
 #include <QFileDialog>
 // 公共函数库
-#include "common/common.h"
 #include "common/hextobin.h"
 
 /* 参考文件
@@ -754,8 +753,6 @@ void StmIsp::on_writechip_clicked () {
     }
     needcheck = ui->checkwrite->isChecked();
     QString filepath = ui->filepath->text();
-    int pos = filepath.lastIndexOf(".");
-    QString suffix = filepath.mid(pos);
     QFile file(filepath);
     if(!file.open(QIODevice::ReadOnly)) {
         ui->tips->appendPlainText("无法读取烧录文件");
@@ -763,6 +760,8 @@ void StmIsp::on_writechip_clicked () {
     }
     QByteArray bytedata = file.readAll();
     file.close();
+    int pos = filepath.lastIndexOf(".");
+    QString suffix = filepath.mid(pos);
     unsigned char *chardata = (unsigned char*)bytedata.data();
     if (!suffix.compare(".hex")) {
         if (HexToBin(chardata, bytedata.length(), bin, sizeof(bin), 0x08000000, &binlen) != RES_OK) {

@@ -69,6 +69,16 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete stmisp;
         stmisp = NULL;
     }
+    if (tkmisp != NULL) {
+        if (tkmisp == widget) {
+            return -1;
+        }
+        if (tkmisp->GetBtnStatus()) {
+            return -2;
+        }
+        delete tkmisp;
+        tkmisp = NULL;
+    }
     if (uartassist != NULL) {
         if (uartassist == widget) {
             return -1;
@@ -167,6 +177,19 @@ void MainWindow::on_actionStmIsp_triggered () {
     int h = stmisp->height();
     setFixedSize(w, h + 23);
     stmisp->show();
+}
+
+void MainWindow::on_actiontkm_triggered() {
+    if (FreeOthersWidget(tkmisp)) {
+        return;
+    }
+    if (tkmisp == NULL) {
+        tkmisp = new TkmIsp(ui->centralWidget);
+    }
+    int w = tkmisp->width();
+    int h = tkmisp->height();
+    setFixedSize(w, h + 23);
+    tkmisp->show();
 }
 
 void MainWindow::on_actionUartAssist_triggered () {
