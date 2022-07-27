@@ -2,8 +2,9 @@
 #include <malloc.h>
 #include <string.h>
 #include "common.h"
+#include <QFileDialog>
 
-unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short len) {
+unsigned short COMMON::crc_calc (unsigned short crc, unsigned char *dat, unsigned short len) {
     unsigned short i;
     for (i = 0 ; i < len ; i++) { // 循环计算每个数据
         unsigned char j;
@@ -20,7 +21,7 @@ unsigned short crc_calc (unsigned short crc, unsigned char *dat, unsigned short 
     return crc;
 }
 
-int urldecode (char *url, int urllen, char **protocol, char **host, unsigned short *port, char **path) {
+int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, unsigned short *port, char **path) {
     unsigned short i, offset, p = 0, state = 0;
     if (protocol) {
         *protocol = NULL;
@@ -110,4 +111,29 @@ int urldecode (char *url, int urllen, char **protocol, char **host, unsigned sho
         }
     }
     return 0;
+}
+
+int COMMON::filewrite (QString savefilepath, char *bin, unsigned int addr, char *buff, unsigned char openmodeflag) {
+    int res = 0;
+    QFile file(savefilepath);
+    QIODevice::OpenMode flag = openmodeflag > 0 ? QIODevice::WriteOnly | QIODevice::Append : QIODevice::WriteOnly;
+    if (!file.open(flag)) {
+        if (buff != NULL) {
+            sprintf(buff, "文件打开失败");
+        }
+        res = -1;
+    } else {
+        if (file.write(bin, addr) < addr) {
+            if (buff != NULL) {
+                sprintf(buff, "文件写入不完整");
+            }
+            res = -2;
+        } else {
+            if (buff != NULL) {
+                sprintf(buff, "镜像保存成功");
+            }
+        }
+        file.close();
+    }
+    return res;
 }

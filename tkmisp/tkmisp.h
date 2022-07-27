@@ -56,6 +56,7 @@ private:
     unsigned char chipstep = 0;
     unsigned char retrytime = 0;
     unsigned int addr = 0;
+    unsigned int offset = 0;
     bool needcheck = 0;
 };
 

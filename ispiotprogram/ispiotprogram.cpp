@@ -65,7 +65,7 @@ void IspIotProgram::ReadSerialData () {
         }
     } else if (btnStatus == 2) {
         unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        crc = COMMON::crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
@@ -150,7 +150,7 @@ void IspIotProgram::on_setmode_clicked () {
     const char *user = cuser.c_str();
     int len = sprintf(buff, "act=SetMode&Url=%s&UserName=%s&PassWord=%s&User=%s", mqtturl, mqttuser, mqttpass, user);
     unsigned short crc = 0xffff;
-    crc = crc_calc(crc, (unsigned char*)buff, len);
+    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -173,7 +173,7 @@ void IspIotProgram::on_getmode_clicked () {
     int len = sizeof(cmd)-1;
     memcpy(buff, cmd, len);
     unsigned short crc = 0xffff;
-    crc = crc_calc(crc, (unsigned char*)buff, len);
+    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;

@@ -65,7 +65,7 @@ void Isp485::ReadSerialData () {
         }
     } else if (btnStatus == 2) {
         unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        crc = COMMON::crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
@@ -181,7 +181,7 @@ void Isp485::on_setconfig_clicked () {
         int len = sprintf(buff, "act=SetMode&Mode=0&Url=%s&UserName=%s&PassWord=%s&SendTopic=%s&ReceiveTopic=%s&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
                                     url, user, pass, sendtopic, receivetopic, crccheck, baudrate, databits, paritybit, stopbits);
         unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)buff, len);
+        crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
@@ -204,7 +204,7 @@ void Isp485::on_setconfig_clicked () {
         char *protocol;
         char *host;
         unsigned short port;
-        int res = urldecode (url, len+1, &protocol, &host, &port, NULL);
+        int res = COMMON::urldecode (url, len+1, &protocol, &host, &port, NULL);
         if (res != 0) {
             ui->tips->setText("url格式错误");
             return;
@@ -235,7 +235,7 @@ void Isp485::on_setconfig_clicked () {
         free(protocol);
         free(host);
         unsigned short crc = 0xffff;
-        crc = crc_calc(crc, (unsigned char*)buff, len);
+        crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
@@ -259,7 +259,7 @@ void Isp485::on_getconfig_clicked () {
     int len = sizeof(cmd)-1;
     memcpy(buff, cmd, len);
     unsigned short crc = 0xffff;
-    crc = crc_calc(crc, (unsigned char*)buff, len);
+    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;

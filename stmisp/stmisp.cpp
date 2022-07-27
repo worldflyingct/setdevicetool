@@ -3,6 +3,7 @@
 #include <QFileDialog>
 // 公共函数库
 #include "common/hextobin.h"
+#include "common/common.h"
 
 /* 参考文件
 https://github.com/nicekwell/stm32ISP/raw/master/documents/stm32isp%20application%20note.pdf
@@ -133,7 +134,6 @@ void StmIsp::ReadSerialData () {
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_MSG) {
                 ui->tips->appendPlainText("串口同步成功，开始读取芯片信息操作");
-                addr = 0;
                 chipstep = ISP_GETINFO;
                 char buff[2];
                 buff[0] = ISP_GETINFO;
@@ -141,7 +141,6 @@ void StmIsp::ReadSerialData () {
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_WRITE_PROTECT) {
                 ui->tips->appendPlainText("串口同步成功，开始添加写保护");
-                addr = 0;
                 chipstep = ISP_WRITEPROTECT;
                 char buff[2];
                 buff[0] = ISP_WRITEPROTECT;
@@ -149,7 +148,6 @@ void StmIsp::ReadSerialData () {
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_WRITE_UNPROTECT) {
                 ui->tips->appendPlainText("串口同步成功，开始解除写保护");
-                addr = 0;
                 chipstep = ISP_WRITEUNPROTECT;
                 char buff[2];
                 buff[0] = ISP_WRITEUNPROTECT;
@@ -157,7 +155,6 @@ void StmIsp::ReadSerialData () {
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_PROTECT) {
                 ui->tips->appendPlainText("串口同步成功，开始添加读保护");
-                addr = 0;
                 chipstep = ISP_READPROTECT;
                 char buff[2];
                 buff[0] = ISP_READPROTECT;
@@ -165,7 +162,6 @@ void StmIsp::ReadSerialData () {
                 serial.write(buff, 2);
             } else if (btnStatus == BTN_STATUS_READ_UNPROTECT) {
                 ui->tips->appendPlainText("串口同步成功，开始解除读保护");
-                addr = 0;
                 chipstep = ISP_READUNPROTECT;
                 char buff[2];
                 buff[0] = ISP_READUNPROTECT;
@@ -179,93 +175,6 @@ void StmIsp::ReadSerialData () {
                 return;
             }
         }
-    } else if (chipstep == ISP_WRITEPROTECT) {
-        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
-            retrytime++;
-            if (retrytime == 250) {
-                ui->tips->appendPlainText("写保护失败");
-                CloseSerial();
-                return;
-            }
-            bufflen = 0;
-            chipstep = ISP_WRITEPROTECT;
-            char buff[2];
-            buff[0] = ISP_WRITEPROTECT;
-            buff[1] = ~buff[0];
-            serial.write(buff, 2);
-        } else {
-            retrytime = 0;
-            bufflen = 0;
-            chipstep = ISP_WRITEPROTECT_TWO;
-            char checksum = 0;
-            unsigned char sectornum = binlen / 4096;
-            if (binlen % 4096 != 0) {
-                sectornum++;
-            }
-            char buff[sectornum+2];
-            buff[0] = sectornum - 1;
-            checksum ^= buff[0];
-            for (i = 0 ; i < sectornum ; i++) {
-                buff[i+1] = i;
-                checksum ^= buff[i+1];
-            }
-            buff[sectornum+1] = checksum;
-            serial.write(buff, sectornum+2);
-        }
-    } else if (chipstep == ISP_WRITEPROTECT_TWO) {
-        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
-            retrytime++;
-            if (retrytime == 250) {
-                ui->tips->appendPlainText("写保护失败");
-                CloseSerial();
-                return;
-            }
-            bufflen = 0;
-            chipstep = ISP_WRITEPROTECT;
-            char buff[2];
-            buff[0] = ISP_WRITEPROTECT;
-            buff[1] = ~buff[0];
-            serial.write(buff, 2);
-        } else {
-            retrytime = 0;
-            bufflen = 0;
-            ui->tips->appendPlainText("写保护完成，请重启单片机");
-            CloseSerial();
-            return;
-        }
-    } else if (chipstep == ISP_WRITEUNPROTECT || chipstep == ISP_READPROTECT || chipstep == ISP_READUNPROTECT) {
-        if (serialReadBuff[0] != 0x79 || (bufflen == 2 && serialReadBuff[1] != 0x79)) {
-            retrytime++;
-            char buff[64];
-            if (retrytime == 250) {
-                switch (chipstep) {
-                    case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护失败");break;
-                    case ISP_READPROTECT    : sprintf(buff, "读保护失败");break;
-                    case ISP_READUNPROTECT  : sprintf(buff, "解除读保护失败");break;
-                    default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
-                }
-                ui->tips->appendPlainText(buff);
-                CloseSerial();
-                return;
-            }
-            bufflen = 0;
-            buff[0] = chipstep;
-            buff[1] = ~buff[0];
-            serial.write(buff, 2);
-        } else if (bufflen == 2) {
-            retrytime = 0;
-            bufflen = 0;
-            char buff[64];
-            switch (chipstep) {
-                case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护完成，请重启单片机");break;
-                case ISP_READPROTECT    : sprintf(buff, "读保护完成，请重启单片机");break;
-                case ISP_READUNPROTECT  : sprintf(buff, "解除读保护完成，请重启单片机");break;
-                default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
-            }
-            ui->tips->appendPlainText(buff);
-            CloseSerial();
-            return;
-        }
     } else if (chipstep == ISP_GETINFO) { // get infomation
         if (serialReadBuff[0] != 0x79 || (bufflen == 5 && serialReadBuff[4] != 0x79)) {
             retrytime++;
@@ -275,7 +184,6 @@ void StmIsp::ReadSerialData () {
                 return;
             }
             bufflen = 0;
-            chipstep = ISP_GETINFO;
             char buff[2];
             buff[0] = ISP_GETINFO;
             buff[1] = ~buff[0];
@@ -300,7 +208,6 @@ void StmIsp::ReadSerialData () {
                 return;
             }
             bufflen = 0;
-            chipstep = ISP_GETINFO_TWO;
             char buff[2];
             buff[0] = ISP_GETINFO_TWO;
             buff[1] = ~buff[0];
@@ -623,21 +530,100 @@ void StmIsp::ReadSerialData () {
             } else if (btnStatus == BTN_STATUS_READ) {
                 memcpy(bin+addr, serialReadBuff+1, binlen-addr);
                 addr = binlen;
-                sprintf(buff, "全部读出完成，一共读出%uk数据", addr / 1024);
                 // 这里将文件写入
-                QFile file(savefilepath);
-                if (!file.open(QIODevice::WriteOnly)) {
-                    sprintf(buff, "文件打开失败");
-                } else {
-                    if (file.write((char*)bin, addr) < addr) {
-                        sprintf(buff, "文件写入不完整");
-                    } else {
-                        sprintf(buff, "镜像保存成功");
-                    }
-                    file.close();
+                if (COMMON::filewrite(savefilepath, (char*)bin, addr, buff, 0)) {
+                    ui->tips->appendPlainText(buff);
+                    CloseSerial();
                 }
+                sprintf(buff, "全部读出完成，一共读出%uk数据", addr / 1024);
             } else {
                 sprintf(buff, "程序内部错误%d", __LINE__);
+            }
+            ui->tips->appendPlainText(buff);
+            CloseSerial();
+            return;
+        }
+    } else if (chipstep == ISP_WRITEPROTECT) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("写保护失败");
+                CloseSerial();
+                return;
+            }
+            bufflen = 0;
+            char buff[2];
+            buff[0] = ISP_WRITEPROTECT;
+            buff[1] = ~buff[0];
+            serial.write(buff, 2);
+        } else {
+            retrytime = 0;
+            bufflen = 0;
+            chipstep = ISP_WRITEPROTECT_TWO;
+            char checksum = 0;
+            unsigned char sectornum = binlen / 4096;
+            if (binlen % 4096 != 0) {
+                sectornum++;
+            }
+            char buff[sectornum+2];
+            buff[0] = sectornum - 1;
+            checksum ^= buff[0];
+            for (i = 0 ; i < sectornum ; i++) {
+                buff[i+1] = i;
+                checksum ^= buff[i+1];
+            }
+            buff[sectornum+1] = checksum;
+            serial.write(buff, sectornum+2);
+        }
+    } else if (chipstep == ISP_WRITEPROTECT_TWO) {
+        if (bufflen != 1 || serialReadBuff[0] != 0x79) {
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("写保护失败");
+                CloseSerial();
+                return;
+            }
+            bufflen = 0;
+            chipstep = ISP_WRITEPROTECT;
+            char buff[2];
+            buff[0] = ISP_WRITEPROTECT;
+            buff[1] = ~buff[0];
+            serial.write(buff, 2);
+        } else {
+            retrytime = 0;
+            bufflen = 0;
+            ui->tips->appendPlainText("写保护完成，请重启单片机");
+            CloseSerial();
+            return;
+        }
+    } else if (chipstep == ISP_WRITEUNPROTECT || chipstep == ISP_READPROTECT || chipstep == ISP_READUNPROTECT) {
+        if (serialReadBuff[0] != 0x79 || (bufflen == 2 && serialReadBuff[1] != 0x79)) {
+            retrytime++;
+            char buff[64];
+            if (retrytime == 250) {
+                switch (chipstep) {
+                    case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护失败");break;
+                    case ISP_READPROTECT    : sprintf(buff, "读保护失败");break;
+                    case ISP_READUNPROTECT  : sprintf(buff, "解除读保护失败");break;
+                    default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
+                }
+                ui->tips->appendPlainText(buff);
+                CloseSerial();
+                return;
+            }
+            bufflen = 0;
+            buff[0] = chipstep;
+            buff[1] = ~buff[0];
+            serial.write(buff, 2);
+        } else if (bufflen == 2) {
+            retrytime = 0;
+            bufflen = 0;
+            char buff[64];
+            switch (chipstep) {
+                case ISP_WRITEUNPROTECT : sprintf(buff, "解除写保护完成，请重启单片机");break;
+                case ISP_READPROTECT    : sprintf(buff, "读保护完成，请重启单片机");break;
+                case ISP_READUNPROTECT  : sprintf(buff, "解除读保护完成，请重启单片机");break;
+                default                 : sprintf(buff, "程序内部错误%d", __LINE__);break;
             }
             ui->tips->appendPlainText(buff);
             CloseSerial();

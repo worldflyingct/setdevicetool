@@ -18,7 +18,6 @@ RC_ICONS = resources/favicon.ico
 SOURCES += main.cpp\
     mainwindow/mainwindow.cpp \
     common/yyjson.c \
-    common/common.c \
     common/hextobin.c \
     ispiocontroller/ispiocontroller.cpp \
     isp485/isp485.cpp \
@@ -27,7 +26,8 @@ SOURCES += main.cpp\
     stmisp/stmisp.cpp \
     tkmisp/tkmisp.cpp \
     uartassist/uartassist.cpp \
-    netassist/netassist.cpp
+    netassist/netassist.cpp \
+    common/common.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     common/yyjson.h \
