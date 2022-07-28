@@ -4,8 +4,8 @@
 #include <QFileDialog>
 #include <QThread>
 
-#define ISP_SYNC0               0x7f
-#define ISP_SYNC1               0x8f
+#define ISP_SYNC                0x7f
+#define ISP_SYNC_TWO            0x8f
 #define ISP_ERASE               0x43
 #define ISP_WRITE               0x31
 #define ISP_READ                0x08
@@ -48,7 +48,7 @@ void TkmIsp::on_refresh_clicked () {
 }
 
 void TkmIsp::TimerOutEvent () {
-    if (chipstep == ISP_SYNC0 || chipstep == ISP_SYNC1) { // sync
+    if (chipstep == ISP_SYNC || chipstep == ISP_SYNC_TWO) { // sync
         retrytime++;
         if (retrytime < 250) {
             char buff[64];
@@ -85,72 +85,66 @@ void TkmIsp::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
-    if (chipstep == ISP_SYNC0) { // sync0
+    if (chipstep == ISP_SYNC) {
         if (bufflen != 8 || memcmp(serialReadBuff, "TurMass.", 8)) {
             bufflen = 0;
-        } else {
-            bufflen = 0;
-            chipstep = ISP_SYNC1;
-            const char buff[] = "TaoLink.";
-            serial.write(buff, 8);
+            return;
         }
-        return;
-    } else if (chipstep == ISP_SYNC1) { // sync1
-        if (bufflen == 8 && !memcmp(serialReadBuff, "TurMass.", 8)) {
+        bufflen = 0;
+        chipstep = ISP_SYNC_TWO;
+        const char buff[] = "TaoLink.";
+        serial.write(buff, 8);
+    } else if (chipstep == ISP_SYNC_TWO) { // sync2
+        if (bufflen != 2 || memcmp(serialReadBuff, "ok", 2)) {
+            chipstep = ISP_SYNC;
             bufflen = 0;
-            const char buff[] = "TaoLink.";
-            serial.write(buff, 8);
             return;
-        } else if (bufflen != 2 || memcmp(serialReadBuff, "ok", 2)) {
-            bufflen = 0;
-            return;
+        }
+        retrytime = 0;
+        bufflen = 0;
+        if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
+            ui->tips->appendPlainText("串口同步成功，开始擦除操作");
+            chipstep = ISP_ERASE;
+        } else if (btnStatus == BTN_STATUS_READ0) {
+            ui->tips->appendPlainText("串口同步成功，开始读取msu0操作");
+            chipstep = ISP_READ;
+            char buff[7];
+            buff[0] = ISP_READ;
+            addr = 0x00020000;
+            buff[4] = addr>>24;
+            buff[3] = addr>>16;
+            buff[2] = addr>>8;
+            buff[1] = addr;
+            unsigned int len = bin0len > 768 ? 768 : bin0len;
+            buff[6] = len >> 8;
+            buff[5] = len;
+            offset = 0;
+            serial.write(buff, 7);
+        } else if (btnStatus == BTN_STATUS_READ1) {
+            ui->tips->appendPlainText("串口同步成功，开始读取msu1操作");
+            chipstep = ISP_READ;
+            char buff[7];
+            buff[0] = ISP_READ;
+            addr = 0x00010000;
+            buff[0] = ISP_READ;
+            buff[4] = addr>>24;
+            buff[3] = addr>>16;
+            buff[2] = addr>>8;
+            buff[1] = addr;
+            unsigned int len = bin1len > 768 ? 768 : bin1len;
+            buff[6] = len >> 8;
+            buff[5] = len;
+            offset = 0;
+            serial.write(buff, 7);
+        } else if (btnStatus == BTN_STATUS_READ_MSG) {
+            ui->tips->appendPlainText("串口同步成功，开始读取芯片信息操作");
+            chipstep = ISP_GETINFO;
         } else {
-            retrytime = 0;
-            bufflen = 0;
-            if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
-                ui->tips->appendPlainText("串口同步成功，开始擦除操作");
-                chipstep = ISP_ERASE;
-            } else if (btnStatus == BTN_STATUS_READ0) {
-                ui->tips->appendPlainText("串口同步成功，开始读取msu0操作");
-                chipstep = ISP_READ;
-                char buff[7];
-                buff[0] = ISP_READ;
-                addr = 0x00020000;
-                buff[4] = addr>>24;
-                buff[3] = addr>>16;
-                buff[2] = addr>>8;
-                buff[1] = addr;
-                unsigned int len = bin0len > 768 ? 768 : bin0len;
-                buff[6] = len >> 8;
-                buff[5] = len;
-                offset = 0;
-                serial.write(buff, 7);
-            } else if (btnStatus == BTN_STATUS_READ1) {
-                ui->tips->appendPlainText("串口同步成功，开始读取msu1操作");
-                chipstep = ISP_READ;
-                char buff[7];
-                buff[0] = ISP_READ;
-                addr = 0x00010000;
-                buff[0] = ISP_READ;
-                buff[4] = addr>>24;
-                buff[3] = addr>>16;
-                buff[2] = addr>>8;
-                buff[1] = addr;
-                unsigned int len = bin1len > 768 ? 768 : bin1len;
-                buff[6] = len >> 8;
-                buff[5] = len;
-                offset = 0;
-                serial.write(buff, 7);
-            } else if (btnStatus == BTN_STATUS_READ_MSG) {
-                ui->tips->appendPlainText("串口同步成功，开始读取芯片信息操作");
-                chipstep = ISP_GETINFO;
-            } else {
-                char buff[64];
-                sprintf(buff, "程序内部错误%d", __LINE__);
-                ui->tips->appendPlainText(buff);
-                CloseSerial();
-                return;
-            }
+            char buff[64];
+            sprintf(buff, "程序内部错误%d", __LINE__);
+            ui->tips->appendPlainText(buff);
+            CloseSerial();
+            return;
         }
     } else if (chipstep == ISP_READ) { // ISP_READ
         if (serialReadBuff[0] != 0x09) {
@@ -161,31 +155,27 @@ void TkmIsp::ReadSerialData () {
                 return;
             }
             bufflen = 0;
+            unsigned int len;
             if (btnStatus == BTN_STATUS_READ0) {
-                char buff[7];
-                buff[0] = ISP_READ;
                 addr = 0x00020000;
-                buff[4] = addr>>24;
-                buff[3] = addr>>16;
-                buff[2] = addr>>8;
-                buff[1] = addr;
-                unsigned int len = bin0len > 768 ? 768 : bin0len;
-                buff[6] = len >> 8;
-                buff[5] = len;
-                serial.write(buff, 7);
+                len = bin0len > 768 ? 768 : bin0len;
             } else if (btnStatus == BTN_STATUS_READ1) {
-                char buff[7];
-                buff[0] = ISP_READ;
                 addr = 0x00010000;
-                buff[4] = addr>>24;
-                buff[3] = addr>>16;
-                buff[2] = addr>>8;
-                buff[1] = addr;
-                unsigned int len = bin1len > 768 ? 768 : bin1len;
-                buff[6] = len >> 8;
-                buff[5] = len;
-                serial.write(buff, 7);
+                len = bin1len > 768 ? 768 : bin1len;
+            } else {
+                ui->tips->appendPlainText("程序内部错误");
+                CloseSerial();
+                return;
             }
+            char buff[7];
+            buff[0] = ISP_READ;
+            buff[4] = addr>>24;
+            buff[3] = addr>>16;
+            buff[2] = addr>>8;
+            buff[1] = addr;
+            buff[6] = len >> 8;
+            buff[5] = len;
+            serial.write(buff, 7);
         } else {
             if (bufflen >= 7) {
                 unsigned char address[4];
@@ -196,50 +186,43 @@ void TkmIsp::ReadSerialData () {
                 if (!memcmp(address, serialReadBuff+1, 4)) {
                     unsigned int len = 256*serialReadBuff[6] + serialReadBuff[5];
                     if (bufflen == len + 7) { // 获取数据完毕
+                        unsigned char *bin;
+                        unsigned int partitiononesize;
+                        unsigned int partitiontwoposition;
                         if (btnStatus == BTN_STATUS_READ0) {
-                            memcpy(bin0+offset, serialReadBuff+7, len);
-                            addr += len;
-                            offset += len;
-                            if (addr == 128*1024 - 4) {
-                                addr = 0x48000;
-                            }
-                            if (bin0len < 128*1024 - 4 || addr >= 0x48000) {
-                                if (bin0len-offset < 768) {
-                                    len = bin0len-offset;
-                                } else {
-                                    len = 768;
-                                }
-                            } else {
-                                if (128*1024 - 4 - offset < 768) {
-                                    len = 128*1024 - 4 - offset;
-                                } else {
-                                    len = 768;
-                                }
-                            }
+                            bin = bin0;
+                            partitiononesize = 128*1024-4;
+                            partitiontwoposition = 0x48000;
                         } else if (btnStatus == BTN_STATUS_READ1) {
-                            memcpy(bin1+offset, serialReadBuff+7, len);
-                            addr += len;
-                            offset += len;
-                            if (addr == 64*1024 - 4) {
-                                addr = 0x40000;
-                            }
-                            if (bin1len < 64*1024 - 4 || addr >= 0x40000) {
-                                if (bin1len-offset < 768) {
-                                    len = bin1len-offset;
-                                } else {
-                                    len = 768;
-                                }
+                            bin = bin1;
+                            partitiononesize = 64*1024-4;
+                            partitiontwoposition = 0x40000;
+                        } else {
+                            ui->tips->appendPlainText("程序内部错误");
+                            CloseSerial();
+                            return;
+                        }
+                        memcpy(bin+offset, serialReadBuff+7, len);
+                        addr += len;
+                        offset += len;
+                        if (addr == partitiononesize) {
+                            addr = 0x48000;
+                        }
+                        if (bin0len < partitiononesize || addr >= partitiontwoposition) {
+                            if (bin0len-offset < 768) {
+                                len = bin0len-offset;
                             } else {
-                                if (64*1024 - 4 - offset < 768) {
-                                    len = 64*1024 - 4 - offset;
-                                } else {
-                                    len = 768;
-                                }
+                                len = 768;
+                            }
+                        } else {
+                            if (partitiononesize - offset < 768) {
+                                len = 128*1024 - 4 - offset;
+                            } else {
+                                len = 768;
                             }
                         }
                         if (len == 0) {
                             // 这里将文件写入
-                            const unsigned char *bin = btnStatus == BTN_STATUS_READ0 ? bin0 : bin1;
                             char buff[64];
                             if (COMMON::filewrite(savefilepath, (char*)bin, offset, buff, 0)) {
                                 ui->tips->appendPlainText(buff);
@@ -282,6 +265,8 @@ void TkmIsp::ReadSerialData () {
     timer.stop();
     if (chipstep == ISP_ERASE) {
         timer.start(20000); // 正在擦除，所需时间比较长
+    } else if (chipstep == ISP_SYNC) {
+        timer.start(1000); // 正在同步，所需时间比较短
     } else {
         timer.start(3000); // 非ISP_SYNC命令，非擦除命令，统一等待3s
     }
@@ -349,8 +334,6 @@ void TkmIsp::on_writechip_clicked () {
         return;
     }
     bool notfoundload = true;
-    QByteArray msu0bytedata, msu1bytedata;
-    QString msu0suffix, msu1suffix;
     if (ui->msu0load->isChecked()) {
         QString filepath = ui->msu0filepath->text();
         QFile file(filepath);
@@ -358,10 +341,32 @@ void TkmIsp::on_writechip_clicked () {
             ui->tips->appendPlainText("无法读取烧录文件");
             return;
         }
-        msu0bytedata = file.readAll();
+        QByteArray bytedata = file.readAll();
         file.close();
         int pos = filepath.lastIndexOf(".");
-        msu0suffix = filepath.mid(pos);
+        QString suffix = filepath.mid(pos);
+        unsigned char *chardata = (unsigned char*)bytedata.data();
+        if (!suffix.compare(".hex")) {
+            int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), &bin0len);
+            if (res == -1) {
+                ui->tips->appendPlainText("hex文件格式错误");
+                return;
+            } else if (res == -2) {
+                ui->tips->appendPlainText("输出空间太小");
+                return;
+            }
+        } else if (!suffix.compare(".bin")) {
+            uint len = bytedata.length();
+            if (len > sizeof(bin0)) {
+                ui->tips->appendPlainText("bin文件太大");
+                return;
+            }
+            memcpy(bin0, chardata, len);
+            bin0len = len;
+        } else {
+            ui->tips->appendPlainText("msu0文件类型错误");
+            return;
+        }
         notfoundload = false;
     }
     if (ui->msu1load->isChecked()) {
@@ -371,10 +376,32 @@ void TkmIsp::on_writechip_clicked () {
             ui->tips->appendPlainText("无法读取烧录文件");
             return;
         }
-        msu1bytedata = file.readAll();
+        QByteArray bytedata = file.readAll();
         file.close();
         int pos = filepath.lastIndexOf(".");
-        msu1suffix = filepath.mid(pos);
+        QString suffix = filepath.mid(pos);
+        unsigned char *chardata = (unsigned char*)bytedata.data();
+        if (!suffix.compare(".hex")) {
+            int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), &bin1len);
+            if (res == -1) {
+                ui->tips->appendPlainText("hex文件格式错误");
+                return;
+            } else if (res == -2) {
+                ui->tips->appendPlainText("输出空间太小");
+                return;
+            }
+        } else if (!suffix.compare(".bin")) {
+            uint len = bytedata.length();
+            if (len > sizeof(bin1)) {
+                ui->tips->appendPlainText("bin文件太大");
+                return;
+            }
+            memcpy(bin1, chardata, len);
+            bin1len = len;
+        } else {
+            ui->tips->appendPlainText("msu0文件类型错误");
+            return;
+        }
         notfoundload = false;
     }
     if (notfoundload) {
@@ -382,9 +409,9 @@ void TkmIsp::on_writechip_clicked () {
         return;
     }
     retrytime = 0;
-    chipstep = ISP_SYNC0; // sync
+    chipstep = ISP_SYNC; // sync
     char buff[64];
-    buff[0] = ISP_SYNC0;
+    buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
         return;
@@ -414,9 +441,9 @@ void TkmIsp::on_msu0readchip_clicked () {
     }
     savefilepath = filepath;
     retrytime = 0;
-    chipstep = ISP_SYNC0; // sync
+    chipstep = ISP_SYNC; // sync
     char buff[64];
-    buff[0] = ISP_SYNC0;
+    buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
         return;
@@ -445,9 +472,9 @@ void TkmIsp::on_msu1readchip_clicked() {
     }
     savefilepath = filepath;
     retrytime = 0;
-    chipstep = ISP_SYNC0; // sync
+    chipstep = ISP_SYNC; // sync
     char buff[64];
-    buff[0] = ISP_SYNC0;
+    buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
         return;

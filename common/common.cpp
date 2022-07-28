@@ -137,3 +137,33 @@ int COMMON::filewrite (QString savefilepath, char *bin, unsigned int addr, char 
     }
     return res;
 }
+
+int COMMON::TKM_HexToBin(unsigned char *src, unsigned int slength, unsigned char *dest, unsigned int dlength, unsigned int *len) {
+    unsigned int offset = 0;
+    for (unsigned int i = 0 ; i < slength ; i += 10) {
+        if (src[i+8] != 0x0d || src[i+9] != 0x0a) {
+            return -1; // hex格式错误
+        }
+        if (offset + 4 > dlength) {
+            return -2; // dest太小
+        }
+        dest[offset] = src[i+6] < '9' ? src[i+6]-'0' : src[i+6]+10-'A';
+        dest[offset] *= 16;
+        dest[offset] += src[i+7] < '9' ? src[i+7]-'0' : src[i+7]+10-'A';
+        offset++;
+        dest[offset] = src[i+4] < '9' ? src[i+4]-'0' : src[i+4]+10-'A';
+        dest[offset] *= 16;
+        dest[offset] += src[i+5] < '9' ? src[i+5]-'0' : src[i+5]+10-'A';
+        offset++;
+        dest[offset] = src[i+2] < '9' ? src[i+2]-'0' : src[i+2]+10-'A';
+        dest[offset] *= 16;
+        dest[offset] += src[i+3] < '9' ? src[i+3]-'0' : src[i+3]+10-'A';
+        offset++;
+        dest[offset] = src[i] < '9' ? src[i]-'0' : src[i]+10-'A';
+        dest[offset] *= 16;
+        dest[offset] += src[i+1] < '9' ? src[i+1]-'0' : src[i+1]+10-'A';
+        offset++;
+    }
+    *len = offset;
+    return 0;
+}
