@@ -104,7 +104,7 @@ int StmIsp::GetBtnStatus () {
 }
 
 void StmIsp::ReadSerialData () {
-    unsigned int i;
+    uint i;
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -200,7 +200,7 @@ void StmIsp::ReadSerialData () {
             serial.write(buff, 2);
         }
     } else if (chipstep == ISP_GETINFO_TWO) { // get infomation two
-        if (serialReadBuff[0] != 0x79 || (bufflen == (unsigned short)serialReadBuff[1]+4 && serialReadBuff[bufflen-1] != 0x79)) {
+        if (serialReadBuff[0] != 0x79 || (bufflen == (ushort)serialReadBuff[1]+4 && serialReadBuff[bufflen-1] != 0x79)) {
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("获取芯片信息失败");
@@ -212,13 +212,13 @@ void StmIsp::ReadSerialData () {
             buff[0] = ISP_GETINFO_TWO;
             buff[1] = ~buff[0];
             serial.write(buff, 2);
-        } else if (bufflen == (unsigned short)serialReadBuff[1]+4) {
+        } else if (bufflen == (ushort)serialReadBuff[1]+4) {
             retrytime = 0;
             bufflen = 0;
             char buff[64];
-            unsigned char offset = sprintf(buff, "get ID command:");
-            for (i = 0 ; i < (unsigned int)serialReadBuff[1]+1 ; i++) {
-                unsigned char of = sprintf(buff+offset, " 0x%02x", serialReadBuff[2+i]);
+            uchar offset = sprintf(buff, "get ID command:");
+            for (i = 0 ; i < (uint)serialReadBuff[1]+1 ; i++) {
+                uchar of = sprintf(buff+offset, " 0x%02x", serialReadBuff[2+i]);
                 offset += of;
             }
             ui->tips->appendPlainText(buff);
@@ -247,7 +247,7 @@ void StmIsp::ReadSerialData () {
                 chipstep = ISP_ERASE_TWO;
                 if (btnStatus == BTN_STATUS_WRITE) {
                     char checksum = 0;
-                    unsigned int pagenumbers = binlen / 2048;
+                    uint pagenumbers = binlen / 2048;
                     if (binlen % 2048 != 0) {
                         pagenumbers++;
                     }
@@ -309,7 +309,7 @@ void StmIsp::ReadSerialData () {
             if (chipstep == ISP_WRITE) {
                 chipstep = ISP_WRITE_TWO;
                 char checksum = 0;
-                unsigned long tmp_addr = addr + 0x08000000;
+                uint tmp_addr = addr + 0x08000000;
                 char buff[5];
                 buff[0] = tmp_addr >> 24;
                 checksum ^= buff[0];
@@ -337,7 +337,7 @@ void StmIsp::ReadSerialData () {
                 } else { // 最后的一次写入
                     chipstep = ISP_WRITE_FOUR;
                     char checksum = 0;
-                    unsigned int len = binlen-addr;
+                    uint len = binlen-addr;
                     char buff[len+2];
                     buff[0] = len-1;
                     checksum ^= buff[0];
@@ -410,7 +410,7 @@ void StmIsp::ReadSerialData () {
             if (chipstep == ISP_READ) {
                 chipstep = ISP_READ_TWO;
                 char checksum = 0;
-                unsigned long tmp_addr = addr + 0x08000000;
+                uint tmp_addr = addr + 0x08000000;
                 char buff[5];
                 buff[0] = tmp_addr >> 24;
                 checksum ^= buff[0];
@@ -561,7 +561,7 @@ void StmIsp::ReadSerialData () {
             bufflen = 0;
             chipstep = ISP_WRITEPROTECT_TWO;
             char checksum = 0;
-            unsigned char sectornum = binlen / 4096;
+            uchar sectornum = binlen / 4096;
             if (binlen % 4096 != 0) {
                 sectornum++;
             }
@@ -748,7 +748,7 @@ void StmIsp::on_writechip_clicked () {
     file.close();
     int pos = filepath.lastIndexOf(".");
     QString suffix = filepath.mid(pos);
-    unsigned char *chardata = (unsigned char*)bytedata.data();
+    uchar *chardata = (uchar*)bytedata.data();
     if (!suffix.compare(".hex")) {
         if (HexToBin(chardata, bytedata.length(), bin, sizeof(bin), 0x08000000, &binlen) != RES_OK) {
             ui->tips->appendPlainText("hex文件格式错误");

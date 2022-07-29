@@ -86,7 +86,7 @@ void UartAssist::on_startclose_clicked () {
         QSerialPort::DataBits databit;
         QSerialPort::StopBits stopbit;
         QSerialPort::FlowControl flowcontrol;
-        unsigned int tmp;
+        uint tmp;
         sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
         sscanf(ui->baudrate->currentText().toStdString().c_str(), "%u", &tmp);
         switch (tmp) {

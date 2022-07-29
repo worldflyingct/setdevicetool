@@ -5,10 +5,10 @@
 
 class COMMON {
     public:
-        static unsigned short crc_calc(unsigned short crc, unsigned char *dat, unsigned short len);
-        static int urldecode(char *url, int urllen, char **protocol, char **host, unsigned short *port, char **path);
-        static int filewrite(QString savefilepath, char *bin, unsigned int addr, char *buff, unsigned char openmodeflag);
-        static int TKM_HexToBin(unsigned char *src, unsigned int slength, unsigned char *dest, unsigned int dlength, unsigned int *len);
+        static ushort crc_calc(ushort crc, uchar *dat, ushort len);
+        static int urldecode(char *url, int urllen, char **protocol, char **host, ushort *port, char **path);
+        static int filewrite(QString savefilepath, char *bin, uint addr, char *buff, uchar openmodeflag);
+        static int TKM_HexToBin(uchar *src, uint slength, uchar *dest, uint dlength, uint *len);
 };
 
 #endif // COMMON_H

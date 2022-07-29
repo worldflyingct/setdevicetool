@@ -64,8 +64,8 @@ void Isp485::ReadSerialData () {
             return;
         }
     } else if (btnStatus == 2) {
-        unsigned short crc = 0xffff;
-        crc = COMMON::crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
@@ -180,8 +180,8 @@ void Isp485::on_setconfig_clicked () {
         char buff[1024];
         int len = sprintf(buff, "act=SetMode&Mode=0&Url=%s&UserName=%s&PassWord=%s&SendTopic=%s&ReceiveTopic=%s&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
                                     url, user, pass, sendtopic, receivetopic, crccheck, baudrate, databits, paritybit, stopbits);
-        unsigned short crc = 0xffff;
-        crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)buff, len);
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
@@ -203,13 +203,13 @@ void Isp485::on_setconfig_clicked () {
         url[len] = '\0';
         char *protocol;
         char *host;
-        unsigned short port;
+        ushort port;
         int res = COMMON::urldecode (url, len+1, &protocol, &host, &port, NULL);
         if (res != 0) {
             ui->tips->setText("url格式错误");
             return;
         }
-        unsigned short mode;
+        ushort mode;
         if (!memcmp(protocol, "tcp", 4)) {
             mode = 1;
         } else if (!memcmp(protocol, "udp", 4)) {
@@ -234,8 +234,8 @@ void Isp485::on_setconfig_clicked () {
                                     mode, host, port, crccheck, baudrate, databits, paritybit, stopbits);
         free(protocol);
         free(host);
-        unsigned short crc = 0xffff;
-        crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)buff, len);
         buff[len] = crc;
         buff[len+1] = crc>>8;
         len += 2;
@@ -258,8 +258,8 @@ void Isp485::on_getconfig_clicked () {
     const char cmd[] = "act=GetMode";
     int len = sizeof(cmd)-1;
     memcpy(buff, cmd, len);
-    unsigned short crc = 0xffff;
-    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+    ushort crc = 0xffff;
+    crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -339,7 +339,7 @@ void Isp485::HandleSerialData (yyjson_val *json) {
         ui->stopbits->setCurrentText(str);
     }
     const char tip[] = "设备SN:";
-    unsigned short tiplen = sizeof(tip);
+    ushort tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");

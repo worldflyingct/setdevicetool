@@ -244,7 +244,7 @@ void TkmIsp::ReadSerialData () {
             serial.write(buff, 7);
         } else if (bufflen >= 7) {
             retrytime = 0;
-            unsigned char address[4];
+            uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
             address[1] = addr>>8;
@@ -256,7 +256,7 @@ void TkmIsp::ReadSerialData () {
             }
             uint len = 256*serialReadBuff[6] + serialReadBuff[5];
             if (bufflen == len + 7) { // 获取数据完毕
-                unsigned char *bin;
+                uchar *bin;
                 uint binlen;
                 uint partitionOneSize;
                 uint partitionTwoStartPosition;
@@ -354,7 +354,7 @@ void TkmIsp::ReadSerialData () {
         } else if (bufflen == 7) {
             retrytime = 0;
             bufflen = 0;
-            unsigned char address[4];
+            uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
             address[1] = addr>>8;
@@ -447,7 +447,7 @@ void TkmIsp::ReadSerialData () {
                 ui->tips->appendPlainText("开始写入数据");
                 offset = 0;
                 uint len;
-                unsigned char *bin;
+                uchar *bin;
                 if (bin1len > 0) {
                     bin = bin1;
                     addr = 0x00010000;
@@ -492,7 +492,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             chipstep = ISP_WRITE;
             uint len;
-            unsigned char *bin;
+            uchar *bin;
             if (bin1len > 0) {
                 bin = bin1;
                 addr = 0x00010000;
@@ -525,7 +525,7 @@ void TkmIsp::ReadSerialData () {
         } else if (bufflen == 7) {
             retrytime = 0;
             bufflen = 0;
-            unsigned char address[4];
+            uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
             address[1] = addr>>8;
@@ -536,7 +536,7 @@ void TkmIsp::ReadSerialData () {
                 return;
             }
             uint len = 256*serialReadBuff[6] + serialReadBuff[5];
-            unsigned char *bin;
+            uchar *bin;
             uint binlen;
             uint partitionOneSize;
             uint partitionOneEndPosition;
@@ -694,7 +694,7 @@ void TkmIsp::ReadSerialData () {
             serial.write(buff, 7);
         } else if (bufflen >= 7) {
             retrytime = 0;
-            unsigned char address[4];
+            uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
             address[1] = addr>>8;
@@ -706,7 +706,7 @@ void TkmIsp::ReadSerialData () {
             }
             uint len = 256*serialReadBuff[6] + serialReadBuff[5];
             if (bufflen == len + 7) { // 获取数据完毕
-                unsigned char *bin;
+                uchar *bin;
                 uint binlen;
                 uint partitionOneSize;
                 uint partitionTwoStartPosition;
@@ -886,7 +886,7 @@ void TkmIsp::on_writechip_clicked () {
         file.close();
         int pos = filepath.lastIndexOf(".");
         QString suffix = filepath.mid(pos);
-        unsigned char *chardata = (unsigned char*)bytedata.data();
+        uchar *chardata = (uchar*)bytedata.data();
         if (!suffix.compare(".hex")) {            
             if (chardata[0] == ':') { // Linux编译器下生成的标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), 0x00000000, &bin0len) != RES_OK) {
@@ -927,7 +927,7 @@ void TkmIsp::on_writechip_clicked () {
         file.close();
         int pos = filepath.lastIndexOf(".");
         QString suffix = filepath.mid(pos);
-        unsigned char *chardata = (unsigned char*)bytedata.data();
+        uchar *chardata = (uchar*)bytedata.data();
         if (!suffix.compare(".hex")) {
             if (chardata[0] == ':') { // Linux编译器下生成的标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), 0x00000000, &bin1len) != RES_OK) {

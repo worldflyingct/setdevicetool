@@ -6,9 +6,9 @@ extern "C"
 {
 #endif
 
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned long ulong;
+//typedef unsigned char uchar;
+//typedef unsigned short ushort;
+//typedef unsigned long ulong;
  
 #define HEX_MAX_LENGTH  521
 #define HEX_MIN_LEN     11
@@ -25,7 +25,7 @@ typedef enum {
     RES_HEX_NO_END      //hex文件没有结束符
 } RESULT_STATUS;
 
-uchar HexCharToBinChar(char c);
+unsigned char HexCharToBinChar(char c);
 // src为hex的二进制文件
 // slength为hex的二进制文件大小
 // dest为目标bin的缓存

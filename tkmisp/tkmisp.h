@@ -47,16 +47,16 @@ private:
     int btnStatus = 0;
 
     QString savefilepath;
-    unsigned char serialReadBuff[1024];
-    unsigned short bufflen = 0;
-    unsigned char bin0[512*1024];
-    unsigned int bin0len;
-    unsigned char bin1[512*1024];
-    unsigned int bin1len;
-    unsigned char chipstep = 0;
-    unsigned char retrytime = 0;
-    unsigned int addr = 0;
-    unsigned int offset = 0;
+    uchar serialReadBuff[1024];
+    ushort bufflen = 0;
+    uchar bin0[512*1024];
+    uint bin0len;
+    uchar bin1[512*1024];
+    uint bin1len;
+    uchar chipstep = 0;
+    uchar retrytime = 0;
+    uint addr = 0;
+    uint offset = 0;
     bool needcheck = 0;
 };
 

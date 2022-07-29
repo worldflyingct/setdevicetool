@@ -64,8 +64,8 @@ void IspIoController::ReadSerialData () {
             return;
         }
     } else if (btnStatus == 2) {
-        unsigned short crc = 0xffff;
-        crc = COMMON::crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
@@ -143,8 +143,8 @@ void IspIoController::on_setmqtt_clicked () {
     const char *mqttuser = cmqttuser.c_str();
     const char *mqttpass = cmqttpass.c_str();
     int len = sprintf(buff, "act=SetMqtt&Url=%s&UserName=%s&PassWord=%s", mqtturl, mqttuser, mqttpass);
-    unsigned short crc = 0xffff;
-    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+    ushort crc = 0xffff;
+    crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -166,8 +166,8 @@ void IspIoController::on_getmqtt_clicked () {
     const char cmd[] = "act=GetMqtt";
     int len = sizeof(cmd)-1;
     memcpy(buff, cmd, len);
-    unsigned short crc = 0xffff;
-    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+    ushort crc = 0xffff;
+    crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -193,7 +193,7 @@ void IspIoController::HandleSerialData (yyjson_val *json) {
         ui->mqttpass->setText(yyjson_get_str(mqttpass));
     }
     const char tip[] = "设备SN:";
-    unsigned short tiplen = sizeof(tip);
+    ushort tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");

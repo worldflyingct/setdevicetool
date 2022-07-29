@@ -42,8 +42,8 @@ private:
     QTimer timer;
     int btnStatus = 0;
 
-    unsigned char serialReadBuff[1024];
-    unsigned short bufflen = 0;
+    uchar serialReadBuff[1024];
+    ushort bufflen = 0;
 };
 
 #endif // ISPLOCATION_H

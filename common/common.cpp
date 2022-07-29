@@ -4,10 +4,10 @@
 #include "common.h"
 #include <QFileDialog>
 
-unsigned short COMMON::crc_calc (unsigned short crc, unsigned char *dat, unsigned short len) {
-    unsigned short i;
+ushort COMMON::crc_calc (ushort crc, uchar *dat, ushort len) {
+    ushort i;
     for (i = 0 ; i < len ; i++) { // 循环计算每个数据
-        unsigned char j;
+        uchar j;
         crc ^= dat[i]; // 将八位数据与crc寄存器亦或，然后存入crc寄存器
         for (j = 0; j < 8; j++) { // 循环计算数据的
             if (crc & 0x0001) { // 判断右移出的是不是1，如果是1则与多项式进行异或。
@@ -21,8 +21,8 @@ unsigned short COMMON::crc_calc (unsigned short crc, unsigned char *dat, unsigne
     return crc;
 }
 
-int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, unsigned short *port, char **path) {
-    unsigned short i, offset, p = 0, state = 0;
+int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, ushort *port, char **path) {
+    ushort i, offset, p = 0, state = 0;
     if (protocol) {
         *protocol = NULL;
     }
@@ -113,7 +113,7 @@ int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, unsi
     return 0;
 }
 
-int COMMON::filewrite (QString savefilepath, char *bin, unsigned int addr, char *buff, unsigned char openmodeflag) {
+int COMMON::filewrite (QString savefilepath, char *bin, uint addr, char *buff, uchar openmodeflag) {
     int res = 0;
     QFile file(savefilepath);
     QIODevice::OpenMode flag = openmodeflag > 0 ? QIODevice::WriteOnly | QIODevice::Append : QIODevice::WriteOnly;
@@ -138,9 +138,9 @@ int COMMON::filewrite (QString savefilepath, char *bin, unsigned int addr, char 
     return res;
 }
 
-int COMMON::TKM_HexToBin(unsigned char *src, unsigned int slength, unsigned char *dest, unsigned int dlength, unsigned int *len) {
-    unsigned int offset = 0;
-    for (unsigned int i = 0 ; i < slength ; i += 10) {
+int COMMON::TKM_HexToBin(uchar *src, uint slength, uchar *dest, uint dlength, uint *len) {
+    uint offset = 0;
+    for (uint i = 0 ; i < slength ; i += 10) {
         if (src[i+8] != 0x0d || src[i+9] != 0x0a) {
             return -1; // hex格式错误
         }

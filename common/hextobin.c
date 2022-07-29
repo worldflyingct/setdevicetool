@@ -4,10 +4,10 @@
 #include <stddef.h>
 
 typedef struct {
-    uchar len;
-    uchar type;
-    ushort addr;
-    uchar data[256];
+    unsigned char len;
+    unsigned char type;
+    unsigned short addr;
+    unsigned char data[256];
 } BinFarmat;
 /********************************************************************************
 input:
@@ -15,7 +15,7 @@ input:
 output:
     单个字符转化为单个字符
 ********************************************************************************/
-uchar HexCharToBinChar (char c) {
+unsigned char HexCharToBinChar (char c) {
     if (c >= '0' && c <= '9') {
         return c - '0';
     } else if (c >= 'a' && c <= 'z') {
@@ -32,8 +32,8 @@ input:
 output:
     转化为1个字节
 ********************************************************************************/
-static uchar Hex2Bin (unsigned char *p) {
-    uchar tmp = 0;
+static unsigned char Hex2Bin (unsigned char *p) {
+    unsigned char tmp = 0;
     tmp = HexCharToBinChar(p[0]);
     tmp <<= 4;
     tmp |= HexCharToBinChar(p[1]);
@@ -52,9 +52,9 @@ output:
     返回hex格式流分析的结果
 ********************************************************************************/
 static RESULT_STATUS HexFormatUncode (unsigned char *src, BinFarmat *p) {
-    uchar check = 0, tmp[4], binLen;
-    ushort hexLen = (ushort)strlen((char*)src);
-    ushort num = 0, offset = 0;
+    unsigned char check = 0, tmp[4], binLen;
+    unsigned short hexLen = (unsigned short)strlen((char*)src);
+    unsigned short num = 0, offset = 0;
     if (hexLen > HEX_MAX_LENGTH) { // 数据内容过长
         return RES_DATA_TOO_LONG;
     }
@@ -96,8 +96,8 @@ static RESULT_STATUS HexFormatUncode (unsigned char *src, BinFarmat *p) {
  
 RESULT_STATUS HexToBin (unsigned char *src, unsigned int slength, unsigned char *dest, unsigned int dlength, unsigned long offset, unsigned int *len) {
     unsigned int i, soffset = 0, doffset = 0;
-    ushort addr_low;
-    ulong addr_hign = 0;
+    unsigned short addr_low;
+    unsigned long addr_hign = 0;
     unsigned char buffer_hex[600];
     BinFarmat gBinFor;
     *len = 0;

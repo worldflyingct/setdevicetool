@@ -64,8 +64,8 @@ void IspCollector::ReadSerialData () {
             return;
         }
     } else if (btnStatus == 2) {
-        unsigned short crc = 0xffff;
-        crc = COMMON::crc_calc(crc, (unsigned char*)serialReadBuff, bufflen);
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
         if (crc == 0x00) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
@@ -128,14 +128,14 @@ void IspCollector::on_setconfig_clicked () {
     url[len] = '\0';
     char *protocol;
     char *host;
-    unsigned short port;
+    ushort port;
     char *path;
     int res = COMMON::urldecode(url, len+1, &protocol, &host, &port, &path);
     if (res != 0) {
         ui->tips->setText("url格式错误");
         return;
     }
-    unsigned short mode;
+    ushort mode;
     if (!memcmp(protocol, "coap", 4)) {
         mode = 0;
     } else if (!memcmp(protocol, "udp", 3)) {
@@ -165,8 +165,8 @@ void IspCollector::on_setconfig_clicked () {
     free(protocol);
     free(host);
     free(path);
-    unsigned short crc = 0xffff;
-    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+    ushort crc = 0xffff;
+    crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -188,8 +188,8 @@ void IspCollector::on_getconfig_clicked () {
     const char cmd[] = "act=GetConfig";
     int len = sizeof(cmd)-1;
     memcpy(buff, cmd, len);
-    unsigned short crc = 0xffff;
-    crc = COMMON::crc_calc(crc, (unsigned char*)buff, len);
+    ushort crc = 0xffff;
+    crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
     buff[len+1] = crc>>8;
     len += 2;
@@ -231,7 +231,7 @@ void IspCollector::HandleSerialData (yyjson_val *json) {
         ui->second->setValue(second);
     }
     const char tip[] = "设备SN:";
-    unsigned short tiplen = sizeof(tip);
+    ushort tiplen = sizeof(tip);
     char buff[64];
     memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
