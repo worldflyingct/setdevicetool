@@ -124,9 +124,9 @@ void TkmIsp::ReadSerialData () {
             chipstep = ISP_ERASE;
             char buff[7];
             buff[0] = ISP_ERASE;
-            if (btnStatus == BTN_STATUS_ERASE || bin0len > 0) {
+            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
                 addr = 0x00010000;
-            } else if (bin1len > 0) {
+            } else if (bin0len > 0) {
                 addr = 0x00020000;
             } else {
                 ui->tips->appendPlainText("程序内部错误");
@@ -332,9 +332,9 @@ void TkmIsp::ReadSerialData () {
                 CloseSerial();
                 return;
             }
-            if (btnStatus == BTN_STATUS_ERASE || bin0len > 0) {
+            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
                 addr = 0x00010000;
-            } else if (bin1len > 0) {
+            } else if (bin0len > 0) {
                 addr = 0x00020000;
             } else {
                 ui->tips->appendPlainText("程序内部错误");
