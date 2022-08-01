@@ -315,6 +315,11 @@
      <string>192</string>
     </property>
    </item>
+   <item>
+    <property name="text">
+     <string>256</string>
+    </property>
+   </item>
   </widget>
   <widget class="QPushButton" name="erasechip">
    <property name="geometry">
