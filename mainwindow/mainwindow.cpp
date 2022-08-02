@@ -19,82 +19,65 @@ int MainWindow::FreeOthersWidget (void *widget) {
     if (widget != ui->label) {
         ui->label->setVisible(false);
     }
-    if (ispiocontroller != NULL) {
-        if (ispiocontroller == widget) {
-            return -1;
-        }
+    if (ispiocontroller && ispiocontroller != widget) {
         if (ispiocontroller->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete ispiocontroller;
         ispiocontroller = NULL;
     }
-    if (isp485 != NULL) {
-        if (isp485 == widget) {
-            return -1;
-        }
+    if (isp485 && isp485 != widget) {
         if (isp485->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete isp485;
         isp485 = NULL;
     }
-    if (ispcollector != NULL) {
-        if (ispcollector == widget) {
-            return -1;
-        }
+    if (ispcollector && ispcollector != widget) {
         if (ispcollector->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete ispcollector;
         ispcollector = NULL;
     }
-    if (ispiotprogram != NULL) {
-        if (ispiotprogram == widget) {
-            return -1;
-        }
+    if (ispiotprogram && ispiotprogram != widget) {
         if (ispiotprogram->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete ispiotprogram;
         ispiotprogram = NULL;
     }
-    if (stmisp != NULL) {
-        if (stmisp == widget) {
+    if (rj45iotprogram && rj45iotprogram != widget) {
+        if (rj45iotprogram->GetBtnStatus()) {
             return -1;
         }
+        delete rj45iotprogram;
+        rj45iotprogram = NULL;
+    }
+    if (stmisp && stmisp != widget) {
         if (stmisp->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete stmisp;
         stmisp = NULL;
     }
-    if (tkmisp != NULL) {
-        if (tkmisp == widget) {
-            return -1;
-        }
+    if (tkmisp && tkmisp != widget) {
         if (tkmisp->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete tkmisp;
         tkmisp = NULL;
     }
-    if (uartassist != NULL) {
-        if (uartassist == widget) {
-            return -1;
-        }
+    if (uartassist && uartassist != widget) {
         if (uartassist->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete uartassist;
         uartassist = NULL;
     }
-    if (netassist != NULL) {
-        if (netassist == widget) {
-            return -1;
-        }
+    if (netassist && netassist != widget) {
         if (netassist->GetBtnStatus()) {
-            return -2;
+            return -1;
         }
         delete netassist;
         netassist = NULL;
@@ -118,102 +101,115 @@ void MainWindow::on_actionIspIoController_triggered () {
     if (FreeOthersWidget(ispiocontroller)) {
         return;
     }
-    if (ispiocontroller == NULL) {
+    if (!ispiocontroller) {
         ispiocontroller = new IspIoController(ui->centralWidget);
+        int w = ispiocontroller->width();
+        int h = ispiocontroller->height();
+        setFixedSize(w, h + 23);
+        ispiocontroller->show();
     }
-    int w = ispiocontroller->width();
-    int h = ispiocontroller->height();
-    setFixedSize(w, h + 23);
-    ispiocontroller->show();
 }
 
 void MainWindow::on_actionIsp485GateWay_triggered () {
     if (FreeOthersWidget(isp485)) {
         return;
     }
-    if (isp485 == NULL) {
+    if (!isp485) {
         isp485 = new Isp485(ui->centralWidget);
+        int w = isp485->width();
+        int h = isp485->height();
+        setFixedSize(w, h + 23);
+        isp485->show();
     }
-    int w = isp485->width();
-    int h = isp485->height();
-    setFixedSize(w, h + 23);
-    isp485->show();
 }
 
 void MainWindow::on_actionIspCollector_triggered () {
     if (FreeOthersWidget(ispcollector)) {
         return;
     }
-    if (ispcollector == NULL) {
+    if (!ispcollector) {
         ispcollector = new IspCollector(ui->centralWidget);
+        int w = ispcollector->width();
+        int h = ispcollector->height();
+        setFixedSize(w, h + 23);
+        ispcollector->show();
     }
-    int w = ispcollector->width();
-    int h = ispcollector->height();
-    setFixedSize(w, h + 23);
-    ispcollector->show();
 }
 
 void MainWindow::on_actionIspIotProgram_triggered () {
     if (FreeOthersWidget(ispiotprogram)) {
         return;
     }
-    if (ispiotprogram == NULL) {
+    if (!ispiotprogram) {
         ispiotprogram = new IspIotProgram(ui->centralWidget);
+        int w = ispiotprogram->width();
+        int h = ispiotprogram->height();
+        setFixedSize(w, h + 23);
+        ispiotprogram->show();
     }
-    int w = ispiotprogram->width();
-    int h = ispiotprogram->height();
-    setFixedSize(w, h + 23);
-    ispiotprogram->show();
+}
+
+void MainWindow::on_actionRj45IotProgram_triggered () {
+    if (FreeOthersWidget(rj45iotprogram)) {
+        return;
+    }
+    if (!rj45iotprogram) {
+        rj45iotprogram = new Rj45IotProgram(ui->centralWidget);
+        int w = rj45iotprogram->width();
+        int h = rj45iotprogram->height();
+        setFixedSize(w, h + 23);
+        rj45iotprogram->show();
+    }
 }
 
 void MainWindow::on_actionStmIsp_triggered () {
     if (FreeOthersWidget(stmisp)) {
         return;
     }
-    if (stmisp == NULL) {
+    if (!stmisp) {
         stmisp = new StmIsp(ui->centralWidget);
+        int w = stmisp->width();
+        int h = stmisp->height();
+        setFixedSize(w, h + 23);
+        stmisp->show();
     }
-    int w = stmisp->width();
-    int h = stmisp->height();
-    setFixedSize(w, h + 23);
-    stmisp->show();
 }
 
 void MainWindow::on_actiontkm_triggered() {
     if (FreeOthersWidget(tkmisp)) {
         return;
     }
-    if (tkmisp == NULL) {
+    if (!tkmisp) {
         tkmisp = new TkmIsp(ui->centralWidget);
+        int w = tkmisp->width();
+        int h = tkmisp->height();
+        setFixedSize(w, h + 23);
+        tkmisp->show();
     }
-    int w = tkmisp->width();
-    int h = tkmisp->height();
-    setFixedSize(w, h + 23);
-    tkmisp->show();
 }
 
 void MainWindow::on_actionUartAssist_triggered () {
     if (FreeOthersWidget(uartassist)) {
         return;
     }
-    if (uartassist == NULL) {
+    if (!uartassist) {
         uartassist = new UartAssist(ui->centralWidget);
+        int w = uartassist->width();
+        int h = uartassist->height();
+        setFixedSize(w, h + 23);
+        uartassist->show();
     }
-    int w = uartassist->width();
-    int h = uartassist->height();
-    setFixedSize(w, h + 23);
-    uartassist->show();
 }
 
 void MainWindow::on_actionNetAssist_triggered () {
     if (FreeOthersWidget(netassist)) {
         return;
     }
-    if (netassist == NULL) {
+    if (!netassist) {
         netassist = new NetAssist(ui->centralWidget);
+        int w = netassist->width();
+        int h = netassist->height();
+        setFixedSize(w, h + 23);
+        netassist->show();
     }
-    int w = netassist->width();
-    int h = netassist->height();
-    setFixedSize(w, h + 23);
-    netassist->show();
 }

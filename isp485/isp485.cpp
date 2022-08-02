@@ -66,7 +66,7 @@ void Isp485::ReadSerialData () {
     } else if (btnStatus == 2) {
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
-        if (crc == 0x00) {
+        if (!crc) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
             yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
@@ -85,7 +85,7 @@ void Isp485::ReadSerialData () {
 
 int Isp485::OpenSerial (char *data, qint64 len) {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::NoParity);
@@ -132,51 +132,51 @@ void Isp485::on_setconfig_clicked () {
         return;
     }
     ui->tips->setText("");
-    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
+    // 下面的不同项目可能不同，另外，5s后没有收到设备返回就会提示失败。
     if (ui->mqttradio->isChecked()) { // mqtt模式
-        std::string curl = ui->url->text().toStdString();
-        if (curl.length() == 0) {
+        QByteArray curl = ui->url->text().toUtf8();
+        if (!curl.length()) {
             ui->tips->setText("URL为空");
             return;
         }
-        const char *url = curl.c_str();
+        const char *url = curl.data();
         if (memcmp(url, "tcp://", 6)) {
             ui->tips->setText("MQTT协议不正确");
             return;
         }
-        std::string cuser = ui->user->text().toStdString();
-        if (cuser.length() == 0) {
+        QByteArray cuser = ui->user->text().toUtf8();
+        if (!cuser.length()) {
             ui->tips->setText("USER为空");
             return;
         }
-        std::string cpass = ui->pass->text().toStdString();
-        if (cpass.length() == 0) {
+        QByteArray cpass = ui->pass->text().toUtf8();
+        if (!cpass.length()) {
             ui->tips->setText("PASS为空");
             return;
         }
-        std::string csendtopic = ui->sendtopic->text().toStdString();
-        if (csendtopic.length() == 0) {
+        QByteArray csendtopic = ui->sendtopic->text().toUtf8();
+        if (!csendtopic.length()) {
             ui->tips->setText("发送topic为空");
             return;
         }
-        std::string creceivetopic = ui->receivetopic->text().toStdString();
-        if (creceivetopic.length() == 0) {
+        QByteArray creceivetopic = ui->receivetopic->text().toUtf8();
+        if (!creceivetopic.length()) {
             ui->tips->setText("接收topic为空");
             return;
         }
-        const char *user = cuser.c_str();
-        const char *pass = cpass.c_str();
-        const char *sendtopic = csendtopic.c_str();
-        const char *receivetopic = creceivetopic.c_str();
+        const char *user = cuser.data();
+        const char *pass = cpass.data();
+        const char *sendtopic = csendtopic.data();
+        const char *receivetopic = creceivetopic.data();
         bool crccheck = ui->crccheck->isChecked();
-        std::string cbaudrate = ui->baudrate->currentText().toStdString();
-        const char *baudrate = cbaudrate.c_str();
-        std::string cdatabits = ui->databits->currentText().toStdString();
-        const char *databits = cdatabits.c_str();
-        std::string cparitybit = ui->paritybit->currentText().toStdString();
-        const char *paritybit = cparitybit.c_str();
-        std::string cstopbits = ui->stopbits->currentText().toStdString();
-        const char *stopbits = cstopbits.c_str();
+        QByteArray cbaudrate = ui->baudrate->currentText().toUtf8();
+        const char *baudrate = cbaudrate.data();
+        QByteArray cdatabits = ui->databits->currentText().toUtf8();
+        const char *databits = cdatabits.data();
+        QByteArray cparitybit = ui->paritybit->currentText().toUtf8();
+        const char *paritybit = cparitybit.data();
+        QByteArray cstopbits = ui->stopbits->currentText().toUtf8();
+        const char *stopbits = cstopbits.data();
         char buff[1024];
         int len = sprintf(buff, "act=SetMode&Mode=0&Url=%s&UserName=%s&PassWord=%s&SendTopic=%s&ReceiveTopic=%s&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
                                     url, user, pass, sendtopic, receivetopic, crccheck, baudrate, databits, paritybit, stopbits);
@@ -192,19 +192,19 @@ void Isp485::on_setconfig_clicked () {
         btnStatus = 1;
         ui->tips->setText("数据发送成功");
     } else if (ui->otherradio->isChecked()) { // tcp或是udp模式
-        std::string curl = ui->url->text().toStdString();
+        QByteArray curl = ui->url->text().toUtf8();
         int len = curl.length();
-        if (len == 0) {
+        if (!len) {
             ui->tips->setText("URL为空");
             return;
         }
         char url[len+1];
-        memcpy(url, curl.c_str(), len);
+        memcpy(url, curl.data(), len);
         url[len] = '\0';
-        char *protocol;
-        char *host;
+        char protocol[16];
+        char host[256];
         ushort port;
-        int res = COMMON::urldecode (url, len+1, &protocol, &host, &port, NULL);
+        int res = COMMON::urldecode (url, len, protocol, host, &port, NULL);
         if (res != 0) {
             ui->tips->setText("url格式错误");
             return;
@@ -216,24 +216,20 @@ void Isp485::on_setconfig_clicked () {
             mode = 2;
         } else {
            ui->tips->setText("url格式错误");
-           free(protocol);
-           free(host);
            return;
         }
         bool crccheck = ui->crccheck->isChecked();
-        std::string cbaudrate = ui->baudrate->currentText().toStdString();
-        const char *baudrate = cbaudrate.c_str();
-        std::string cdatabits = ui->databits->currentText().toStdString();
-        const char *databits = cdatabits.c_str();
-        std::string cparitybit = ui->paritybit->currentText().toStdString();
-        const char *paritybit = cparitybit.c_str();
-        std::string cstopbits = ui->stopbits->currentText().toStdString();
-        const char *stopbits = cstopbits.c_str();
+        QByteArray cbaudrate = ui->baudrate->currentText().toUtf8();
+        const char *baudrate = cbaudrate.data();
+        QByteArray cdatabits = ui->databits->currentText().toUtf8();
+        const char *databits = cdatabits.data();
+        QByteArray cparitybit = ui->paritybit->currentText().toUtf8();
+        const char *paritybit = cparitybit.data();
+        QByteArray cstopbits = ui->stopbits->currentText().toUtf8();
+        const char *stopbits = cstopbits.data();
         char buff[1024];
         len = sprintf(buff, "act=SetMode&Mode=%u&Host=%s&Port=%u&Crc=%u&BaudRate=%s&DataBits=%s&ParityBit=%s&StopBits=%s",
                                     mode, host, port, crccheck, baudrate, databits, paritybit, stopbits);
-        free(protocol);
-        free(host);
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)buff, len);
         buff[len] = crc;

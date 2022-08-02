@@ -5,7 +5,8 @@
 #include "ispiocontroller/ispiocontroller.h"
 #include "isp485/isp485.h"
 #include "ispcollector/ispcollector.h"
-#include "ispiotprogram/ispiotprogram.h"
+#include "iotprogram/isp/ispiotprogram.h"
+#include "iotprogram/rj45/rj45iotprogram.h"
 #include "stmisp/stmisp.h"
 #include "tkmisp/tkmisp.h"
 #include "uartassist/uartassist.h"
@@ -29,6 +30,7 @@ private slots:
     void on_actionIsp485GateWay_triggered();
     void on_actionIspCollector_triggered();
     void on_actionIspIotProgram_triggered();
+    void on_actionRj45IotProgram_triggered();
     void on_actionStmIsp_triggered();
     void on_actionUartAssist_triggered();
     void on_actionNetAssist_triggered();
@@ -41,6 +43,7 @@ private:
     Isp485 *isp485 = NULL;
     IspCollector *ispcollector = NULL;
     IspIotProgram *ispiotprogram = NULL;
+    Rj45IotProgram *rj45iotprogram = NULL;
     StmIsp *stmisp = NULL;
     TkmIsp *tkmisp = NULL;
     UartAssist *uartassist = NULL;

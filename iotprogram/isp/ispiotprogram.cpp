@@ -66,7 +66,7 @@ void IspIotProgram::ReadSerialData () {
     } else if (btnStatus == 2) {
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
-        if (crc == 0x00) {
+        if (!crc) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
             yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
@@ -85,7 +85,7 @@ void IspIotProgram::ReadSerialData () {
 
 int IspIotProgram::OpenSerial (char *data, qint64 len) {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::NoParity);
@@ -118,37 +118,35 @@ void IspIotProgram::on_setmode_clicked () {
         return;
     }
     ui->tips->setText("");
-    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
-    std::string cmqtturl = ui->mqtturl->text().toStdString();
-    if (cmqtturl.length() == 0) {
+    // 下面的不同项目可能不同，另外，5s后没有收到设备返回就会提示失败。
+    QByteArray cmqtturl = ui->mqtturl->text().toUtf8();
+    if (!cmqtturl.length()) {
         ui->tips->setText("MQTT URL为空");
         return;
     }
-    const char *mqtturl = cmqtturl.c_str();
+    const char *mqtturl = cmqtturl.data();
     if (memcmp(mqtturl, "tcp://", 6)) {
         ui->tips->setText("MQTT协议不正确");
         return;
     }
-    std::string cmqttuser = ui->mqttuser->text().toStdString();
+    QByteArray cmqttuser = ui->mqttuser->text().toUtf8();
     if (!cmqttuser.length()) {
         ui->tips->setText("MQTT USER为空");
         return;
     }
-    std::string cmqttpass = ui->mqttpass->text().toStdString();
+    QByteArray cmqttpass = ui->mqttpass->text().toUtf8();
     if (!cmqttpass.length()) {
         ui->tips->setText("MQTT PASS为空");
         return;
     }
-    std::string cuser = ui->user->text().toStdString();
-    if (cuser.length() != 11) {
-        ui->tips->setText("拥有者账号为空");
+    QByteArray cuser = ui->user->text().toUtf8();
+    const char *user = cuser.data();
+    if (!COMMON::CheckValidTelephone(user)) {
+        ui->tips->setText("拥有者账号格式不正确");
         return;
     }
     char buff[1024];
-    const char *mqttuser = cmqttuser.c_str();
-    const char *mqttpass = cmqttpass.c_str();
-    const char *user = cuser.c_str();
-    int len = sprintf(buff, "act=SetMode&Url=%s&UserName=%s&PassWord=%s&User=%s", mqtturl, mqttuser, mqttpass, user);
+    int len = sprintf(buff, "act=SetMode&Url=%s&UserName=%s&PassWord=%s&User=%s", mqtturl, cmqttuser.data(), cmqttpass.data(), user);
     ushort crc = 0xffff;
     crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
@@ -202,13 +200,14 @@ void IspIotProgram::HandleSerialData (yyjson_val *json) {
     if (user) {
         ui->user->setText(yyjson_get_str(user));
     }
-    const char tip[] = "设备SN:";
-    ushort tiplen = sizeof(tip);
-    char buff[64];
-    memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
+        char buff[128];
+        int len = sprintf(buff, "设备SN:%s", yyjson_get_str(serialnumber));
+        yyjson_val *type = yyjson_obj_get(json, "Type");
+        if (type) {
+            sprintf(buff+len, "\r\n设备型号:%s", yyjson_get_str(type));
+        }
         ui->tips->setText(buff);
     }
 }

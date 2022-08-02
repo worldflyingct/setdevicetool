@@ -66,7 +66,7 @@ void IspIoController::ReadSerialData () {
     } else if (btnStatus == 2) {
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
-        if (crc == 0x00) {
+        if (!crc) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
             yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
@@ -85,7 +85,7 @@ void IspIoController::ReadSerialData () {
 
 int IspIoController::OpenSerial (char *data, qint64 len) {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::NoParity);
@@ -119,29 +119,29 @@ void IspIoController::on_setmqtt_clicked () {
     }
     ui->tips->setText("");
     // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
-    std::string cmqtturl = ui->mqtturl->text().toStdString();
-    if (cmqtturl.length() == 0) {
+    QByteArray cmqtturl = ui->mqtturl->text().toUtf8();
+    if (!cmqtturl.length()) {
         ui->tips->setText("MQTT URL为空");
         return;
     }
-    const char *mqtturl = cmqtturl.c_str();
+    const char *mqtturl = cmqtturl.data();
     if (memcmp(mqtturl, "tcp://", 6)) {
         ui->tips->setText("MQTT协议不正确");
         return;
     }
-    std::string cmqttuser = ui->mqttuser->text().toStdString();
+    QByteArray cmqttuser = ui->mqttuser->text().toUtf8();
     if (!cmqttuser.length()) {
         ui->tips->setText("MQTT USER为空");
         return;
     }
-    std::string cmqttpass = ui->mqttpass->text().toStdString();
+    QByteArray cmqttpass = ui->mqttpass->text().toUtf8();
     if (!cmqttpass.length()) {
         ui->tips->setText("MQTT PASS为空");
         return;
     }
     char buff[1024];
-    const char *mqttuser = cmqttuser.c_str();
-    const char *mqttpass = cmqttpass.c_str();
+    const char *mqttuser = cmqttuser.data();
+    const char *mqttpass = cmqttpass.data();
     int len = sprintf(buff, "act=SetMqtt&Url=%s&UserName=%s&PassWord=%s", mqtturl, mqttuser, mqttpass);
     ushort crc = 0xffff;
     crc = COMMON::crc_calc(crc, (uchar*)buff, len);
@@ -161,7 +161,7 @@ void IspIoController::on_getmqtt_clicked () {
         return;
     }
     ui->tips->setText("");
-    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
+    // 下面的不同项目可能不同，另外，5s后没有收到设备返回就会提示失败。
     char buff[32];
     const char cmd[] = "act=GetMqtt";
     int len = sizeof(cmd)-1;
@@ -192,13 +192,14 @@ void IspIoController::HandleSerialData (yyjson_val *json) {
     if (mqttpass) {
         ui->mqttpass->setText(yyjson_get_str(mqttpass));
     }
-    const char tip[] = "设备SN:";
-    ushort tiplen = sizeof(tip);
-    char buff[64];
-    memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
+        char buff[128];
+        int len = sprintf(buff, "设备SN:%s", yyjson_get_str(serialnumber));
+        yyjson_val *type = yyjson_obj_get(json, "Type");
+        if (type) {
+            sprintf(buff+len, "\r\n设备型号:%s", yyjson_get_str(type));
+        }
         ui->tips->setText(buff);
     }
 }

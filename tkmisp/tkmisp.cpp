@@ -265,7 +265,7 @@ void TkmIsp::ReadSerialData () {
                     binlen = bin1len;
                     partitionOneSize = 0x10000;
                     partitionTwoStartPosition = 0x40000;
-                } else if ((0x20000 <= addr && addr < 0x40000) || 0x48000 <= addr) {
+                } else if ((0x20000 <= addr && addr < 0x40000) || (0x48000 <= addr && addr < 0x68000)) {
                     bin = bin0;
                     binlen = bin0len;
                     partitionOneSize = 0x20000;
@@ -379,7 +379,7 @@ void TkmIsp::ReadSerialData () {
                 binlen = bin1len;
                 partitionOneEndPosition = 0x20000;
                 partitionTwoStartPosition = 0x40000;
-            } else if ((0x20000 <= addr && addr < 0x40000) || 0x48000 <= addr) { // msu0
+            } else if ((0x20000 <= addr && addr < 0x40000) || (0x48000 <= addr && addr < 0x68000)) { // msu0
                 bin = bin0;
                 binlen = bin0len;
                 partitionOneEndPosition = 0x40000;
@@ -547,7 +547,7 @@ void TkmIsp::ReadSerialData () {
                 partitionOneSize = 0x10000;
                 partitionOneEndPosition = 0x20000;
                 partitionTwoStartPosition = 0x40000;
-            } else if ((0x20000 <= addr && addr < 0x40000) || 0x48000 <= addr) { // msu0
+            } else if ((0x20000 <= addr && addr < 0x40000) || (0x48000 <= addr && addr < 0x68000)) { // msu0
                 bin = bin0;
                 binlen = bin0len;
                 partitionOneSize = 0x20000;
@@ -715,7 +715,7 @@ void TkmIsp::ReadSerialData () {
                     binlen = bin1len;
                     partitionOneSize = 0x10000;
                     partitionTwoStartPosition = 0x40000;
-                } else if ((0x20000 <= addr && addr < 0x40000) || 0x48000 <= addr) {
+                } else if ((0x20000 <= addr && addr < 0x40000) || (0x48000 <= addr && addr < 0x68000)) {
                     bin = bin0;
                     binlen = bin0len;
                     partitionOneSize = 0x20000;
@@ -813,7 +813,7 @@ void TkmIsp::ReadSerialData () {
 
 int TkmIsp::OpenSerial () {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::NoParity);
@@ -1003,7 +1003,7 @@ void TkmIsp::on_msu0readchip_clicked () {
         CloseSerial();
         return;
     }
-    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &bin0len);
+    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
     bin1len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
@@ -1031,7 +1031,7 @@ void TkmIsp::on_msu1readchip_clicked() {
         return;
     }
     bin0len = 0;
-    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &bin1len);
+    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &bin1len);
     if (bin1len > 96) {
         ui->tips->appendPlainText("msu1文件太大");
         CloseSerial();

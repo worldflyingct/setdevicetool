@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>432</width>
-    <height>399</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>沃航设备配置工具</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
+   <iconset resource="../../resources/resources.qrc">
     <normaloff>:/favicon.png</normaloff>:/favicon.png</iconset>
   </property>
   <widget class="QLabel" name="comlabel">
@@ -187,8 +187,8 @@
     <rect>
      <x>260</x>
      <y>350</y>
-     <width>93</width>
-     <height>28</height>
+     <width>91</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="text">
@@ -276,7 +276,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../resources/resources.qrc"/>
+  <include location="../../resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

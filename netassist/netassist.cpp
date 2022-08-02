@@ -99,7 +99,7 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
         QString prot = ui->protocol->currentText();
         if (prot == "TCP Client") {
             QString remoteaddr = ui->remoteaddr->text();
-            if (remoteaddr.size() == 0) {
+            if (!remoteaddr.size()) {
                 ui->receiveEdit->append("远程地址为空");
                 ui->receiveEdit->append("");
                 return;
@@ -218,7 +218,7 @@ void NetAssist::on_startclose_clicked () {
 }
 
 void NetAssist::on_send_clicked () {
-    if (btnStatus == 0) {
+    if (!btnStatus) {
         ui->receiveEdit->append("网络尚未连接，发送失败");
         ui->receiveEdit->append("");
         return;
@@ -275,7 +275,7 @@ void NetAssist::on_send_clicked () {
         dstPort = tc->peerPort();
     } else { // prot == "UDP"
         QString remoteaddr = ui->remoteaddr->text();
-        if (remoteaddr.size() == 0) {
+        if (!remoteaddr.size()) {
             ui->receiveEdit->append("远程地址为空");
             ui->receiveEdit->append("");
             return;

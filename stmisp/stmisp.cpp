@@ -646,7 +646,7 @@ void StmIsp::ReadSerialData () {
 
 int StmIsp::OpenSerial (char *data, qint64 len) {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::EvenParity);
@@ -692,7 +692,7 @@ void StmIsp::on_readchip_clicked () {
         CloseSerial();
         return;
     }
-    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
+    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &binlen);
     binlen *= 1024;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
@@ -815,7 +815,7 @@ void StmIsp::on_writeprotect_clicked () {
         CloseSerial();
         return;
     }
-    sscanf(ui->flashsize->currentText().toStdString().c_str(), "%u", &binlen);
+    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &binlen);
     binlen *= 1024;
     retrytime = 0;
     chipstep = ISP_SYNC; // sync

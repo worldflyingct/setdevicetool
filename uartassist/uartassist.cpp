@@ -87,8 +87,8 @@ void UartAssist::on_startclose_clicked () {
         QSerialPort::StopBits stopbit;
         QSerialPort::FlowControl flowcontrol;
         uint tmp;
-        sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
-        sscanf(ui->baudrate->currentText().toStdString().c_str(), "%u", &tmp);
+        sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
+        sscanf(ui->baudrate->currentText().toUtf8().data(), "%u", &tmp);
         switch (tmp) {
             case  1200:baudrate = QSerialPort::Baud1200;break;
             case  2400:baudrate = QSerialPort::Baud2400;break;
@@ -110,7 +110,7 @@ void UartAssist::on_startclose_clicked () {
         } else {
             parity = QSerialPort::NoParity;
         }
-        sscanf(ui->databit->currentText().toStdString().c_str(), "%u", &tmp);
+        sscanf(ui->databit->currentText().toUtf8().data(), "%u", &tmp);
         switch (tmp) {
             case  5:databit = QSerialPort::Data5;break;
             case  6:databit = QSerialPort::Data6;break;
@@ -168,7 +168,7 @@ void UartAssist::on_startclose_clicked () {
 }
 
 void UartAssist::on_send_clicked () {
-    if (btnStatus == 0) {
+    if (!btnStatus) {
         ui->receiveEdit->append("串口未打开，请先打开串口");
         ui->receiveEdit->append("");
         return;

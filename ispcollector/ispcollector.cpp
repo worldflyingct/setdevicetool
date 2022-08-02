@@ -66,7 +66,7 @@ void IspCollector::ReadSerialData () {
     } else if (btnStatus == 2) {
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)serialReadBuff, bufflen);
-        if (crc == 0x00) {
+        if (!crc) {
             bufflen -= 2;
             serialReadBuff[bufflen] = '\0';
             yyjson_doc *doc = yyjson_read((char*)serialReadBuff, bufflen, 0);
@@ -85,7 +85,7 @@ void IspCollector::ReadSerialData () {
 
 int IspCollector::OpenSerial (char *data, qint64 len) {
     char comname[12];
-    sscanf(ui->com->currentText().toStdString().c_str(), "%s ", comname);
+    sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
     serial.setBaudRate(QSerialPort::Baud115200);
     serial.setParity(QSerialPort::NoParity);
@@ -117,20 +117,20 @@ void IspCollector::on_setconfig_clicked () {
     if (btnStatus) {
         return;
     }
-    std::string cserverurl = ui->serverurl->text().toStdString();
+    QByteArray cserverurl = ui->serverurl->text().toUtf8();
     int len = cserverurl.length();
-    if (len == 0) {
+    if (!len) {
         ui->tips->setText("服务器地址为空");
         return;
     }
     char url[len+1];
-    memcpy(url, cserverurl.c_str(), len);
+    memcpy(url, cserverurl.data(), len);
     url[len] = '\0';
-    char *protocol;
-    char *host;
+    char protocol[16];
+    char host[256];
     ushort port;
-    char *path;
-    int res = COMMON::urldecode(url, len+1, &protocol, &host, &port, &path);
+    char path[256];
+    int res = COMMON::urldecode(url, len, protocol, host, &port, path);
     if (res != 0) {
         ui->tips->setText("url格式错误");
         return;
@@ -142,9 +142,6 @@ void IspCollector::on_setconfig_clicked () {
         mode = 1;
     } else {
        ui->tips->setText("url格式错误");
-       free(protocol);
-       free(host);
-       free(path);
        return;
     }
     int day = ui->day->value();
@@ -162,9 +159,6 @@ void IspCollector::on_setconfig_clicked () {
     } else if (mode == 1){
         len = sprintf(buff, "act=SetConfig&Mode=1&Host=%s&Port=%d&Path=%s&Second=%d", host, port, path, totalsecond);
     }
-    free(protocol);
-    free(host);
-    free(path);
     ushort crc = 0xffff;
     crc = COMMON::crc_calc(crc, (uchar*)buff, len);
     buff[len] = crc;
@@ -183,7 +177,7 @@ void IspCollector::on_getconfig_clicked () {
         return;
     }
     ui->tips->setText("");
-    // 下面的不同项目可能不同，另外，0.5s后没有收到设备返回就会提示失败。
+    // 下面的不同项目可能不同，另外，5s后没有收到设备返回就会提示失败。
     char buff[32];
     const char cmd[] = "act=GetConfig";
     int len = sizeof(cmd)-1;
@@ -230,13 +224,14 @@ void IspCollector::HandleSerialData (yyjson_val *json) {
         ui->minute->setValue(minute);
         ui->second->setValue(second);
     }
-    const char tip[] = "设备SN:";
-    ushort tiplen = sizeof(tip);
-    char buff[64];
-    memcpy(buff, tip, tiplen);
     yyjson_val *serialnumber = yyjson_obj_get(json, "Sn");
     if (serialnumber) {
-        strcpy(buff + tiplen - 1, yyjson_get_str(serialnumber));
+        char buff[128];
+        int len = sprintf(buff, "设备SN:%s", yyjson_get_str(serialnumber));
+        yyjson_val *type = yyjson_obj_get(json, "Type");
+        if (type) {
+            sprintf(buff+len, "\r\n设备型号:%s", yyjson_get_str(type));
+        }
         ui->tips->setText(buff);
     }
 }

@@ -21,65 +21,43 @@ ushort COMMON::crc_calc (ushort crc, uchar *dat, ushort len) {
     return crc;
 }
 
-int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, ushort *port, char **path) {
-    ushort i, offset, p = 0, state = 0;
-    if (protocol) {
-        *protocol = NULL;
-    }
-    if (host) {
-        *host = NULL;
-    }
-    if (port) {
-        *port = 0;
-    }
-    if (path) {
-        *path = NULL;
-    }
-    if (url[urllen-1] != '\0') {
-        return 1;
-    }
-    for (i = 0 ; i < urllen ; i++) {
+int COMMON::urldecode (const char *url, int urllen, char *protocol, char *host, ushort *port, char *path) {
+    uint p;
+    int offset = 0, state = 0;
+    for (int i = 0 ; i < urllen ; i++) {
         if (state == 0 && url[i] == ':') {
             if (i+2 < urllen && (url[i+1] != '/' || url[i+2] != '/')) {
-                return 2;
+                return -1;
             }
             if (protocol) {
-                int tlen = i;
-                char *t = (char*)malloc(tlen+1);
-                if (t == NULL) {
-                    return 3;
-                }
-                memcpy(t, url, i);
-                t[i] = '\0';
-                *protocol = t;
+                int tlen = i - offset;
+                memcpy(protocol, url, tlen);
+                protocol[tlen] = '\0';
             }
             i += 3;
             offset = i;
             state = 1;
-        } else if (state == 1) {
-            if (url[i] == ':' || url[i] == '/' || url[i] == '\0') {
-                if (host) {
-                    int tlen = i-offset;
-                    char *t = (char*)malloc(tlen+1);
-                    if (t == NULL) {
-                        return 5;
-                    }
-                    memcpy(t, url + offset, tlen);
-                    t[tlen] = '\0';
-                    *host = t;
-                }
-                offset = i;
-                if (url[i] == ':') {
-                    state = 2;
-                } else if (url[i] == '/') {
-                    state = 3;
-                } else if (url[i] == '\0') {
-                    return 0;
-                }
+        } else if (state == 1 && (url[i] == ':' || url[i] == '/' || url[i] == '\0')) {
+            if (host) {
+                int tlen = i - offset;
+                memcpy(host, url + offset, tlen);
+                host[tlen] = '\0';
+            }
+            offset = i;
+            if (url[i] == ':') {
+                p = 0;
+                state = 2;
+            } else if (url[i] == '/') {
+                state = 3;
+            } else if (url[i] == '\0') {
+                return 0;
             }
         } else if (state == 2) {
             if ('0' <= url[i] && url[i] <= '9') {
                 p = 10*p + url[i] - '0';
+                if (p > 65536) {
+                    return -2;
+                }
             } else if (url[i] == '/' || url[i] == '\0') {
                 if (port) {
                     *port = p;
@@ -91,23 +69,32 @@ int COMMON::urldecode (char *url, int urllen, char **protocol, char **host, usho
                     return 0;
                 }
             } else {
-                return 6;
+                return -3;
             }
-        } else if (state == 3) {
-            if (url[i] == '\0') {
-                if (path) {
-                    int tlen = i-offset;
-                    char *t = (char*)malloc(tlen+1);
-                    if (t == NULL) {
-                        return 7;
-                    }
-                    memcpy(t, url + offset, tlen);
-                    t[tlen] = '\0';
-                    *path = t;
-                }
-                offset = i;
-                return 0;
+        } else if (state == 3 && url[i] == '\0') {
+            if (path) {
+                int tlen = i - offset;
+                memcpy(path, url + offset, tlen);
+                path[tlen] = '\0';
             }
+            return 0;
+        }
+    }
+    if (state == 1) {
+        if (host) {
+            int tlen = urllen - offset;
+            memcpy(host, url + offset, tlen);
+            host[tlen] = '\0';
+        }
+    } else if (state == 2) {
+        if (port) {
+            *port = p;
+        }
+    } else if (state == 3) {
+        if (path) {
+            int tlen = urllen - offset;
+            memcpy(path, url + offset, tlen);
+            path[tlen] = '\0';
         }
     }
     return 0;
@@ -166,4 +153,40 @@ int COMMON::TKM_HexToBin(uchar *src, uint slength, uchar *dest, uint dlength, ui
     }
     *len = offset;
     return 0;
+}
+
+bool COMMON::CheckValidIp (const char *ip) {
+    int count = 0;
+    ushort p = 0;
+    for (int i = 0 ; ip[i] != '\0' ; i++) {
+        if (ip[i] < '0' || ip[i] > '9') {
+            if (ip[i] == '.' ) {
+                if (p > 255) {
+                    return false;
+                }
+                p = 0;
+                count++;
+                continue;
+            }
+            return false;
+        }
+        p = 10*p + ip[i] - '0';
+    }
+    if (p > 255 || count != 3) {
+        return false;
+    }
+    return true;
+}
+
+bool COMMON::CheckValidTelephone (const char *telephone) {
+    int i;
+    for (i = 0 ; telephone[i] != '\0' ; i++) {
+        if (telephone[i] < '0' || telephone[i] > '9') {
+            return false;
+        }
+    }
+    if (telephone[0] != '1' || i != 11) {
+        return false;
+    }
+    return true;
 }
