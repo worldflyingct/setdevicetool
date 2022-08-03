@@ -208,9 +208,9 @@
   <widget class="QPushButton" name="readchipmsg">
    <property name="geometry">
     <rect>
-     <x>390</x>
+     <x>370</x>
      <y>400</y>
-     <width>71</width>
+     <width>91</width>
      <height>31</height>
     </rect>
    </property>
