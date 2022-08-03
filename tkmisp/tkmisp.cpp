@@ -1003,7 +1003,7 @@ void TkmIsp::on_msu0readchip_clicked () {
         CloseSerial();
         return;
     }
-    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &bin0len);
+    sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
     bin1len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
@@ -1031,7 +1031,7 @@ void TkmIsp::on_msu1readchip_clicked() {
         return;
     }
     bin0len = 0;
-    sscanf(ui->flashsize->currentText().toUtf8().data(), "%u", &bin1len);
+    sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
     if (bin1len > 96) {
         ui->tips->appendPlainText("msu1文件太大");
         CloseSerial();

@@ -208,9 +208,9 @@
   <widget class="QPushButton" name="readchipmsg">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>390</x>
      <y>400</y>
-     <width>81</width>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
@@ -249,77 +249,6 @@
    <property name="text">
     <string>bin大小(kbyte)</string>
    </property>
-  </widget>
-  <widget class="QComboBox" name="flashsize">
-   <property name="geometry">
-    <rect>
-     <x>310</x>
-     <y>400</y>
-     <width>61</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="currentText">
-    <string>96</string>
-   </property>
-   <property name="currentIndex">
-    <number>7</number>
-   </property>
-   <item>
-    <property name="text">
-     <string>1</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>2</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>4</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>8</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>16</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>32</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>64</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>96</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>128</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>192</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>256</string>
-    </property>
-   </item>
   </widget>
   <widget class="QPushButton" name="erasechip">
    <property name="geometry">
@@ -384,6 +313,25 @@
    </property>
    <property name="text">
     <string>读取MSU1</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="flashsize">
+   <property name="geometry">
+    <rect>
+     <x>310</x>
+     <y>400</y>
+     <width>51</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>256</number>
+   </property>
+   <property name="value">
+    <number>96</number>
    </property>
   </widget>
  </widget>
