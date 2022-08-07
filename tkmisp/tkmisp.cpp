@@ -124,7 +124,9 @@ void TkmIsp::ReadSerialData () {
             chipstep = ISP_ERASE;
             char buff[7];
             buff[0] = ISP_ERASE;
-            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
+            if (btnStatus == BTN_STATUS_ERASE || bootlen > 0) {
+                addr = 0x00000000;
+            } else if (bin1len > 0) {
                 addr = 0x00010000;
             } else if (bin0len > 0) {
                 addr = 0x00020000;
@@ -144,7 +146,10 @@ void TkmIsp::ReadSerialData () {
             chipstep = ISP_READ;
             offset = 0;
             uint len;
-            if (bin1len > 0) {
+            if (bootlen > 0) {
+                ui->tips->appendPlainText("串口同步成功，开始读取boot操作");
+                addr = 0x00000000;
+            } else if (bin1len > 0) {
                 ui->tips->appendPlainText("串口同步成功，开始读取msu1操作");
                 addr = 0x00010000;
                 len = bin1len > 0x300 ? 0x300 : bin1len;
@@ -222,7 +227,10 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             offset = 0;
             uint len;
-            if (bin1len > 0) {
+            if (bootlen > 0) {
+                addr = 0x00000000;
+                len = bootlen > 0x300 ? 0x300 : bootlen;
+            } else if (bin1len > 0) {
                 addr = 0x00010000;
                 len = bin1len > 0x300 ? 0x300 : bin1len;
             } else if (bin0len > 0) {
@@ -260,7 +268,12 @@ void TkmIsp::ReadSerialData () {
                 uint binlen;
                 uint partitionOneSize;
                 uint partitionTwoStartPosition;
-                if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) {
+                if (addr < 0x10000) {
+                    bin = boot;
+                    binlen = bootlen;
+                    partitionOneSize = 0x10000;
+                    partitionTwoStartPosition = 0x10000;
+                } else if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) {
                     bin = bin1;
                     binlen = bin1len;
                     partitionOneSize = 0x10000;
@@ -332,7 +345,9 @@ void TkmIsp::ReadSerialData () {
                 CloseSerial();
                 return;
             }
-            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
+            if (btnStatus == BTN_STATUS_ERASE || bootlen > 0) {
+                addr = 0x00000000;
+            } else if (bin1len > 0) {
                 addr = 0x00010000;
             } else if (bin0len > 0) {
                 addr = 0x00020000;
@@ -371,9 +386,14 @@ void TkmIsp::ReadSerialData () {
             uint partitionTwoStartPosition;
             if (btnStatus == BTN_STATUS_ERASE) {
                 bin = NULL;
-                binlen = 0x68000;
+                binlen = 0x78000;
                 partitionOneEndPosition = 0x78000;
                 partitionTwoStartPosition = 0x78000;
+            } else if (addr < 0x10000) { // boot
+                bin = boot;
+                binlen = bootlen;
+                partitionOneEndPosition = 0x10000;
+                partitionTwoStartPosition = 0x10000;
             } else if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) { // msu1
                 bin = bin1;
                 binlen = bin1len;
@@ -396,7 +416,9 @@ void TkmIsp::ReadSerialData () {
             pos.removeSelectedText();
             pos.deletePreviousChar();
             if (offset < binlen) {                
-                if (bin == bin1) {
+                if (bin == boot) {
+                    sprintf(buff, "已擦除boot %uk数据", offset / 1024);
+                } else if (bin == bin1) {
                     sprintf(buff, "已擦除msu1 %uk数据", offset / 1024);
                 } else if (bin == bin0) {
                     sprintf(buff, "已擦除msu0 %uk数据", offset / 1024);
@@ -421,12 +443,24 @@ void TkmIsp::ReadSerialData () {
                 ui->tips->appendPlainText(buff);
                 CloseSerial();
                 return;
-            } else if (bin == bin1 && bin0len > 0) { // 擦除msu1完毕且需要继续擦除msu0
-                sprintf(buff, "擦除msu1完毕，一共擦除%uk数据", offset / 1024);
-                ui->tips->appendPlainText(buff);
-                ui->tips->appendPlainText("开始擦除msu0");
+            } else if ((bin == boot && (bin1len > 0 || bin0len > 0)) || (bin == bin1 && bin0len > 0)) { // 擦除msu1完毕且需要继续擦除msu0
+                if (bin == boot) {
+                    sprintf(buff, "擦除boot完毕，一共擦除%uk数据", offset / 1024);
+                    ui->tips->appendPlainText(buff);
+                    if (bin1len > 0) {
+                        ui->tips->appendPlainText("开始擦除msu1");
+                        addr = 0x00010000;
+                    } else {
+                        ui->tips->appendPlainText("开始擦除msu0");
+                        addr = 0x00020000;
+                    }
+                } else {
+                    sprintf(buff, "擦除msu1完毕，一共擦除%uk数据", offset / 1024);
+                    ui->tips->appendPlainText(buff);
+                    ui->tips->appendPlainText("开始擦除msu0");
+                    addr = 0x00020000;
+                }
                 offset = 0;
-                addr = 0x00020000;
                 buff[0] = ISP_ERASE;
                 buff[4] = addr>>24;
                 buff[3] = addr>>16;
@@ -436,7 +470,9 @@ void TkmIsp::ReadSerialData () {
                 buff[5] = 0;
                 serial.write(buff, 7);
             } else {
-                if (bin == bin1) {
+                if (bin == boot) {
+                    sprintf(buff, "擦除boot完毕，一共擦除%uk数据", offset / 1024);
+                } else if (bin == bin1) {
                     sprintf(buff, "擦除msu1完毕，一共擦除%uk数据", offset / 1024);
                 } else if (bin == bin0) {
                     sprintf(buff, "擦除msu0完毕，一共擦除%uk数据", offset / 1024);
@@ -448,7 +484,11 @@ void TkmIsp::ReadSerialData () {
                 offset = 0;
                 uint len;
                 uchar *bin;
-                if (bin1len > 0) {
+                if (bootlen > 0) {
+                    bin = boot;
+                    addr = 0x00000000;
+                    len = bootlen - offset > 256 ? 256 : bootlen - offset;
+                } else if (bin1len > 0) {
                     bin = bin1;
                     addr = 0x00010000;
                     len = bin1len - offset > 256 ? 256 : bin1len - offset;
@@ -493,7 +533,11 @@ void TkmIsp::ReadSerialData () {
             chipstep = ISP_WRITE;
             uint len;
             uchar *bin;
-            if (bin1len > 0) {
+            if (bootlen > 0) {
+                bin = boot;
+                addr = 0x00000000;
+                len = bootlen - offset > 256 ? 256 : bootlen - offset;
+            } else if (bin1len > 0) {
                 bin = bin1;
                 addr = 0x00010000;
                 len = bin1len - offset > 256 ? 256 : bin1len - offset;
@@ -541,7 +585,13 @@ void TkmIsp::ReadSerialData () {
             uint partitionOneSize;
             uint partitionOneEndPosition;
             uint partitionTwoStartPosition;
-            if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) { // msu1
+            if (addr < 0x10000) { // boot
+                bin = boot;
+                binlen = bootlen;
+                partitionOneSize = 0x10000;
+                partitionOneEndPosition = 0x10000;
+                partitionTwoStartPosition = 0x10000;
+            } else if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) { // msu0
                 bin = bin1;
                 binlen = bin1len;
                 partitionOneSize = 0x10000;
@@ -584,16 +634,32 @@ void TkmIsp::ReadSerialData () {
             pos.removeSelectedText();
             pos.deletePreviousChar();
             if (len == 0) { // 烧录完毕
-                if (bin == bin1 && bin0len > 0) { // 写入msu1完毕且需要继续写入msu0
-                    sprintf(buff, "写入msu1完毕，一共写入%uk数据", offset / 1024);
-                    ui->tips->appendPlainText(buff);
-                    ui->tips->appendPlainText("开始写入msu0");
+                if ((bin == boot && (bin1len > 0 || bin0len > 0)) || (bin == bin1 && bin0len > 0)) { // 写入msu1完毕且需要继续写入msu0
+                    if (bin == boot) {
+                        sprintf(buff, "写入boot完毕，一共写入%uk数据", offset / 1024);
+                        ui->tips->appendPlainText(buff);
+                        if (bin1len > 0) {
+                            ui->tips->appendPlainText("开始写入msu1");
+                            bin = bin1;
+                            addr = 0x00010000;
+                        } else {
+                            ui->tips->appendPlainText("开始写入msu0");
+                            bin = bin0;
+                            addr = 0x00020000;
+                        }
+                    } else {
+                        sprintf(buff, "写入msu1完毕，一共写入%uk数据", offset / 1024);
+                        ui->tips->appendPlainText(buff);
+                        ui->tips->appendPlainText("开始写入msu0");
+                        bin = bin0;
+                        addr = 0x00020000;
+                    }
                     offset = 0;
-                    bin = bin0;
-                    addr = 0x00020000;
                     len = bin0len - offset > 256 ? 256 : bin0len - offset;
                 } else {
-                    if (bin == bin1) {
+                    if (bin == boot) {
+                        sprintf(buff, "写入boot完毕，一共写入%uk数据", offset / 1024);
+                    } else if (bin == bin1) {
                         sprintf(buff, "写入msu1完毕，一共写入%uk数据", offset / 1024);
                     } else if (bin == bin0) {
                         sprintf(buff, "写入msu0完毕，一共写入%uk数据", offset / 1024);
@@ -609,7 +675,9 @@ void TkmIsp::ReadSerialData () {
                     }
                 }
             } else {
-                if (bin == bin1) {
+                if (bin == boot) {
+                    sprintf(buff, "已写入boot %uk数据", offset / 1024);
+                } else if (bin == bin1) {
                     sprintf(buff, "已写入msu1 %uk数据", offset / 1024);
                 } else if (bin == bin0) {
                     sprintf(buff, "已写入msu0 %uk数据", offset / 1024);
@@ -623,7 +691,10 @@ void TkmIsp::ReadSerialData () {
                 chipstep = ISP_CHECK;
                 offset = 0;
                 uint len;
-                if (bin1len > 0) {
+                if (bootlen > 0) {
+                    addr = 0x00000000;
+                    len = bootlen > 0x300 ? 0x300 : bootlen;
+                } else if (bin1len > 0) {
                     addr = 0x00010000;
                     len = bin1len > 0x300 ? 0x300 : bin1len;
                 } else if (bin0len > 0) {
@@ -672,7 +743,10 @@ void TkmIsp::ReadSerialData () {
             offset = 0;
             bufflen = 0;
             uint len;
-            if (bin1len > 0) {
+            if (bootlen > 0) {
+                addr = 0x00000000;
+                len = bootlen > 0x300 ? 0x300 : bootlen;
+            } else if (bin1len > 0) {
                 addr = 0x00010000;
                 len = bin1len > 0x300 ? 0x300 : bin1len;
             } else if (bin0len > 0) {
@@ -710,7 +784,12 @@ void TkmIsp::ReadSerialData () {
                 uint binlen;
                 uint partitionOneSize;
                 uint partitionTwoStartPosition;
-                if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) {
+                if (addr < 0x10000) {
+                    bin = boot;
+                    binlen = bootlen;
+                    partitionOneSize = 0x10000;
+                    partitionTwoStartPosition = 0x10000;
+                } else if ((0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) {
                     bin = bin1;
                     binlen = bin1len;
                     partitionOneSize = 0x10000;
@@ -764,7 +843,9 @@ void TkmIsp::ReadSerialData () {
                         addr = 0x00020000;
                         len = bin0len - offset > 256 ? 256 : bin0len - offset;
                     } else {
-                        if (bin == bin1) {
+                        if (bin == boot) {
+                            sprintf(buff, "校验boot完毕，一共校验%uk数据", offset / 1024);
+                        } else if (bin == bin1) {
                             sprintf(buff, "校验msu1完毕，一共校验%uk数据", offset / 1024);
                         } else if (bin == bin0) {
                             sprintf(buff, "校验msu0完毕，一共校验%uk数据", offset / 1024);
@@ -776,7 +857,9 @@ void TkmIsp::ReadSerialData () {
                         return;
                     }
                 } else {
-                    if (bin == bin1) {
+                    if (bin == boot) {
+                        sprintf(buff, "已校验boot %uk数据", offset / 1024);
+                    } else if (bin == bin1) {
                         sprintf(buff, "已校验msu1 %uk数据", offset / 1024);
                     } else if (bin == bin0) {
                         sprintf(buff, "已校验msu0 %uk数据", offset / 1024);
@@ -840,6 +923,19 @@ void TkmIsp::CloseSerial () {
     btnStatus = BTN_STATUS_IDLE;
 }
 
+void TkmIsp::on_bootopenfile_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        return;
+    }
+    QString filepath = QFileDialog::getOpenFileName(this, "选择镜像", NULL, "镜像文件(*.hex *.bin)");
+    if (filepath.length()) {
+        ui->bootfilepath->setText(filepath);
+        ui->bootload->setChecked(true);
+    }
+}
+
 void TkmIsp::on_msu0openfile_clicked() {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
@@ -873,8 +969,50 @@ void TkmIsp::on_writechip_clicked () {
         return;
     }
     needcheck = ui->checkwrite->isChecked();
+    bootlen = 0;
     bin0len = 0;
     bin1len = 0;
+    if (ui->bootload->isChecked()) {
+        QString filepath = ui->bootfilepath->text();
+        QFile file(filepath);
+        if(!file.open(QIODevice::ReadOnly)) {
+            ui->tips->appendPlainText("无法读取烧录文件");
+            return;
+        }
+        QByteArray bytedata = file.readAll();
+        file.close();
+        int pos = filepath.lastIndexOf(".");
+        QString suffix = filepath.mid(pos);
+        uchar *chardata = (uchar*)bytedata.data();
+        if (!suffix.compare(".hex")) {
+            if (chardata[0] == ':') { // 标准ihex文件
+                if (HexToBin(chardata, bytedata.length(), boot, sizeof(boot), 0x00000000, &bootlen) != RES_OK) {
+                    ui->tips->appendPlainText("hex文件格式错误");
+                    return;
+                }
+            } else { // 本工程独有的hex文件
+                int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), boot, sizeof(boot), &bootlen);
+                if (res == -1) {
+                    ui->tips->appendPlainText("hex文件格式错误");
+                    return;
+                } else if (res == -2) {
+                    ui->tips->appendPlainText("镜像文件太大");
+                    return;
+                }
+            }
+        } else if (!suffix.compare(".bin")) {
+            uint len = bytedata.length();
+            if (len > sizeof(boot)) {
+                ui->tips->appendPlainText("镜像文件太大");
+                return;
+            }
+            memcpy(boot, chardata, len);
+            bootlen = len;
+        } else {
+            ui->tips->appendPlainText("boot文件类型错误");
+            return;
+        }
+    }
     if (ui->msu0load->isChecked()) {
         QString filepath = ui->msu0filepath->text();
         QFile file(filepath);
@@ -888,25 +1026,25 @@ void TkmIsp::on_writechip_clicked () {
         QString suffix = filepath.mid(pos);
         uchar *chardata = (uchar*)bytedata.data();
         if (!suffix.compare(".hex")) {            
-            if (chardata[0] == ':') { // Linux编译器下生成的标准ihex文件
+            if (chardata[0] == ':') { // 标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), 0x00000000, &bin0len) != RES_OK) {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 }
-            } else { // Windows编译器下生成的谁知道哪个标准的hex文件
+            } else { // 本工程独有的hex文件
                 int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), &bin0len);
                 if (res == -1) {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    ui->tips->appendPlainText("输出空间太小");
+                    ui->tips->appendPlainText("镜像文件太大");
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin0)) {
-                ui->tips->appendPlainText("bin文件太大");
+                ui->tips->appendPlainText("镜像文件太大");
                 return;
             }
             memcpy(bin0, chardata, len);
@@ -929,25 +1067,25 @@ void TkmIsp::on_writechip_clicked () {
         QString suffix = filepath.mid(pos);
         uchar *chardata = (uchar*)bytedata.data();
         if (!suffix.compare(".hex")) {
-            if (chardata[0] == ':') { // Linux编译器下生成的标准ihex文件
+            if (chardata[0] == ':') { // 标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), 0x00000000, &bin1len) != RES_OK) {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 }
-            } else { // Windows编译器下生成的谁知道哪个标准的hex文件
+            } else { // 本工程独有的hex文件
                 int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), &bin1len);
                 if (res == -1) {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    ui->tips->appendPlainText("输出空间太小");
+                    ui->tips->appendPlainText("镜像文件太大");
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin1)) {
-                ui->tips->appendPlainText("bin文件太大");
+                ui->tips->appendPlainText("镜像文件太大");
                 return;
             }
             memcpy(bin1, chardata, len);
@@ -957,7 +1095,7 @@ void TkmIsp::on_writechip_clicked () {
             return;
         }
     }
-    if (bin0len == 0 && bin1len == 0) {
+    if (bootlen == 0 && bin0len == 0 && bin1len == 0) {
         ui->tips->appendPlainText("没有需要编译的分区");
         return;
     }
@@ -997,6 +1135,39 @@ void TkmIsp::on_clearlog_clicked () {
     ui->tips->clear();
 }
 
+void TkmIsp::on_bootreadchip_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        return;
+    }
+    sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bootlen);
+    bootlen *= 1024;
+    if (bootlen > sizeof(boot)) {
+        ui->tips->appendPlainText("计划读取文件太大");
+        CloseSerial();
+        return;
+    }
+    bin0len = 0;
+    bin1len = 0;
+    QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
+    if (!filepath.length()) {
+        return;
+    }
+    savefilepath = filepath;
+    retrytime = 0;
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial()) {
+        ui->tips->appendPlainText("串口打开失败");
+        return;
+    }
+    btnStatus = BTN_STATUS_READ;
+    sprintf(buff, "等待设备连接...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
+}
+
 void TkmIsp::on_msu0readchip_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
@@ -1005,6 +1176,12 @@ void TkmIsp::on_msu0readchip_clicked () {
     }
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
+    if (bin0len > sizeof(bin0)) {
+        ui->tips->appendPlainText("计划读取文件太大");
+        CloseSerial();
+        return;
+    }
+    bootlen = 0;
     bin1len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
@@ -1030,14 +1207,15 @@ void TkmIsp::on_msu1readchip_clicked() {
         CloseSerial();
         return;
     }
-    bin0len = 0;
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
-    if (bin1len > 96) {
-        ui->tips->appendPlainText("msu1文件太大");
+    bin1len *= 1024;
+    if (bin1len > sizeof(bin1)) {
+        ui->tips->appendPlainText("计划读取文件太大");
         CloseSerial();
         return;
     }
-    bin1len *= 1024;
+    bootlen = 0;
+    bin0len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
         return;
