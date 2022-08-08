@@ -642,10 +642,12 @@ void TkmIsp::ReadSerialData () {
                             ui->tips->appendPlainText("开始写入msu1");
                             bin = bin1;
                             addr = 0x00010000;
+                            len = bin1len;
                         } else {
                             ui->tips->appendPlainText("开始写入msu0");
                             bin = bin0;
                             addr = 0x00020000;
+                            len = bin0len;
                         }
                     } else {
                         sprintf(buff, "写入msu1完毕，一共写入%uk数据", offset / 1024);
@@ -653,9 +655,10 @@ void TkmIsp::ReadSerialData () {
                         ui->tips->appendPlainText("开始写入msu0");
                         bin = bin0;
                         addr = 0x00020000;
+                        len = bin0len;
                     }
                     offset = 0;
-                    len = bin0len - offset > 256 ? 256 : bin0len - offset;
+                    len = len - offset > 256 ? 256 : len - offset;
                 } else {
                     if (bin == boot) {
                         sprintf(buff, "写入boot完毕，一共写入%uk数据", offset / 1024);
@@ -834,14 +837,31 @@ void TkmIsp::ReadSerialData () {
                 pos.removeSelectedText();
                 pos.deletePreviousChar();
                 if (len == 0) {
-                    if (bin == bin1 && bin0len > 0) {
-                        sprintf(buff, "校验msu1完毕，一共校验%uk数据", offset / 1024);
-                        ui->tips->appendPlainText(buff);
-                        ui->tips->appendPlainText("开始校验msu0");
+                    if ((bin == boot && (bin1len > 0 || bin0len > 0)) || (bin == bin1 && bin0len > 0)) {
+                        if (bin == boot) {
+                            sprintf(buff, "校验boot完毕，一共校验%uk数据", offset / 1024);
+                            ui->tips->appendPlainText(buff);
+                            if (bin1len > 0) {
+                                ui->tips->appendPlainText("开始校验msu1");
+                                bin = bin1;
+                                addr = 0x00010000;
+                                len = bin1len;
+                            } else {
+                                ui->tips->appendPlainText("开始校验msu0");
+                                bin = bin0;
+                                addr = 0x00020000;
+                                len = bin0len;
+                            }
+                        } else {
+                            sprintf(buff, "校验msu1完毕，一共校验%uk数据", offset / 1024);
+                            ui->tips->appendPlainText(buff);
+                            ui->tips->appendPlainText("开始校验msu0");
+                            bin = bin0;
+                            addr = 0x00020000;
+                            len = bin0len;
+                        }
                         offset = 0;
-                        bin = bin0;
-                        addr = 0x00020000;
-                        len = bin0len - offset > 256 ? 256 : bin0len - offset;
+                        len = len - offset > 256 ? 256 : len - offset;
                     } else {
                         if (bin == boot) {
                             sprintf(buff, "校验boot完毕，一共校验%uk数据", offset / 1024);
@@ -1141,10 +1161,12 @@ void TkmIsp::on_bootreadchip_clicked() {
         CloseSerial();
         return;
     }
+    char buff[64];
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bootlen);
     bootlen *= 1024;
     if (bootlen > sizeof(boot)) {
-        ui->tips->appendPlainText("计划读取文件太大");
+        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(boot)/1024);
+        ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
     }
@@ -1157,7 +1179,6 @@ void TkmIsp::on_bootreadchip_clicked() {
     savefilepath = filepath;
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
-    char buff[64];
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
@@ -1174,10 +1195,12 @@ void TkmIsp::on_msu0readchip_clicked () {
         CloseSerial();
         return;
     }
+    char buff[64];
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
     if (bin0len > sizeof(bin0)) {
-        ui->tips->appendPlainText("计划读取文件太大");
+        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(bin0)/1024);
+        ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
     }
@@ -1190,7 +1213,6 @@ void TkmIsp::on_msu0readchip_clicked () {
     savefilepath = filepath;
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
-    char buff[64];
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
@@ -1207,10 +1229,12 @@ void TkmIsp::on_msu1readchip_clicked() {
         CloseSerial();
         return;
     }
+    char buff[64];
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
     bin1len *= 1024;
     if (bin1len > sizeof(bin1)) {
-        ui->tips->appendPlainText("计划读取文件太大");
+        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(bin0)/1024);
+        ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
     }
@@ -1223,7 +1247,6 @@ void TkmIsp::on_msu1readchip_clicked() {
     savefilepath = filepath;
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
-    char buff[64];
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
