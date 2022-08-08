@@ -246,9 +246,12 @@ void Rj45IotProgram::on_getmode_clicked() {
 }
 
 void Rj45IotProgram::HandleSerialData (yyjson_val *json) {
-    yyjson_val *mqtturl = yyjson_obj_get(json, "Url");
-    if (mqtturl) {
-        ui->mqtturl->setText(yyjson_get_str(mqtturl));
+    yyjson_val *mqtthost = yyjson_obj_get(json, "Host");
+    yyjson_val *mqttport = yyjson_obj_get(json, "Port");
+    if (mqtthost && mqttport) {
+        char buff[256];
+        sprintf(buff, "tcp://%s:%lu", yyjson_get_str(mqtthost), yyjson_get_uint(mqtthost));
+        ui->mqtturl->setText(buff);
     }
     yyjson_val *mqttuser = yyjson_obj_get(json, "UserName");
     if (mqttuser) {
