@@ -145,7 +145,7 @@ void TkmIsp::ReadSerialData () {
         } else if (btnStatus == BTN_STATUS_READ) {
             chipstep = ISP_READ;
             offset = 0;
-            uint len;
+            uint len = 0;
             if (bootlen > 0) {
                 ui->tips->appendPlainText("串口同步成功，开始读取boot操作");
                 addr = 0x00000000;
@@ -158,7 +158,6 @@ void TkmIsp::ReadSerialData () {
                 addr = 0x00020000;
                 len = bin0len > 0x300 ? 0x300 : bin0len;
             } else {
-                len = 0;
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
                 return;
