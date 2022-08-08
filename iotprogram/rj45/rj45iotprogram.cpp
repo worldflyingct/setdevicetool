@@ -250,7 +250,7 @@ void Rj45IotProgram::HandleSerialData (yyjson_val *json) {
     yyjson_val *mqttport = yyjson_obj_get(json, "Port");
     if (mqtthost && mqttport) {
         char buff[256];
-        sprintf(buff, "tcp://%s:%u", yyjson_get_str(mqtthost), (uint)yyjson_get_uint(mqtthost));
+        sprintf(buff, "tcp://%s:%u", yyjson_get_str(mqtthost), (uint)yyjson_get_uint(mqttport));
         ui->mqtturl->setText(buff);
     }
     yyjson_val *mqttuser = yyjson_obj_get(json, "UserName");
