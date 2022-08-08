@@ -158,6 +158,7 @@ void TkmIsp::ReadSerialData () {
                 addr = 0x00020000;
                 len = bin0len > 0x300 ? 0x300 : bin0len;
             } else {
+                len = 0;
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
                 return;
@@ -1017,7 +1018,7 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(boot)/1024);
+                    sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(boot)/1024);
                     ui->tips->appendPlainText(buff);
                     return;
                 }
@@ -1025,7 +1026,7 @@ void TkmIsp::on_writechip_clicked () {
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(boot)) {
-                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(boot)/1024);
+                sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(boot)/1024);
                 ui->tips->appendPlainText(buff);
                 return;
             }
@@ -1060,7 +1061,7 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin0)/1024);
+                    sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin0)/1024);
                     ui->tips->appendPlainText(buff);
                     return;
                 }
@@ -1068,7 +1069,7 @@ void TkmIsp::on_writechip_clicked () {
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin0)) {
-                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin0)/1024);
+                sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin0)/1024);
                 ui->tips->appendPlainText(buff);
                 return;
             }
@@ -1103,7 +1104,7 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin1)/1024);
+                    sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin1)/1024);
                     ui->tips->appendPlainText(buff);
                     return;
                 }
@@ -1111,7 +1112,7 @@ void TkmIsp::on_writechip_clicked () {
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin1)) {
-                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin1)/1024);
+                sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin1)/1024);
                 ui->tips->appendPlainText(buff);
                 return;
             }
@@ -1171,7 +1172,7 @@ void TkmIsp::on_bootreadchip_clicked() {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bootlen);
     bootlen *= 1024;
     if (bootlen > sizeof(boot)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(boot)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%ukbytes", (uint)sizeof(boot)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
@@ -1205,7 +1206,7 @@ void TkmIsp::on_msu0readchip_clicked () {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
     if (bin0len > sizeof(bin0)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(bin0)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%ukbytes", (uint)sizeof(bin0)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
@@ -1239,7 +1240,7 @@ void TkmIsp::on_msu1readchip_clicked() {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
     bin1len *= 1024;
     if (bin1len > sizeof(bin1)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(bin1)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%ukbytes", (uint)sizeof(bin1)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
