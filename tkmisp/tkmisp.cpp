@@ -989,6 +989,7 @@ void TkmIsp::on_writechip_clicked () {
         return;
     }
     needcheck = ui->checkwrite->isChecked();
+    char buff[64];
     bootlen = 0;
     bin0len = 0;
     bin1len = 0;
@@ -1016,14 +1017,16 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    ui->tips->appendPlainText("镜像文件太大");
+                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(boot)/1024);
+                    ui->tips->appendPlainText(buff);
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(boot)) {
-                ui->tips->appendPlainText("镜像文件太大");
+                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(boot)/1024);
+                ui->tips->appendPlainText(buff);
                 return;
             }
             memcpy(boot, chardata, len);
@@ -1057,14 +1060,16 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    ui->tips->appendPlainText("镜像文件太大");
+                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin0)/1024);
+                    ui->tips->appendPlainText(buff);
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin0)) {
-                ui->tips->appendPlainText("镜像文件太大");
+                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin0)/1024);
+                ui->tips->appendPlainText(buff);
                 return;
             }
             memcpy(bin0, chardata, len);
@@ -1098,14 +1103,16 @@ void TkmIsp::on_writechip_clicked () {
                     ui->tips->appendPlainText("hex文件格式错误");
                     return;
                 } else if (res == -2) {
-                    ui->tips->appendPlainText("镜像文件太大");
+                    sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin1)/1024);
+                    ui->tips->appendPlainText(buff);
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
             if (len > sizeof(bin1)) {
-                ui->tips->appendPlainText("镜像文件太大");
+                sprintf(buff, "镜像文件太大，镜像不能大于%lukbytes", sizeof(bin1)/1024);
+                ui->tips->appendPlainText(buff);
                 return;
             }
             memcpy(bin1, chardata, len);
@@ -1121,7 +1128,6 @@ void TkmIsp::on_writechip_clicked () {
     }
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
-    char buff[64];
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
@@ -1165,7 +1171,7 @@ void TkmIsp::on_bootreadchip_clicked() {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bootlen);
     bootlen *= 1024;
     if (bootlen > sizeof(boot)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(boot)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(boot)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
@@ -1199,7 +1205,7 @@ void TkmIsp::on_msu0readchip_clicked () {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
     bin0len *= 1024;
     if (bin0len > sizeof(bin0)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(bin0)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(bin0)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
@@ -1233,7 +1239,7 @@ void TkmIsp::on_msu1readchip_clicked() {
     sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
     bin1len *= 1024;
     if (bin1len > sizeof(bin1)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为：%lukbytes", sizeof(bin0)/1024);
+        sprintf(buff, "计划读取文件太大，可读取的最大值为%lukbytes", sizeof(bin1)/1024);
         ui->tips->appendPlainText(buff);
         CloseSerial();
         return;
