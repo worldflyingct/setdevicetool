@@ -22,7 +22,7 @@ ushort COMMON::crc_calc (ushort crc, uchar *dat, ushort len) {
 }
 
 int COMMON::urldecode (const char *url, int urllen, char *protocol, char *host, ushort *port, char *path) {
-    uint p;
+    uint p = 0;
     int offset = 0, state = 0;
     for (int i = 0 ; i < urllen ; i++) {
         if (state == 0 && url[i] == ':') {
