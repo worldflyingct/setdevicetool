@@ -161,9 +161,6 @@ bool COMMON::CheckValidIp (const char *ip) {
     for (int i = 0 ; ip[i] != '\0' ; i++) {
         if (ip[i] < '0' || ip[i] > '9') {
             if (ip[i] == '.' ) {
-                if (p > 255) {
-                    return false;
-                }
                 p = 0;
                 count++;
                 continue;
@@ -171,8 +168,11 @@ bool COMMON::CheckValidIp (const char *ip) {
             return false;
         }
         p = 10*p + ip[i] - '0';
+        if (p > 255) {
+            return false;
+        }
     }
-    if (p > 255 || count != 3) {
+    if (count != 3) {
         return false;
     }
     return true;
