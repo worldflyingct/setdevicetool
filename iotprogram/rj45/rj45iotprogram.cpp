@@ -165,7 +165,7 @@ void Rj45IotProgram::on_setmode_clicked() {
         return;
     }
     char buff[1024];
-    int len = sprintf(buff, "act=SetMode&Host=%s&Port=%u&UserName=%s&PassWord=%s&User=%s", host, port, cmqttuser.data(), cmqttpass.data(), user);
+    int len = sprintf(buff, "act=SetMode&Host=%s&Port=%u&UserName=%s&PassWord=%s&User=%s&Ntp=%s", host, port, cmqttuser.data(), cmqttpass.data(), user, csntp.data());
     if (ui->staticip->isChecked()) {
         QByteArray cip = ui->ip->text().toUtf8();
         const char *ip = cip.data();
@@ -264,6 +264,10 @@ void Rj45IotProgram::HandleSerialData (yyjson_val *json) {
     yyjson_val *user = yyjson_obj_get(json, "User");
     if (user) {
         ui->user->setText(yyjson_get_str(user));
+    }
+    yyjson_val *ntp = yyjson_obj_get(json, "Ntp");
+    if (ntp) {
+        ui->sntp->setText(yyjson_get_str(ntp));
     }
     yyjson_val *ip = yyjson_obj_get(json, "Ip");
     yyjson_val *netmask = yyjson_obj_get(json, "NetMask");
