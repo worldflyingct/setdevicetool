@@ -340,7 +340,7 @@
   <widget class="QPushButton" name="startclose">
    <property name="geometry">
     <rect>
-     <x>770</x>
+     <x>760</x>
      <y>20</y>
      <width>71</width>
      <height>31</height>

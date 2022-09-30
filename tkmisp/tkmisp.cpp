@@ -3,6 +3,8 @@
 #include <QFileDialog>
 #include "common/hextobin.h"
 #include "common/common.h"
+// yyjson库
+#include "common/yyjson.h"
 
 #define ISP_SYNC                0x7f
 #define ISP_SYNC_TWO            0x8f
@@ -25,6 +27,8 @@
 TkmIsp::TkmIsp(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TkmIsp) {
+    memcpy(failmsg, "fail", 4);
+    memcpy(successmsg, "success", 7);
     ui->setupUi(this);
     GetComList();
 }
@@ -80,7 +84,7 @@ void TkmIsp::SerialErrorEvent () {
 }
 
 int TkmIsp::GetBtnStatus () {
-    return btnStatus;
+    return btnStatus + netctlStatus;
 }
 
 void TkmIsp::ReadSerialData () {
@@ -130,6 +134,7 @@ void TkmIsp::ReadSerialData () {
                 addr = 0x00008000;
             } else {
                 ui->tips->appendPlainText("程序内部错误");
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             offset = 0;
@@ -330,6 +335,7 @@ void TkmIsp::ReadSerialData () {
             if (retrytime == 250) {
                 ui->tips->appendPlainText("擦除失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
@@ -338,6 +344,7 @@ void TkmIsp::ReadSerialData () {
                 addr = 0x00008000;
             } else {
                 ui->tips->appendPlainText("程序内部错误");
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             bufflen = 0;
@@ -362,6 +369,7 @@ void TkmIsp::ReadSerialData () {
             if (memcmp(address, serialReadBuff+1, 4) || serialReadBuff[5] != 0x00 || serialReadBuff[6] != 0x00) {
                 ui->tips->appendPlainText("擦除失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             char buff[128];
@@ -395,6 +403,7 @@ void TkmIsp::ReadSerialData () {
             } else {
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             offset += 0x1000;
@@ -430,6 +439,7 @@ void TkmIsp::ReadSerialData () {
                 sprintf(buff, "全部擦除完成，一共擦除%uk数据", offset / 1024);
                 ui->tips->appendPlainText(buff);
                 CloseSerial();
+                SendSocketData(successmsg, sizeof(successmsg));
                 return;
             } else if (bin == bin1 && bin0len > 0) { // 擦除msu1完毕且需要继续擦除msu0
                 sprintf(buff, "擦除msu1完毕，一共擦除%uk数据", offset / 1024);
@@ -504,6 +514,7 @@ void TkmIsp::ReadSerialData () {
                 } else {
                     ui->tips->appendPlainText("程序内部错误");
                     CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
                 chipstep = ISP_WRITE;
@@ -511,6 +522,7 @@ void TkmIsp::ReadSerialData () {
                 if (serialWriteBuff == NULL) {
                     ui->tips->appendPlainText("内存申请失败");
                     CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
                 len = 0x1c;
@@ -532,6 +544,7 @@ void TkmIsp::ReadSerialData () {
             if (retrytime == 250) {
                 ui->tips->appendPlainText("写入失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             bufflen = 0;
@@ -590,12 +603,14 @@ void TkmIsp::ReadSerialData () {
             } else {
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             char *serialWriteBuff = (char*)malloc(len+7);
             if (serialWriteBuff == NULL) {
                 ui->tips->appendPlainText("内存申请失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             serialWriteBuff[0] = ISP_WRITE;
@@ -619,6 +634,7 @@ void TkmIsp::ReadSerialData () {
             if (memcmp(address, serialReadBuff+1, 4)) {
                 ui->tips->appendPlainText("写入数据失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             uint len = 256*serialReadBuff[6] + serialReadBuff[5];
@@ -649,6 +665,7 @@ void TkmIsp::ReadSerialData () {
             } else {
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             if (addr != 0x0000 && addr != 0x8000) {
@@ -723,6 +740,7 @@ void TkmIsp::ReadSerialData () {
                         startcheck = true;
                     } else {
                         CloseSerial();
+                        SendSocketData(successmsg, sizeof(successmsg));
                         return;
                     }
                 }
@@ -748,6 +766,7 @@ void TkmIsp::ReadSerialData () {
                 } else {
                     ui->tips->appendPlainText("程序内部错误");
                     CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
                 buff[0] = ISP_READ;
@@ -763,6 +782,7 @@ void TkmIsp::ReadSerialData () {
                 if (serialWriteBuff == NULL) {
                     ui->tips->appendPlainText("内存申请失败");
                     CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
                 serialWriteBuff[0] = ISP_WRITE;
@@ -783,6 +803,7 @@ void TkmIsp::ReadSerialData () {
             if (retrytime == 250) {
                 ui->tips->appendPlainText("校验失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             offset = 0;
@@ -795,6 +816,7 @@ void TkmIsp::ReadSerialData () {
             } else {
                 ui->tips->appendPlainText("程序内部错误");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             char buff[7];
@@ -816,6 +838,7 @@ void TkmIsp::ReadSerialData () {
             if (memcmp(address, serialReadBuff+1, 4)) {
                 ui->tips->appendPlainText("校验失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             uint len = 256*serialReadBuff[6] + serialReadBuff[5];
@@ -846,6 +869,7 @@ void TkmIsp::ReadSerialData () {
                 } else {
                     ui->tips->appendPlainText("程序内部错误");
                     CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
                 if (addr == partitionParamStartPosition) {
@@ -895,12 +919,14 @@ void TkmIsp::ReadSerialData () {
                     if (memcmp(param, serialReadBuff+7, 0x1c)) {
                         ui->tips->appendPlainText("程序参数校验错误");
                         CloseSerial();
+                        SendSocketData(failmsg, sizeof(failmsg));
                         return;
                     }
                 } else {
                     if (memcmp(bin+offset, serialReadBuff+7, len)) {
                         ui->tips->appendPlainText("程序校验错误");
                         CloseSerial();
+                        SendSocketData(failmsg, sizeof(failmsg));
                         return;
                     }
                     offset += len;
@@ -948,6 +974,7 @@ void TkmIsp::ReadSerialData () {
                         }
                         ui->tips->appendPlainText(buff);
                         CloseSerial();
+                        SendSocketData(successmsg, sizeof(successmsg));
                         return;
                     }
                 } else {
@@ -976,6 +1003,7 @@ void TkmIsp::ReadSerialData () {
         sprintf(buff, "chipstep:0x%02x, bufflen:%d, ack:0x%02x", chipstep, bufflen, serialReadBuff[0]);
         ui->tips->appendPlainText(buff);
         CloseSerial();
+        SendSocketData(failmsg, sizeof(failmsg));
         return;
     }
     timer.stop();
@@ -1056,6 +1084,7 @@ void TkmIsp::on_writechip_clicked () {
         QFile file(filepath);
         if(!file.open(QIODevice::ReadOnly)) {
             ui->tips->appendPlainText("无法读取烧录文件");
+            SendSocketData(failmsg, sizeof(failmsg));
             return;
         }
         QByteArray bytedata = file.readAll();
@@ -1067,30 +1096,35 @@ void TkmIsp::on_writechip_clicked () {
             if (chardata[0] == ':') { // 标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), 0x00000000, &bin0len) != RES_OK) {
                     ui->tips->appendPlainText("hex文件格式错误");
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
             } else { // 本工程独有的hex文件
                 int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), &bin0len);
                 if (res == -1) {
                     ui->tips->appendPlainText("hex文件格式错误");
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
-                } else if (res == -2) {
-                    sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin0)/1024);
+                } else if (res == -2 || bin0len != sizeof(bin0)) {
+                    sprintf(buff, "镜像文件大小不等于%ukbytes", (uint)sizeof(bin0)/1024);
                     ui->tips->appendPlainText(buff);
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
-            if (len > sizeof(bin0)) {
-                sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin0)/1024);
+            if (len != sizeof(bin0)) {
+                sprintf(buff, "镜像文件大小不等于%ukbytes", (uint)sizeof(bin0)/1024);
                 ui->tips->appendPlainText(buff);
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             memcpy(bin0, chardata, len);
             bin0len = len;
         } else {
             ui->tips->appendPlainText("msu0文件类型错误");
+            SendSocketData(failmsg, sizeof(failmsg));
             return;
         }
     }
@@ -1099,6 +1133,7 @@ void TkmIsp::on_writechip_clicked () {
         QFile file(filepath);
         if(!file.open(QIODevice::ReadOnly)) {
             ui->tips->appendPlainText("无法读取烧录文件");
+            SendSocketData(failmsg, sizeof(failmsg));
             return;
         }
         QByteArray bytedata = file.readAll();
@@ -1110,35 +1145,41 @@ void TkmIsp::on_writechip_clicked () {
             if (chardata[0] == ':') { // 标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), 0x00000000, &bin1len) != RES_OK) {
                     ui->tips->appendPlainText("hex文件格式错误");
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
             } else { // 本工程独有的hex文件
                 int res = COMMON::TKM_HexToBin(chardata, bytedata.length(), bin1, sizeof(bin1), &bin1len);
                 if (res == -1) {
                     ui->tips->appendPlainText("hex文件格式错误");
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
-                } else if (res == -2) {
-                    sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin1)/1024);
+                } else if (res == -2 || bin1len != sizeof(bin1)) {
+                    sprintf(buff, "镜像文件大小不等于%ukbytes", (uint)sizeof(bin1)/1024);
                     ui->tips->appendPlainText(buff);
+                    SendSocketData(failmsg, sizeof(failmsg));
                     return;
                 }
             }
         } else if (!suffix.compare(".bin")) {
             uint len = bytedata.length();
-            if (len > sizeof(bin1)) {
-                sprintf(buff, "镜像文件太大，镜像不能大于%ukbytes", (uint)sizeof(bin1)/1024);
+            if (len != sizeof(bin1)) {
+                sprintf(buff, "镜像文件大小不等于%ukbytes", (uint)sizeof(bin1)/1024);
                 ui->tips->appendPlainText(buff);
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             memcpy(bin1, chardata, len);
             bin1len = len;
         } else {
             ui->tips->appendPlainText("msu0文件类型错误");
+            SendSocketData(failmsg, sizeof(failmsg));
             return;
         }
     }
     if (bin0len == 0 && bin1len == 0) {
-        ui->tips->appendPlainText("没有需要编译的分区");
+        ui->tips->appendPlainText("没有需要烧录的分区");
+        SendSocketData(failmsg, sizeof(failmsg));
         return;
     }
     retrytime = 0;
@@ -1146,6 +1187,7 @@ void TkmIsp::on_writechip_clicked () {
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
+        SendSocketData(failmsg, sizeof(failmsg));
         return;
     }
     btnStatus = BTN_STATUS_WRITE;
@@ -1165,6 +1207,7 @@ void TkmIsp::on_erasechip_clicked () {
     buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
+        SendSocketData(failmsg, sizeof(failmsg));
         return;
     }
     btnStatus = BTN_STATUS_ERASE;
@@ -1183,14 +1226,7 @@ void TkmIsp::on_msu0readchip_clicked () {
         return;
     }
     char buff[64];
-    sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin0len);
-    bin0len *= 1024;
-    if (bin0len > sizeof(bin0)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为%ukbytes", (uint)sizeof(bin0)/1024);
-        ui->tips->appendPlainText(buff);
-        CloseSerial();
-        return;
-    }
+    bin0len = sizeof(bin0);
     bin1len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
@@ -1216,14 +1252,7 @@ void TkmIsp::on_msu1readchip_clicked() {
         return;
     }
     char buff[64];
-    sscanf(ui->flashsize->text().toUtf8().data(), "%u", &bin1len);
-    bin1len *= 1024;
-    if (bin1len > sizeof(bin1)) {
-        sprintf(buff, "计划读取文件太大，可读取的最大值为%ukbytes", (uint)sizeof(bin1)/1024);
-        ui->tips->appendPlainText(buff);
-        CloseSerial();
-        return;
-    }
+    bin1len = sizeof(bin1);
     bin0len = 0;
     QString filepath = QFileDialog::getSaveFileName(this, "保存镜像", NULL, "镜像文件(*.bin)");
     if (!filepath.length()) {
@@ -1259,4 +1288,133 @@ void TkmIsp::on_readchipmsg_clicked() {
     btnStatus = BTN_STATUS_READ_MSG;
     sprintf(buff, "等待设备连接...%u", ++retrytime);
     ui->tips->appendPlainText(buff);
+}
+
+void TkmIsp::SendSocketData (char *dat, int len) {
+    if (netctlStatus) {
+        udpSocket.writeDatagram(dat, len, srcAddress, srcPort);
+    }
+}
+
+void TkmIsp::ReadSocketData () {
+    char ba[1024];
+    int size = 0;
+    while(udpSocket.hasPendingDatagrams()) {
+        int lastsize = size;
+        int datasize = udpSocket.pendingDatagramSize();
+        size += datasize;
+        udpSocket.readDatagram(ba + lastsize, datasize, &srcAddress, &srcPort);
+    }
+    if (btnStatus) {
+        char dat[] = "busy...";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        return;
+    }
+    yyjson_doc *doc = yyjson_read(ba, size, 0);
+    if (doc == NULL) {
+        char dat[] = "json parse fail";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        return;
+    }
+    yyjson_val *json = yyjson_doc_get_root(doc);
+    yyjson_val *act = yyjson_obj_get(json, "act");
+    if (act == NULL || !yyjson_is_str(act)) {
+        char dat[] = "act not found";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        yyjson_doc_free(doc);
+        return;
+    }
+    if (!strcmp(yyjson_get_str(act), "erasechip")) {
+        yyjson_doc_free(doc);
+        char dat[] = "wait";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        on_erasechip_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "writechip")) {
+        yyjson_val *msu1path = yyjson_obj_get(json, "msu1path");
+        if (msu1path != NULL && yyjson_is_str(msu1path)) {
+            ui->msu1filepath->setText(yyjson_get_str(msu1path));
+            ui->msu1load->setChecked(true);
+        }
+        yyjson_val *msu0path = yyjson_obj_get(json, "msu0path");
+        if (msu0path != NULL && yyjson_is_str(msu0path)) {
+            ui->msu0filepath->setText(yyjson_get_str(msu0path));
+            ui->msu0load->setChecked(true);
+        }
+        yyjson_doc_free(doc);
+        char dat[] = "wait";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        on_writechip_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "setmsu1path")) {
+        yyjson_val *msu1path = yyjson_obj_get(json, "msu1path");
+        if (msu1path == NULL || !yyjson_is_str(msu1path)) {
+            yyjson_doc_free(doc);
+            char dat[] = "msu1path not found";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        ui->msu1filepath->setText(yyjson_get_str(msu1path));
+        ui->msu1load->setChecked(true);
+        yyjson_doc_free(doc);
+        SendSocketData(successmsg, sizeof(successmsg));
+    } else if (!strcmp(yyjson_get_str(act), "setmsu0path")) {
+        yyjson_val *msu0path = yyjson_obj_get(json, "msu0path");
+        if (msu0path == NULL || !yyjson_is_str(msu0path)) {
+            yyjson_doc_free(doc);
+            char dat[] = "msu0path not found";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        ui->msu0filepath->setText(yyjson_get_str(msu0path));
+        ui->msu0load->setChecked(true);
+        yyjson_doc_free(doc);
+        SendSocketData(successmsg, sizeof(successmsg));
+    }
+}
+
+void TkmIsp::on_netctl_clicked() {
+    if (netctlStatus == 0) {
+        if (!udpSocket.open(QIODevice::ReadWrite)) {
+            ui->tips->appendPlainText("打开套接字失败");
+            return;
+        }
+        if (!udpSocket.bind(QHostAddress::Any, 33234)) {
+            udpSocket.close();
+            ui->tips->appendPlainText("绑定33234端口失败");
+            return;
+        }
+        ui->writechip->setEnabled(false);
+        ui->erasechip->setEnabled(false);
+        ui->checkwrite->setEnabled(false);
+        ui->msu0readchip->setEnabled(false);
+        ui->msu1readchip->setEnabled(false);
+        ui->readchipmsg->setEnabled(false);
+        ui->msu0filepath->setEnabled(false);
+        ui->msu1filepath->setEnabled(false);
+        ui->msu0openfile->setEnabled(false);
+        ui->msu1openfile->setEnabled(false);
+        ui->msu0load->setEnabled(false);
+        ui->msu1load->setEnabled(false);
+        ui->netctl->setText("关闭远程调用");
+        connect(&udpSocket, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
+        netctlStatus = 1;
+        ui->tips->appendPlainText("开启远程调用成功，监听端口为33234。");
+    } else {
+        udpSocket.close();
+        ui->writechip->setEnabled(true);
+        ui->erasechip->setEnabled(true);
+        ui->checkwrite->setEnabled(true);
+        ui->msu0readchip->setEnabled(true);
+        ui->msu1readchip->setEnabled(true);
+        ui->readchipmsg->setEnabled(true);
+        ui->msu0filepath->setEnabled(true);
+        ui->msu1filepath->setEnabled(true);
+        ui->msu0openfile->setEnabled(true);
+        ui->msu1openfile->setEnabled(true);
+        ui->msu0load->setEnabled(true);
+        ui->msu1load->setEnabled(true);
+        ui->netctl->setText("启动远程调用");
+        disconnect(&udpSocket, 0, 0, 0);
+        netctlStatus = 0;
+        ui->tips->appendPlainText("关闭远程调用成功。");
+    }
 }

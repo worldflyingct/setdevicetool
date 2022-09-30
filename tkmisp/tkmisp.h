@@ -7,6 +7,8 @@
 #include <QtSerialPort/QSerialPortInfo>
 // 定时器相关头文件
 #include <QTimer>
+// 网络控制相关头文件
+#include <QUdpSocket>
 
 namespace Ui {
 class TkmIsp;
@@ -22,6 +24,7 @@ public:
     int GetBtnStatus();
 
 private slots:
+    void ReadSocketData();
     void ReadSerialData();
     void SerialErrorEvent();
     void TimerOutEvent();
@@ -34,6 +37,7 @@ private slots:
     void on_erasechip_clicked();
     void on_readchipmsg_clicked();
     void on_clearlog_clicked();
+    void on_netctl_clicked();
 
 private:
     Ui::TkmIsp *ui;
@@ -41,9 +45,13 @@ private:
     void GetComList();
     int OpenSerial();
     void CloseSerial();
+    void SendSocketData(char *dat, int len);
 
     QSerialPort serial;
     QTimer timer;
+    QUdpSocket udpSocket;
+    QHostAddress srcAddress;
+    quint16 srcPort;
     int btnStatus = 0;
 
     QString savefilepath;
@@ -58,6 +66,9 @@ private:
     uint addr = 0;
     uint offset = 0;
     bool needcheck = 0;
+    uchar netctlStatus = 0;
+    char failmsg[4];
+    char successmsg[7];
 };
 
 #endif // TKMISP_H

@@ -37,9 +37,10 @@ void NetAssist::ReadSocketData () {
         int size = 0;
         while(udpSocket.hasPendingDatagrams()) {
             int lastsize = size;
-            size += udpSocket.pendingDatagramSize();
+            int datasize = udpSocket.pendingDatagramSize();
+            size += datasize;
             ba.resize(size);
-            udpSocket.readDatagram(ba.data() + lastsize, size, &srcAddress, &srcPort);
+            udpSocket.readDatagram(ba.data() + lastsize, datasize, &srcAddress, &srcPort);
         }
     }
     if (ui->receivenoshow->isChecked()) {
