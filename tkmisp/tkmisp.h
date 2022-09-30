@@ -25,12 +25,10 @@ private slots:
     void ReadSerialData();
     void SerialErrorEvent();
     void TimerOutEvent();
-    void on_bootopenfile_clicked();
     void on_msu0openfile_clicked();
     void on_msu1openfile_clicked();
     void on_writechip_clicked();
     void on_refresh_clicked();
-    void on_bootreadchip_clicked();
     void on_msu0readchip_clicked();
     void on_msu1readchip_clicked();
     void on_erasechip_clicked();
@@ -51,8 +49,6 @@ private:
     QString savefilepath;
     uchar serialReadBuff[1024];
     ushort bufflen = 0;
-    uchar boot[64*1024];
-    uint bootlen;
     uchar bin0[256*1024];
     uint bin0len;
     uchar bin1[96*1024];

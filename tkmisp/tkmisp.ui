@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>90</y>
+     <y>50</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -39,24 +39,11 @@
     <string>MSU0</string>
    </property>
   </widget>
-  <widget class="QLabel" name="colon_2">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>50</y>
-     <width>16</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>:</string>
-   </property>
-  </widget>
   <widget class="QLineEdit" name="msu0filepath">
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>90</y>
+     <y>50</y>
      <width>271</width>
      <height>31</height>
     </rect>
@@ -105,7 +92,7 @@
    <property name="geometry">
     <rect>
      <x>360</x>
-     <y>90</y>
+     <y>50</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -118,7 +105,7 @@
    <property name="geometry">
     <rect>
      <x>360</x>
-     <y>130</y>
+     <y>90</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -131,7 +118,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>90</y>
+     <y>50</y>
      <width>16</width>
      <height>31</height>
     </rect>
@@ -144,7 +131,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>130</y>
+     <y>90</y>
      <width>51</width>
      <height>31</height>
     </rect>
@@ -157,7 +144,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>130</y>
+     <y>90</y>
      <width>271</width>
      <height>31</height>
     </rect>
@@ -167,7 +154,7 @@
    <property name="geometry">
     <rect>
      <x>430</x>
-     <y>90</y>
+     <y>50</y>
      <width>21</width>
      <height>31</height>
     </rect>
@@ -180,7 +167,7 @@
    <property name="geometry">
     <rect>
      <x>430</x>
-     <y>130</y>
+     <y>90</y>
      <width>21</width>
      <height>31</height>
     </rect>
@@ -193,9 +180,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>170</y>
+     <y>130</y>
      <width>441</width>
-     <height>181</height>
+     <height>221</height>
     </rect>
    </property>
    <property name="readOnly">
@@ -208,9 +195,9 @@
   <widget class="QPushButton" name="readchipmsg">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>300</x>
      <y>360</y>
-     <width>91</width>
+     <width>81</width>
      <height>31</height>
     </rect>
    </property>
@@ -240,7 +227,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>200</x>
      <y>400</y>
      <width>111</width>
      <height>31</height>
@@ -266,7 +253,7 @@
   <widget class="QPushButton" name="msu0readchip">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>20</x>
      <y>400</y>
      <width>81</width>
      <height>31</height>
@@ -305,7 +292,7 @@
   <widget class="QPushButton" name="msu1readchip">
    <property name="geometry">
     <rect>
-     <x>200</x>
+     <x>110</x>
      <y>400</y>
      <width>81</width>
      <height>31</height>
@@ -318,7 +305,7 @@
   <widget class="QSpinBox" name="flashsize">
    <property name="geometry">
     <rect>
-     <x>400</x>
+     <x>310</x>
      <y>400</y>
      <width>51</width>
      <height>31</height>
@@ -334,73 +321,11 @@
     <number>96</number>
    </property>
   </widget>
-  <widget class="QPushButton" name="bootreadchip">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>400</y>
-     <width>81</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>读取BOOT</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="bootopenfile">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>50</y>
-     <width>51</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>...</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="bootload">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>50</y>
-     <width>21</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="bootfilepath">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>50</y>
-     <width>271</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="filelabel_3">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>50</y>
-     <width>51</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>BOOT</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="colon_4">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>130</y>
+     <y>90</y>
      <width>16</width>
      <height>31</height>
     </rect>
