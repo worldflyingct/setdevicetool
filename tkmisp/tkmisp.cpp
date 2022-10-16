@@ -478,7 +478,7 @@ void TkmIsp::ReadSerialData () {
                     param[0x04] = 0x00;
                     param[0x05] = 0x90;
                     param[0x06] = 0xd0;
-                    param[0x07] = 0x30;
+                    param[0x07] = 0x03;
                     param[0x08] = bin1[0xfffc];
                     param[0x09] = bin1[0xfffd];
                     param[0x0a] = bin1[0xfffe];
@@ -504,7 +504,7 @@ void TkmIsp::ReadSerialData () {
                     param[0x04] = 0x00;
                     param[0x05] = 0x90;
                     param[0x06] = 0xd0;
-                    param[0x07] = 0x30;
+                    param[0x07] = 0x03;
                     param[0x08] = bin0[0x1fffc];
                     param[0x09] = bin0[0x1fffd];
                     param[0x0a] = bin0[0x1fffe];
@@ -573,7 +573,7 @@ void TkmIsp::ReadSerialData () {
                 param[0x04] = 0x00;
                 param[0x05] = 0x90;
                 param[0x06] = 0xd0;
-                param[0x07] = 0x30;
+                param[0x07] = 0x03;
                 param[0x08] = bin1[0xfffc];
                 param[0x09] = bin1[0xfffd];
                 param[0x0a] = bin1[0xfffe];
@@ -601,7 +601,7 @@ void TkmIsp::ReadSerialData () {
                 param[0x04] = 0x00;
                 param[0x05] = 0x90;
                 param[0x06] = 0xd0;
-                param[0x07] = 0x30;
+                param[0x07] = 0x03;
                 param[0x08] = bin0[0x1fffc];
                 param[0x09] = bin0[0x1fffd];
                 param[0x0a] = bin0[0x1fffe];
@@ -732,7 +732,7 @@ void TkmIsp::ReadSerialData () {
                     param[0x04] = 0x00;
                     param[0x05] = 0x90;
                     param[0x06] = 0xd0;
-                    param[0x07] = 0x30;
+                    param[0x07] = 0x03;
                     param[0x08] = bin0[0x1fffc];
                     param[0x09] = bin0[0x1fffd];
                     param[0x0a] = bin0[0x1fffe];
@@ -908,7 +908,7 @@ void TkmIsp::ReadSerialData () {
                         param[0x04] = 0x00;
                         param[0x05] = 0x90;
                         param[0x06] = 0xd0;
-                        param[0x07] = 0x30;
+                        param[0x07] = 0x03;
                         param[0x08] = bin[0xfffc];
                         param[0x09] = bin[0xfffd];
                         param[0x0a] = bin[0xfffe];
@@ -933,7 +933,7 @@ void TkmIsp::ReadSerialData () {
                         param[0x04] = 0x00;
                         param[0x05] = 0x90;
                         param[0x06] = 0xd0;
-                        param[0x07] = 0x30;
+                        param[0x07] = 0x03;
                         param[0x08] = bin[0x1fffc];
                         param[0x09] = bin[0x1fffd];
                         param[0x0a] = bin[0x1fffe];
