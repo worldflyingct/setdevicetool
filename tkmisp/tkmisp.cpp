@@ -28,6 +28,8 @@ TkmIsp::TkmIsp(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TkmIsp) {
     memcpy(failmsg, "fail", 4);
+    memcpy(timeoutmsg, "timeout", 7);
+    memcpy(syncfailmsg, "syncfail", 8);
     memcpy(successmsg, "success", 7);
     ui->setupUi(this);
     GetComList();
@@ -70,8 +72,10 @@ void TkmIsp::TimerOutEvent () {
             return;
         }
         ui->tips->appendPlainText("串口同步失败");
+        SendSocketData(syncfailmsg, sizeof(syncfailmsg));
     } else {
         ui->tips->appendPlainText("设备响应超时");
+        SendSocketData(timeoutmsg, sizeof(timeoutmsg));
     }
     CloseSerial();
 }
@@ -1354,9 +1358,9 @@ void TkmIsp::ReadSocketData () {
     yyjson_val *json = yyjson_doc_get_root(doc);
     yyjson_val *act = yyjson_obj_get(json, "act");
     if (act == NULL || !yyjson_is_str(act)) {
+        yyjson_doc_free(doc);
         char dat[] = "act not found";
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
-        yyjson_doc_free(doc);
         return;
     }
     if (!strcmp(yyjson_get_str(act), "erasechip")) {
@@ -1375,10 +1379,30 @@ void TkmIsp::ReadSocketData () {
             ui->msu0filepath->setText(yyjson_get_str(msu0path));
             ui->msu0load->setChecked(true);
         }
+        yyjson_val *msu0load = yyjson_obj_get(json, "msu0load");
+        if (msu0load != NULL && yyjson_is_bool(msu0load)) {
+            ui->msu0load->setChecked(yyjson_get_bool(msu0load));
+        }
+        yyjson_val *msu1load = yyjson_obj_get(json, "msu1load");
+        if (msu1load != NULL && yyjson_is_bool(msu1load)) {
+            ui->msu1load->setChecked(yyjson_get_bool(msu1load));
+        }
         yyjson_doc_free(doc);
         char dat[] = "wait";
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_writechip_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "setmsu0path")) {
+        yyjson_val *msu0path = yyjson_obj_get(json, "msu0path");
+        if (msu0path == NULL || !yyjson_is_str(msu0path)) {
+            yyjson_doc_free(doc);
+            char dat[] = "msu0path not found";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        ui->msu0filepath->setText(yyjson_get_str(msu0path));
+        ui->msu0load->setChecked(true);
+        yyjson_doc_free(doc);
+        SendSocketData(successmsg, sizeof(successmsg));
     } else if (!strcmp(yyjson_get_str(act), "setmsu1path")) {
         yyjson_val *msu1path = yyjson_obj_get(json, "msu1path");
         if (msu1path == NULL || !yyjson_is_str(msu1path)) {
@@ -1391,16 +1415,26 @@ void TkmIsp::ReadSocketData () {
         ui->msu1load->setChecked(true);
         yyjson_doc_free(doc);
         SendSocketData(successmsg, sizeof(successmsg));
-    } else if (!strcmp(yyjson_get_str(act), "setmsu0path")) {
-        yyjson_val *msu0path = yyjson_obj_get(json, "msu0path");
-        if (msu0path == NULL || !yyjson_is_str(msu0path)) {
+    } else if (!strcmp(yyjson_get_str(act), "setmsu0load")) {
+        yyjson_val *msu0load = yyjson_obj_get(json, "msu0load");
+        if (msu0load == NULL || !yyjson_is_bool(msu0load)) {
             yyjson_doc_free(doc);
-            char dat[] = "msu0path not found";
+            char dat[] = "msu0load not found";
             udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
             return;
         }
-        ui->msu0filepath->setText(yyjson_get_str(msu0path));
-        ui->msu0load->setChecked(true);
+        ui->msu0load->setChecked(yyjson_get_bool(msu0load));
+        yyjson_doc_free(doc);
+        SendSocketData(successmsg, sizeof(successmsg));
+    } else if (!strcmp(yyjson_get_str(act), "setmsu1load")) {
+        yyjson_val *msu0load = yyjson_obj_get(json, "msu1path");
+        if (msu0load == NULL || !yyjson_is_bool(msu0load)) {
+            yyjson_doc_free(doc);
+            char dat[] = "msu0load not found";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        ui->msu0load->setChecked(yyjson_get_bool(msu0load));
         yyjson_doc_free(doc);
         SendSocketData(successmsg, sizeof(successmsg));
     }

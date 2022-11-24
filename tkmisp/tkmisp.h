@@ -68,6 +68,8 @@ private:
     bool needcheck = 0;
     uchar netctlStatus = 0;
     char failmsg[4];
+    char timeoutmsg[7];
+    char syncfailmsg[8];
     char successmsg[7];
 };
 
