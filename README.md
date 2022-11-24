@@ -15,3 +15,6 @@ https://github.com/zserge/lorca
 可执行文件请到[github](https://github.com/worldflyingct/setdevicetool/releases)或[gitee](https://gitee.com/worldflying/setdevicetool/releases)下载  
 ### 所用字体
 本程序所使用的字体为[Noto Serif Simplified Chinese](https://fonts.google.com/noto/specimen/Noto+Serif+SC)  
+### 第三方调用
+目前只有tkmisp提供了第三方调用功能，tkmisp是为道生物联tk8610芯片开发的第三方烧录器，提供了调用接口，请查阅[第三方调用说明](tkmisp/README.md)。  
+
