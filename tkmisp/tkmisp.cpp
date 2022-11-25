@@ -6,17 +6,20 @@
 // yyjson库
 #include "common/yyjson.h"
 
-#define ISP_SYNC                0x7f
-#define ISP_SYNC_TWO            0x8f
-#define ISP_CHECK               0x9f
-#define ISP_ERASE               0x0c
-#define ISP_ERASE_ACK           0x0d
-#define ISP_WRITE               0x02
-#define ISP_WRITE_ACK           0x03
-#define ISP_READ                0x08
-#define ISP_READ_ACK            0x09
-#define ISP_GETINFO             0x00
-#define ISP_GETINFO_ACK         0x01
+#define ISP_SYNC                    0x7f
+#define ISP_SYNC_TWO                0x8f
+#define ISP_SYNC_THREE              0x8e
+#define ISP_CHECK                   0x9f
+#define ISP_ERASE                   0x0c
+#define ISP_ERASE_ACK               0x0d
+#define ISP_WRITE                   0x02
+#define ISP_WRITE_ACK               0x03
+#define ISP_READ                    0x08
+#define ISP_READ_ACK                0x09
+#define ISP_GETINFO                 0x00
+#define ISP_GETINFO_ACK             0x01
+#define ISP_CHANGE_BAUDRATE         0x12
+#define ISP_CHANGE_BAUDRATE_ACK     0x13
 
 #define BTN_STATUS_IDLE             0x00
 #define BTN_STATUS_WRITE            0x01
@@ -115,75 +118,115 @@ void TkmIsp::ReadSerialData () {
         }
         bufflen = 0;
         retrytime = 0;
-        if (btnStatus == BTN_STATUS_READ_MSG) {
-            ui->tips->appendPlainText("串口同步成功，开始获取芯片信息");
-            chipstep = ISP_GETINFO;
-            char buff[7];
-            buff[0] = ISP_GETINFO;
-            buff[4] = 0;
-            buff[3] = 0;
-            buff[2] = 0;
-            buff[1] = 0;
-            buff[6] = 0;
-            buff[5] = 0;
-            serial.write(buff, 7);
-        } else if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
-            ui->tips->appendPlainText("串口同步成功，开始擦除操作");
-            chipstep = ISP_ERASE;
-            char buff[7];
-            buff[0] = ISP_ERASE;
-            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
-                addr = 0x00000000;
-            } else if (bin0len > 0) {
-                addr = 0x00008000;
-            } else {
-                ui->tips->appendPlainText("程序内部错误");
+        ui->tips->appendPlainText("串口同步成功，开始修改串口波特率");
+        chipstep = ISP_SYNC_THREE;
+        char buff[7];
+        buff[0] = ISP_CHANGE_BAUDRATE;
+        buff[1] = 0x0b; // 设置芯片波特率为912600
+        memset(buff+2, 0, 5);
+        serial.write(buff, 7);
+    } else if (chipstep == ISP_SYNC_THREE) { // sync3
+        if (serialReadBuff[0] != ISP_CHANGE_BAUDRATE_ACK) {
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("修改波特率失败");
+                CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            offset = 0;
-            buff[4] = addr>>24;
-            buff[3] = addr>>16;
-            buff[2] = addr>>8;
-            buff[1] = addr;
-            buff[6] = 0;
-            buff[5] = 0;
+            bufflen = 0;
+            char buff[7];
+            buff[0] = ISP_CHANGE_BAUDRATE;
+            buff[1] = 0x0b; // 设置芯片波特率为912600
+            memset(buff+2, 0, 5);
             serial.write(buff, 7);
-        } else if (btnStatus == BTN_STATUS_READ) {
-            chipstep = ISP_READ;
-            offset = 0;
-            uint len = 0;
-            if (bin1len > 0) {
-                ui->tips->appendPlainText("串口同步成功，开始读取msu1操作");
-                addr = 0x00010000;
-                len = bin1len > 0x300 ? 0x300 : bin1len;
-            } else if (bin0len > 0) {
-                ui->tips->appendPlainText("串口同步成功，开始读取msu0操作");
-                addr = 0x00020000;
-                len = bin0len > 0x300 ? 0x300 : bin0len;
+        } else {
+            bufflen = 0;
+            retrytime = 0;
+            disconnect(&serial, 0, 0, 0);
+            serial.close();
+            serial.setBaudRate(921600);
+            if (!serial.open(QIODevice::ReadWrite)) {
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
+                CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
+                return;
+            }
+            serial.clear();
+            connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
+            connect(&serial, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(SerialErrorEvent()));
+            if (btnStatus == BTN_STATUS_READ_MSG) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始获取芯片信息");
+                chipstep = ISP_GETINFO;
+                char buff[7];
+                buff[0] = ISP_GETINFO;
+                memset(buff+1, 0, 5);
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始擦除操作");
+                chipstep = ISP_ERASE;
+                char buff[7];
+                buff[0] = ISP_ERASE;
+                if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
+                    addr = 0x00000000;
+                } else if (bin0len > 0) {
+                    addr = 0x00008000;
+                } else {
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
+                    CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
+                    return;
+                }
+                offset = 0;
+                buff[4] = addr>>24;
+                buff[3] = addr>>16;
+                buff[2] = addr>>8;
+                buff[1] = addr;
+                buff[6] = 0;
+                buff[5] = 0;
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_STATUS_READ) {
+                chipstep = ISP_READ;
+                offset = 0;
+                uint len = 0;
+                if (bin1len > 0) {
+                    ui->tips->appendPlainText("串口波特率修改成功，开始读取msu1操作");
+                    addr = 0x00010000;
+                    len = bin1len > 0x300 ? 0x300 : bin1len;
+                } else if (bin0len > 0) {
+                    ui->tips->appendPlainText("串口波特率修改成功，开始读取msu0操作");
+                    addr = 0x00020000;
+                    len = bin0len > 0x300 ? 0x300 : bin0len;
+                } else {
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
+                    CloseSerial();
+                    return;
+                }
+                char buff[7];
+                buff[0] = ISP_READ;
+                buff[4] = addr>>24;
+                buff[3] = addr>>16;
+                buff[2] = addr>>8;
+                buff[1] = addr;
+                buff[6] = len >> 8;
+                buff[5] = len;
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_STATUS_READ_MSG) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始读取芯片信息操作");
+                chipstep = ISP_GETINFO;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 return;
             }
-            char buff[7];
-            buff[0] = ISP_READ;
-            buff[4] = addr>>24;
-            buff[3] = addr>>16;
-            buff[2] = addr>>8;
-            buff[1] = addr;
-            buff[6] = len >> 8;
-            buff[5] = len;
-            serial.write(buff, 7);
-        } else if (btnStatus == BTN_STATUS_READ_MSG) {
-            ui->tips->appendPlainText("串口同步成功，开始读取芯片信息操作");
-            chipstep = ISP_GETINFO;
-        } else {
-            char buff[64];
-            sprintf(buff, "程序内部错误%d", __LINE__);
-            ui->tips->appendPlainText(buff);
-            CloseSerial();
-            return;
         }
     } else if (chipstep == ISP_GETINFO) { // ISP_GETINFO
         if (serialReadBuff[0] != ISP_GETINFO_ACK) {
@@ -196,12 +239,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             char buff[7];
             buff[0] = ISP_GETINFO;
-            buff[4] = 0;
-            buff[3] = 0;
-            buff[2] = 0;
-            buff[1] = 0;
-            buff[6] = 0;
-            buff[5] = 0;
+            memset(buff+1, 0, 5);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
             retrytime = 0;
@@ -238,7 +276,9 @@ void TkmIsp::ReadSerialData () {
                 addr = 0x00020000;
                 len = bin0len > 0x300 ? 0x300 : bin0len;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 return;
             }
@@ -280,7 +320,9 @@ void TkmIsp::ReadSerialData () {
                     partitionOneSize = 0x20000;
                     partitionTwoStartPosition = 0x48000;
                 } else {
-                    ui->tips->appendPlainText("程序内部错误");
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
                     CloseSerial();
                     return;
                 }
@@ -347,7 +389,9 @@ void TkmIsp::ReadSerialData () {
             } else if (bin0len > 0) {
                 addr = 0x00008000;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
@@ -405,7 +449,9 @@ void TkmIsp::ReadSerialData () {
                 partitionOneEndPosition = 0x40000;
                 partitionTwoStartPosition = 0x48000;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
@@ -526,7 +572,9 @@ void TkmIsp::ReadSerialData () {
                     param[0x1a] = bin0[0x3fffe];
                     param[0x1b] = bin0[0x3ffff];
                 } else {
-                    ui->tips->appendPlainText("程序内部错误");
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
                     CloseSerial();
                     SendSocketData(failmsg, sizeof(failmsg));
                     return;
@@ -625,7 +673,9 @@ void TkmIsp::ReadSerialData () {
                 bin = param;
                 len = 0x1c;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
@@ -687,7 +737,9 @@ void TkmIsp::ReadSerialData () {
                 partitionOneEndPosition = 0x40000;
                 partitionTwoStartPosition = 0x48000;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
@@ -793,7 +845,9 @@ void TkmIsp::ReadSerialData () {
                 } else if (bin0len > 0) {
                     addr = 0x00008000;
                 } else {
-                    ui->tips->appendPlainText("程序内部错误");
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
                     CloseSerial();
                     SendSocketData(failmsg, sizeof(failmsg));
                     return;
@@ -843,7 +897,9 @@ void TkmIsp::ReadSerialData () {
             } else if (bin0len > 0) {
                 addr = 0x00008000;
             } else {
-                ui->tips->appendPlainText("程序内部错误");
+                char message[64];
+                sprintf(message, "程序内部错误%d", __LINE__);
+                ui->tips->appendPlainText(message);
                 CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
@@ -896,7 +952,9 @@ void TkmIsp::ReadSerialData () {
                     partitionOneEndPosition = 0x40000;
                     partitionTwoStartPosition = 0x48000;
                 } else {
-                    ui->tips->appendPlainText("程序内部错误");
+                    char message[64];
+                    sprintf(message, "程序内部错误%d", __LINE__);
+                    ui->tips->appendPlainText(message);
                     CloseSerial();
                     SendSocketData(failmsg, sizeof(failmsg));
                     return;
@@ -1131,7 +1189,7 @@ void TkmIsp::on_writechip_clicked () {
         int pos = filepath.lastIndexOf(".");
         QString suffix = filepath.mid(pos);
         uchar *chardata = (uchar*)bytedata.data();
-        if (!suffix.compare(".hex")) {            
+        if (!suffix.compare(".hex")) {
             if (chardata[0] == ':') { // 标准ihex文件
                 if (HexToBin(chardata, bytedata.length(), bin0, sizeof(bin0), 0x00000000, &bin0len) != RES_OK) {
                     ui->tips->appendPlainText("hex文件格式错误");
