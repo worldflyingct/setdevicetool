@@ -31,8 +31,6 @@ TkmIsp::TkmIsp(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::TkmIsp) {
     memcpy(failmsg, "fail", 4);
-    memcpy(timeoutmsg, "timeout", 7);
-    memcpy(syncfailmsg, "syncfail", 8);
     memcpy(successmsg, "success", 7);
     ui->setupUi(this);
     GetComList();
@@ -75,10 +73,12 @@ void TkmIsp::TimerOutEvent () {
             return;
         }
         ui->tips->appendPlainText("串口同步失败");
-        SendSocketData(syncfailmsg, sizeof(syncfailmsg));
+        char dat[] = "syncfail";
+        SendSocketData(dat, sizeof(dat)-1);
     } else {
         ui->tips->appendPlainText("设备响应超时");
-        SendSocketData(timeoutmsg, sizeof(timeoutmsg));
+        char dat[] = "timeout";
+        SendSocketData(dat, sizeof(dat)-1);
     }
     CloseSerial();
 }
@@ -1460,7 +1460,7 @@ void TkmIsp::ReadSocketData () {
         ui->msu0filepath->setText(yyjson_get_str(msu0path));
         ui->msu0load->setChecked(true);
         yyjson_doc_free(doc);
-        SendSocketData(successmsg, sizeof(successmsg));
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
     } else if (!strcmp(yyjson_get_str(act), "setmsu1path")) {
         yyjson_val *msu1path = yyjson_obj_get(json, "msu1path");
         if (msu1path == NULL || !yyjson_is_str(msu1path)) {
@@ -1472,7 +1472,7 @@ void TkmIsp::ReadSocketData () {
         ui->msu1filepath->setText(yyjson_get_str(msu1path));
         ui->msu1load->setChecked(true);
         yyjson_doc_free(doc);
-        SendSocketData(successmsg, sizeof(successmsg));
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
     } else if (!strcmp(yyjson_get_str(act), "setmsu0load")) {
         yyjson_val *msu0load = yyjson_obj_get(json, "msu0load");
         if (msu0load == NULL || !yyjson_is_bool(msu0load)) {
@@ -1483,7 +1483,7 @@ void TkmIsp::ReadSocketData () {
         }
         ui->msu0load->setChecked(yyjson_get_bool(msu0load));
         yyjson_doc_free(doc);
-        SendSocketData(successmsg, sizeof(successmsg));
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
     } else if (!strcmp(yyjson_get_str(act), "setmsu1load")) {
         yyjson_val *msu0load = yyjson_obj_get(json, "msu1path");
         if (msu0load == NULL || !yyjson_is_bool(msu0load)) {
@@ -1494,7 +1494,18 @@ void TkmIsp::ReadSocketData () {
         }
         ui->msu0load->setChecked(yyjson_get_bool(msu0load));
         yyjson_doc_free(doc);
-        SendSocketData(successmsg, sizeof(successmsg));
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+    } else if (!strcmp(yyjson_get_str(act), "stop")) {
+        yyjson_doc_free(doc);
+        if (btnStatus) {
+            ui->tips->appendPlainText("用户终止操作");
+            CloseSerial();
+        }
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+    } else {
+        yyjson_doc_free(doc);
+        char dat[] = "unknown";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
     }
 }
 
