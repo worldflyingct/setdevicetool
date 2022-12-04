@@ -1502,6 +1502,10 @@ void TkmIsp::ReadSocketData () {
             CloseSerial();
         }
         udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+    } else if (!strcmp(yyjson_get_str(act), "clearlog")) {
+        yyjson_doc_free(doc);
+        on_clearlog_clicked();
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
     } else {
         yyjson_doc_free(doc);
         char dat[] = "unknown";
