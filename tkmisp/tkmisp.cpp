@@ -1402,11 +1402,6 @@ void TkmIsp::ReadSocketData () {
         size += datasize;
         udpSocket.readDatagram(ba + lastsize, datasize, &srcAddress, &srcPort);
     }
-    if (btnStatus) {
-        char dat[] = "busy...";
-        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
-        return;
-    }
     yyjson_doc *doc = yyjson_read(ba, size, 0);
     if (doc == NULL) {
         char dat[] = "json parse fail";
@@ -1423,6 +1418,11 @@ void TkmIsp::ReadSocketData () {
     }
     if (!strcmp(yyjson_get_str(act), "erasechip")) {
         yyjson_doc_free(doc);
+        if (btnStatus) {
+            char dat[] = "busy...";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
         char dat[] = "wait";
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_erasechip_clicked();
@@ -1446,6 +1446,11 @@ void TkmIsp::ReadSocketData () {
             ui->msu1load->setChecked(yyjson_get_bool(msu1load));
         }
         yyjson_doc_free(doc);
+        if (btnStatus) {
+            char dat[] = "busy...";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
         char dat[] = "wait";
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_writechip_clicked();
