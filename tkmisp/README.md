@@ -9,6 +9,8 @@
 如果连wait都没收到，说明丢包了。  
 如果收到了busy...，说明正在做其他事情。  
 如果收到了syncfail，说明串口同步失败了。  
+如果收到了syncok，说明串口同步成功了。  
+如果收到了comerror，说明串口发生了错误。  
 如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 写入命令
@@ -24,6 +26,8 @@ msu1load为1核img是否烧录，如果不设置，但msu1path设置了，会自
 如果连wait都没收到，说明丢包了。  
 如果收到了busy...，说明正在做其他事情。  
 如果收到了syncfail，说明串口同步失败了。  
+如果收到了syncok，说明串口同步成功了。  
+如果收到了comerror，说明串口发生了错误。  
 如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 设置msu0path
@@ -32,8 +36,6 @@ msu1load为1核img是否烧录，如果不设置，但msu1path设置了，会自
 收到success说明成功。  
 收到fail说明失败。  
 如果收到了busy...，说明正在做其他事情。  
-如果收到了syncfail，说明串口同步失败了。  
-如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 设置msu1path
 `{"act":"setmsu1path","msu1path":"/home/jevian/Desktop/tk8610/tk8610_msu0-V1.4.135.hex"}`  
@@ -41,8 +43,6 @@ msu1load为1核img是否烧录，如果不设置，但msu1path设置了，会自
 收到success说明成功。  
 收到fail说明失败。  
 如果收到了busy...，说明正在做其他事情。  
-如果收到了syncfail，说明串口同步失败了。  
-如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 设置msu0load
 `{"act":"setmsu0load","msu0load":true}`  
@@ -50,8 +50,6 @@ msu1load为1核img是否烧录，如果不设置，但msu1path设置了，会自
 收到success说明成功。  
 收到fail说明失败。  
 如果收到了busy...，说明正在做其他事情。  
-如果收到了syncfail，说明串口同步失败了。  
-如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 设置msu1load
 `{"act":"setmsu1load","msu1load":true}`  
@@ -59,8 +57,6 @@ msu1load为1核img是否烧录，如果不设置，但msu1path设置了，会自
 收到success说明成功。  
 收到fail说明失败。  
 如果收到了busy...，说明正在做其他事情。  
-如果收到了syncfail，说明串口同步失败了。  
-如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 停止正在运行的工作
 `{"act":"stop"}`  

@@ -87,6 +87,8 @@ void TkmIsp::SerialErrorEvent () {
     ui->tips->appendPlainText("串口错误");
     ui->tips->appendPlainText("");
     CloseSerial();
+    char dat[] = "comerror";
+    SendSocketData(dat, sizeof(dat)-1);
     GetComList();
 }
 
@@ -119,6 +121,8 @@ void TkmIsp::ReadSerialData () {
         bufflen = 0;
         retrytime = 0;
         ui->tips->appendPlainText("串口同步成功，开始修改串口波特率");
+        char dat[] = "syncok";
+        SendSocketData(dat, sizeof(dat)-1);
         chipstep = ISP_SYNC_THREE;
         char buff[7];
         buff[0] = ISP_CHANGE_BAUDRATE;
