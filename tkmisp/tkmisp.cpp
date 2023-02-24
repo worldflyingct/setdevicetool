@@ -173,7 +173,9 @@ void TkmIsp::ReadSerialData () {
                 chipstep = ISP_ERASE;
                 char buff[7];
                 buff[0] = ISP_ERASE;
-                if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
+                if (btnStatus == BTN_STATUS_ERASE) {
+                    addr = eraseStart;
+                } else if (bin1len > 0) {
                     addr = 0x00000000;
                 } else if (bin0len > 0) {
                     addr = 0x00008000;
@@ -388,7 +390,9 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            if (btnStatus == BTN_STATUS_ERASE || bin1len > 0) {
+            if (btnStatus == BTN_STATUS_ERASE) {
+                addr = eraseStart;
+            } else if (bin1len > 0) {
                 addr = 0x00000000;
             } else if (bin0len > 0) {
                 addr = 0x00008000;
@@ -433,11 +437,11 @@ void TkmIsp::ReadSerialData () {
             uint partitionTwoStartPosition;
             if (btnStatus == BTN_STATUS_ERASE) {
                 bin = NULL;
-                binlen = 0x78000;
-                partitionParamEndPosition = 0x78000;
-                partitionOneStartPosition = 0x78000;
-                partitionOneEndPosition = 0x78000;
-                partitionTwoStartPosition = 0x78000;
+                binlen = eraseEnd;
+                partitionParamEndPosition = eraseEnd;
+                partitionOneStartPosition = eraseEnd;
+                partitionOneEndPosition = eraseEnd;
+                partitionTwoStartPosition = eraseEnd;
             } else if (addr < 0x8000 || (0x10000 <= addr && addr < 0x20000) || (0x40000 <= addr && addr < 0x48000)) { // msu1
                 bin = bin1;
                 binlen = bin1len + 0x8000;
@@ -1300,6 +1304,14 @@ void TkmIsp::on_erasechip_clicked () {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
+        return;
+    }
+    if (sscanf(ui->erasestart->text().toUtf8().data(), "0x%x", &eraseStart) != 1) {
+        ui->tips->appendPlainText("擦除起始位置读取失败");
+        return;
+    }
+    if (sscanf(ui->eraseend->text().toUtf8().data(), "0x%x", &eraseEnd) != 1) {
+        ui->tips->appendPlainText("擦除终止位置读取失败");
         return;
     }
     retrytime = 0;

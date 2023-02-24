@@ -69,6 +69,8 @@ private:
     uchar netctlStatus = 0;
     char failmsg[4];
     char successmsg[7];
+    uint eraseStart;
+    uint eraseEnd;
 };
 
 #endif // TKMISP_H
