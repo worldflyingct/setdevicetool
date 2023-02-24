@@ -437,7 +437,7 @@ void TkmIsp::ReadSerialData () {
             uint partitionTwoStartPosition;
             if (btnStatus == BTN_STATUS_ERASE) {
                 bin = NULL;
-                binlen = eraseEnd;
+                binlen = eraseEnd - eraseStart;
                 partitionParamEndPosition = eraseEnd;
                 partitionOneStartPosition = eraseEnd;
                 partitionOneEndPosition = eraseEnd;
@@ -1312,6 +1312,10 @@ void TkmIsp::on_erasechip_clicked () {
     }
     if (sscanf(ui->eraseend->text().toUtf8().data(), "0x%x", &eraseEnd) != 1) {
         ui->tips->appendPlainText("擦除终止位置读取失败");
+        return;
+    }
+    if (eraseEnd <= eraseStart) {
+        ui->tips->appendPlainText("终止位置需大于起始位置");
         return;
     }
     retrytime = 0;
