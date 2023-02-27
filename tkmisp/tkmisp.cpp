@@ -1301,11 +1301,11 @@ void TkmIsp::on_writechip_clicked () {
 }
 
 void TkmIsp::on_erasechip_clicked () {
-    Erase(0x000000, 0x780000);
+    Erase(0x00000, 0x78000);
 }
 
 void TkmIsp::on_erasedata_clicked() {
-    Erase(0x680000, 0x780000);
+    Erase(0x68000, 0x78000);
 }
 
 void TkmIsp::Erase (uint eraseStartAddr, uint eraseEndAddr) {
