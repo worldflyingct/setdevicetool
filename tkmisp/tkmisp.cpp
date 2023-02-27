@@ -1301,23 +1301,21 @@ void TkmIsp::on_writechip_clicked () {
 }
 
 void TkmIsp::on_erasechip_clicked () {
+    Erase(0x000000, 0x780000);
+}
+
+void TkmIsp::on_erasedata_clicked() {
+    Erase(0x680000, 0x780000);
+}
+
+void TkmIsp::Erase (uint eraseStartAddr, uint eraseEndAddr) {
     if (btnStatus) {
         ui->tips->appendPlainText("用户终止操作");
         CloseSerial();
         return;
     }
-    if (sscanf(ui->erasestart->text().toUtf8().data(), "0x%x", &eraseStart) != 1) {
-        ui->tips->appendPlainText("擦除起始位置读取失败");
-        return;
-    }
-    if (sscanf(ui->eraseend->text().toUtf8().data(), "0x%x", &eraseEnd) != 1) {
-        ui->tips->appendPlainText("擦除终止位置读取失败");
-        return;
-    }
-    if (eraseEnd <= eraseStart) {
-        ui->tips->appendPlainText("终止位置需大于起始位置");
-        return;
-    }
+    eraseStart = eraseStartAddr;
+    eraseEnd = eraseEndAddr;
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
     char buff[64];
@@ -1446,6 +1444,16 @@ void TkmIsp::ReadSocketData () {
         char dat[] = "wait";
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_erasechip_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "erasedata")) {
+        yyjson_doc_free(doc);
+        if (btnStatus) {
+            char dat[] = "busy...";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        char dat[] = "wait";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+        on_erasedata_clicked();
     } else if (!strcmp(yyjson_get_str(act), "writechip")) {
         yyjson_val *msu1path = yyjson_obj_get(json, "msu1path");
         if (msu1path != NULL && yyjson_is_str(msu1path)) {
@@ -1551,6 +1559,7 @@ void TkmIsp::on_netctl_clicked() {
         }
         ui->writechip->setEnabled(false);
         ui->erasechip->setEnabled(false);
+        ui->erasedata->setEnabled(false);
         ui->checkwrite->setEnabled(false);
         ui->msu0readchip->setEnabled(false);
         ui->msu1readchip->setEnabled(false);
@@ -1569,6 +1578,7 @@ void TkmIsp::on_netctl_clicked() {
         udpSocket.close();
         ui->writechip->setEnabled(true);
         ui->erasechip->setEnabled(true);
+        ui->erasedata->setEnabled(true);
         ui->checkwrite->setEnabled(true);
         ui->msu0readchip->setEnabled(true);
         ui->msu1readchip->setEnabled(true);

@@ -35,6 +35,7 @@ private slots:
     void on_msu0readchip_clicked();
     void on_msu1readchip_clicked();
     void on_erasechip_clicked();
+    void on_erasedata_clicked();
     void on_readchipmsg_clicked();
     void on_clearlog_clicked();
     void on_netctl_clicked();
@@ -46,6 +47,7 @@ private:
     int OpenSerial();
     void CloseSerial();
     void SendSocketData(char *dat, int len);
+    void Erase(uint eraseStartAddr, uint eraseEndAddr);
 
     QSerialPort serial;
     QTimer timer;

@@ -229,12 +229,12 @@
     <rect>
      <x>190</x>
      <y>360</y>
-     <width>61</width>
+     <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>擦除</string>
+    <string>擦除全部</string>
    </property>
   </widget>
   <widget class="QPushButton" name="msu0readchip">
@@ -267,7 +267,7 @@
    <property name="geometry">
     <rect>
      <x>390</x>
-     <y>400</y>
+     <y>360</y>
      <width>71</width>
      <height>31</height>
     </rect>
@@ -305,7 +305,7 @@
   <widget class="QPushButton" name="netctl">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>370</x>
      <y>400</y>
      <width>91</width>
      <height>31</height>
@@ -315,56 +315,17 @@
     <string>启动远程调用</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="erasestart">
+  <widget class="QPushButton" name="erasedata">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>270</x>
      <y>360</y>
      <width>71</width>
      <height>31</height>
     </rect>
    </property>
    <property name="text">
-    <string>0x00000</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="eraseend">
-   <property name="geometry">
-    <rect>
-     <x>390</x>
-     <y>360</y>
-     <width>71</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>0x78000</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="dao">
-   <property name="geometry">
-    <rect>
-     <x>370</x>
-     <y>360</y>
-     <width>16</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>到</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="range">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>360</y>
-     <width>31</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>范围</string>
+    <string>擦除数据</string>
    </property>
   </widget>
  </widget>
