@@ -290,6 +290,7 @@ void TkmIsp::ReadSerialData () {
             if (retrytime == 250) {
                 ui->tips->appendPlainText("芯片加锁失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             bufflen = 0;
@@ -302,6 +303,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             ui->tips->appendPlainText("芯片加锁成功");
             CloseSerial();
+            SendSocketData(successmsg, sizeof(successmsg));
             return;
         }
     } else if (chipstep == ISP_UNLOCK) { // ISP_UNLOCK
@@ -310,6 +312,7 @@ void TkmIsp::ReadSerialData () {
             if (retrytime == 250) {
                 ui->tips->appendPlainText("芯片解锁失败");
                 CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
             bufflen = 0;
@@ -322,6 +325,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             ui->tips->appendPlainText("芯片解锁成功");
             CloseSerial();
+            SendSocketData(successmsg, sizeof(successmsg));
             return;
         }
     } else if (chipstep == ISP_READ) { // ISP_READ
@@ -1539,7 +1543,8 @@ void TkmIsp::ReadSocketData () {
             udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
             return;
         }
-        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+        char dat[] = "wait";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_lock_clicked();
     } else if (!strcmp(yyjson_get_str(act), "unlockchip")) {
         yyjson_doc_free(doc);
@@ -1548,7 +1553,8 @@ void TkmIsp::ReadSocketData () {
             udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
             return;
         }
-        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+        char dat[] = "wait";
+        udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         on_unlock_clicked();
     } else if (!strcmp(yyjson_get_str(act), "erasechip")) {
         yyjson_doc_free(doc);
@@ -1686,6 +1692,8 @@ void TkmIsp::on_netctl_clicked() {
         ui->msu1openfile->setEnabled(false);
         ui->msu0load->setEnabled(false);
         ui->msu1load->setEnabled(false);
+        ui->lock->setEnabled(false);
+        ui->unlock->setEnabled(false);
         ui->netctl->setText("关闭远程调用");
         connect(&udpSocket, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
         netctlStatus = 1;
@@ -1705,6 +1713,8 @@ void TkmIsp::on_netctl_clicked() {
         ui->msu1openfile->setEnabled(true);
         ui->msu0load->setEnabled(true);
         ui->msu1load->setEnabled(true);
+        ui->lock->setEnabled(true);
+        ui->unlock->setEnabled(true);
         ui->netctl->setText("启动远程调用");
         disconnect(&udpSocket, 0, 0, 0);
         netctlStatus = 0;

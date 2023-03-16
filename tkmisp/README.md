@@ -2,14 +2,26 @@
 通过udp数据包与之通信，发送端口为33234，别用熟悉的mqtt或是restful，简单点。  
 
 ### 加锁芯片命令
-`{"act":"lockchip"}`    
-收到success说明成功。    
+`{"act":"lockchip"}`  
+收到success说明成功。  
+收到fail说明失败。  
+如果连wait都没收到，说明丢包了。  
 如果收到了busy...，说明正在做其他事情。  
+如果收到了syncfail，说明串口同步失败了。  
+如果收到了syncok，说明串口同步成功了。  
+如果收到了comerror，说明串口发生了错误。  
+如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 解锁芯片命令
-`{"act":"unlockchip"}`    
-收到success说明成功。    
+`{"act":"unlockchip"}`  
+收到success说明成功。  
+收到fail说明失败。  
+如果连wait都没收到，说明丢包了。  
 如果收到了busy...，说明正在做其他事情。  
+如果收到了syncfail，说明串口同步失败了。  
+如果收到了syncok，说明串口同步成功了。  
+如果收到了comerror，说明串口发生了错误。  
+如果收到了timeout，说明设备响应串口命令失败了。  
 
 ### 擦除全部命令
 `{"act":"erasechip"}`  
