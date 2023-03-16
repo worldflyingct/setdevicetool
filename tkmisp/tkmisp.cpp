@@ -20,12 +20,18 @@
 #define ISP_GETINFO_ACK             0x01
 #define ISP_CHANGE_BAUDRATE         0x12
 #define ISP_CHANGE_BAUDRATE_ACK     0x13
+#define ISP_LOCK                    0x21
+#define ISP_LOCK_ACK                0x22
+#define ISP_UNLOCK                  0x1f
+#define ISP_UNLOCK_ACK              0x20
 
 #define BTN_STATUS_IDLE             0x00
 #define BTN_STATUS_WRITE            0x01
 #define BTN_STATUS_READ             0x02
 #define BTN_STATUS_ERASE            0x03
 #define BTN_STATUS_READ_MSG         0x04
+#define BTN_STATUS_LOCK             0x05
+#define BTN_STATUS_UNLOCK           0x06
 
 TkmIsp::TkmIsp(QWidget *parent) :
     QWidget(parent),
@@ -166,7 +172,21 @@ void TkmIsp::ReadSerialData () {
                 chipstep = ISP_GETINFO;
                 char buff[7];
                 buff[0] = ISP_GETINFO;
-                memset(buff+1, 0, 5);
+                memset(buff+1, 0, 6);
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_STATUS_LOCK) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始给芯片加锁");
+                chipstep = ISP_LOCK;
+                char buff[7];
+                buff[0] = ISP_LOCK;
+                memset(buff+1, 0, 6);
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_STATUS_UNLOCK) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始给芯片解锁");
+                chipstep = ISP_UNLOCK;
+                char buff[7];
+                buff[0] = ISP_UNLOCK;
+                memset(buff+1, 0, 6);
                 serial.write(buff, 7);
             } else if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
                 ui->tips->appendPlainText("串口波特率修改成功，开始擦除操作");
@@ -245,7 +265,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             char buff[7];
             buff[0] = ISP_GETINFO;
-            memset(buff+1, 0, 5);
+            memset(buff+1, 0, 6);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
             retrytime = 0;
@@ -261,6 +281,46 @@ void TkmIsp::ReadSerialData () {
             }
             sprintf(buff, "存储类型：%s，当年第%d颗，%d年，系列：%d", memorytype, (int)serialReadBuff[2] + 1, (int)serialReadBuff[3] + 2020, serialReadBuff[4]);
             ui->tips->appendPlainText(buff);
+            CloseSerial();
+            return;
+        }
+    } else if (chipstep == ISP_LOCK) { // ISP_LOCK
+        if (serialReadBuff[0] != ISP_LOCK_ACK) {
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("芯片加锁失败");
+                CloseSerial();
+                return;
+            }
+            bufflen = 0;
+            char buff[7];
+            buff[0] = ISP_LOCK;
+            memset(buff+1, 0, 6);
+            serial.write(buff, 7);
+        } else if (bufflen == 7) {
+            retrytime = 0;
+            bufflen = 0;
+            ui->tips->appendPlainText("芯片加锁成功");
+            CloseSerial();
+            return;
+        }
+    } else if (chipstep == ISP_UNLOCK) { // ISP_UNLOCK
+        if (serialReadBuff[0] != ISP_UNLOCK_ACK) {
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("芯片解锁失败");
+                CloseSerial();
+                return;
+            }
+            bufflen = 0;
+            char buff[7];
+            buff[0] = ISP_UNLOCK;
+            memset(buff+1, 0, 6);
+            serial.write(buff, 7);
+        } else if (bufflen == 7) {
+            retrytime = 0;
+            bufflen = 0;
+            ui->tips->appendPlainText("芯片解锁成功");
             CloseSerial();
             return;
         }
@@ -1405,6 +1465,44 @@ void TkmIsp::on_readchipmsg_clicked() {
     ui->tips->appendPlainText(buff);
 }
 
+void TkmIsp::on_lock_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        return;
+    }
+    retrytime = 0;
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial()) {
+        ui->tips->appendPlainText("串口打开失败");
+        return;
+    }
+    btnStatus = BTN_STATUS_LOCK;
+    sprintf(buff, "等待设备连接...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
+}
+
+void TkmIsp::on_unlock_clicked() {
+    if (btnStatus) {
+        ui->tips->appendPlainText("用户终止操作");
+        CloseSerial();
+        return;
+    }
+    retrytime = 0;
+    chipstep = ISP_SYNC; // sync
+    char buff[64];
+    buff[0] = ISP_SYNC;
+    if (OpenSerial()) {
+        ui->tips->appendPlainText("串口打开失败");
+        return;
+    }
+    btnStatus = BTN_STATUS_UNLOCK;
+    sprintf(buff, "等待设备连接...%u", ++retrytime);
+    ui->tips->appendPlainText(buff);
+}
+
 void TkmIsp::SendSocketData (char *dat, int len) {
     if (netctlStatus) {
         udpSocket.writeDatagram(dat, len, srcAddress, srcPort);
@@ -1434,7 +1532,25 @@ void TkmIsp::ReadSocketData () {
         udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
         return;
     }
-    if (!strcmp(yyjson_get_str(act), "erasechip")) {
+    if (!strcmp(yyjson_get_str(act), "lockchip")) {
+        yyjson_doc_free(doc);
+        if (btnStatus) {
+            char dat[] = "busy...";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+        on_lock_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "unlockchip")) {
+        yyjson_doc_free(doc);
+        if (btnStatus) {
+            char dat[] = "busy...";
+            udpSocket.writeDatagram(dat, sizeof(dat)-1, srcAddress, srcPort);
+            return;
+        }
+        udpSocket.writeDatagram(successmsg, sizeof(successmsg), srcAddress, srcPort);
+        on_unlock_clicked();
+    } else if (!strcmp(yyjson_get_str(act), "erasechip")) {
         yyjson_doc_free(doc);
         if (btnStatus) {
             char dat[] = "busy...";

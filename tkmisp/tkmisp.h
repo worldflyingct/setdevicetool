@@ -39,6 +39,8 @@ private slots:
     void on_readchipmsg_clicked();
     void on_clearlog_clicked();
     void on_netctl_clicked();
+    void on_lock_clicked();
+    void on_unlock_clicked();
 
 private:
     Ui::TkmIsp *ui;
