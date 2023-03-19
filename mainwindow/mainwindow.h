@@ -11,6 +11,7 @@
 #include "tkmisp/tkmisp.h"
 #include "uartassist/uartassist.h"
 #include "netassist/netassist.h"
+#include "smartbuilding/22/smartbuilding22.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,7 @@ private slots:
     void on_actionUartAssist_triggered();
     void on_actionNetAssist_triggered();
     void on_actiontkm_triggered();
+    void on_actionSmartbuilding22_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -48,6 +50,7 @@ private:
     TkmIsp *tkmisp = NULL;
     UartAssist *uartassist = NULL;
     NetAssist *netassist = NULL;
+    Smartbuilding22 *smartbuilding22 = NULL;
 };
 
 #endif // MAINWINDOW_H

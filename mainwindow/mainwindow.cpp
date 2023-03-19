@@ -82,6 +82,13 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete netassist;
         netassist = NULL;
     }
+    if (smartbuilding22 && smartbuilding22 != widget) {
+        if (smartbuilding22->GetBtnStatus()) {
+            return -1;
+        }
+        delete smartbuilding22;
+        smartbuilding22 = NULL;
+    }
     return 0;
 }
 
@@ -211,5 +218,18 @@ void MainWindow::on_actionNetAssist_triggered () {
         int h = netassist->height();
         setFixedSize(w, h + 23);
         netassist->show();
+    }
+}
+
+void MainWindow::on_actionSmartbuilding22_triggered() {
+    if (FreeOthersWidget(smartbuilding22)) {
+        return;
+    }
+    if (!smartbuilding22) {
+        smartbuilding22 = new Smartbuilding22(ui->centralWidget);
+        int w = smartbuilding22->width();
+        int h = smartbuilding22->height();
+        setFixedSize(w, h + 23);
+        smartbuilding22->show();
     }
 }

@@ -28,7 +28,8 @@ SOURCES += main.cpp\
     tkmisp/tkmisp.cpp \
     uartassist/uartassist.cpp \
     netassist/netassist.cpp \
-    common/common.cpp
+    common/common.cpp \
+    smartbuilding/22/smartbuilding22.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     common/yyjson.h \
@@ -42,7 +43,8 @@ HEADERS  += mainwindow/mainwindow.h \
     stmisp/stmisp.h \
     tkmisp/tkmisp.h \
     uartassist/uartassist.h \
-    netassist/netassist.h
+    netassist/netassist.h \
+    smartbuilding/22/smartbuilding22.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
@@ -53,7 +55,8 @@ FORMS    += mainwindow/mainwindow.ui \
     stmisp/stmisp.ui \
     tkmisp/tkmisp.ui \
     uartassist/uartassist.ui \
-    netassist/netassist.ui
+    netassist/netassist.ui \
+    smartbuilding/22/smartbuilding22.ui
 
 DISTFILES +=
 

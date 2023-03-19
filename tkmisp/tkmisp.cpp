@@ -218,7 +218,7 @@ void TkmIsp::ReadSerialData () {
             } else if (btnStatus == BTN_STATUS_READ) {
                 chipstep = ISP_READ;
                 offset = 0;
-                uint len = 0;
+                uint len;
                 if (bin1len > 0) {
                     ui->tips->appendPlainText("串口波特率修改成功，开始读取msu1操作");
                     addr = 0x00010000;
@@ -1353,7 +1353,6 @@ void TkmIsp::on_writechip_clicked () {
     }
     retrytime = 0;
     chipstep = ISP_SYNC; // sync
-    buff[0] = ISP_SYNC;
     if (OpenSerial()) {
         ui->tips->appendPlainText("串口打开失败");
         SendSocketData(failmsg, sizeof(failmsg));
