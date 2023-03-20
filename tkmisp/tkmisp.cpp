@@ -5,15 +5,21 @@
 #include "common/common.h"
 // yyjson库
 #include "common/yyjson.h"
+// boot patch
+#include "patch.h"
 
 #define ISP_SYNC                    0x7f
 #define ISP_SYNC_TWO                0x8f
-#define ISP_SYNC_THREE              0x8e
 #define ISP_CHECK                   0x9f
 #define ISP_ERASE                   0x0c
 #define ISP_ERASE_ACK               0x0d
 #define ISP_WRITE                   0x02
 #define ISP_WRITE_ACK               0x03
+#define ISP_WRITE_RAM               0x04
+#define ISP_WRITE_RAM_ACK           0x05
+#define ISP_WRITE_RAM               0x04
+#define ISP_EXECUTE_CODE            0x15
+#define ISP_EXECUTE_CODE_END        0x17
 #define ISP_READ                    0x08
 #define ISP_READ_ACK                0x09
 #define ISP_GETINFO                 0x00
@@ -30,8 +36,8 @@
 #define BTN_STATUS_READ             0x02
 #define BTN_STATUS_ERASE            0x03
 #define BTN_STATUS_READ_MSG         0x04
-#define BTN_STATUS_LOCK             0x05
-#define BTN_STATUS_UNLOCK           0x06
+#define BTN_CHIP_LOCK               0x05
+#define BTN_CHIP_UNLOCK             0x06
 
 TkmIsp::TkmIsp(QWidget *parent) :
     QWidget(parent),
@@ -109,19 +115,33 @@ void TkmIsp::ReadSerialData () {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     if (chipstep == ISP_SYNC) {
-        if (bufflen != 8 || memcmp(serialReadBuff, "TurMass.", 8)) {
-            bufflen = 0;
+        if (bufflen < 8) {
             return;
         }
-        retrytime = 0;
+        int step;
+        for (step = 0 ; bufflen - step >= 8 ; step++) {
+            if (!memcmp(serialReadBuff+step, "TurMass.", 8)) {
+                break;
+            }
+        }
+        if (bufflen - step < 8) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
         bufflen = 0;
+        retrytime = 0;
         chipstep = ISP_SYNC_TWO;
         const char buff[] = "TaoLink.";
         serial.write(buff, 8);
     } else if (chipstep == ISP_SYNC_TWO) { // sync2
-        if (bufflen != 2 || memcmp(serialReadBuff, "ok", 2)) {
+        if (bufflen < 2) {
+            return;
+        }
+        if (bufflen > 2 || memcmp(serialReadBuff, "ok", 2)) {
             chipstep = ISP_SYNC;
-            bufflen = 0;
             return;
         }
         bufflen = 0;
@@ -129,14 +149,15 @@ void TkmIsp::ReadSerialData () {
         ui->tips->appendPlainText("串口同步成功，开始修改串口波特率");
         char dat[] = "syncok";
         SendSocketData(dat, sizeof(dat)-1);
-        chipstep = ISP_SYNC_THREE;
+        chipstep = ISP_CHANGE_BAUDRATE;
         char buff[7];
         buff[0] = ISP_CHANGE_BAUDRATE;
         buff[1] = 0x0b; // 设置芯片波特率为912600
         memset(buff+2, 0, 5);
         serial.write(buff, 7);
-    } else if (chipstep == ISP_SYNC_THREE) { // sync3
+    } else if (chipstep == ISP_CHANGE_BAUDRATE) { // ISP_CHANGE_BAUDRATE
         if (serialReadBuff[0] != ISP_CHANGE_BAUDRATE_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("修改波特率失败");
@@ -144,13 +165,12 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            bufflen = 0;
             char buff[7];
             buff[0] = ISP_CHANGE_BAUDRATE;
             buff[1] = 0x0b; // 设置芯片波特率为912600
             memset(buff+2, 0, 5);
             serial.write(buff, 7);
-        } else {
+        } else if (bufflen == 7) {
             bufflen = 0;
             retrytime = 0;
             disconnect(&serial, 0, 0, 0);
@@ -174,20 +194,29 @@ void TkmIsp::ReadSerialData () {
                 buff[0] = ISP_GETINFO;
                 memset(buff+1, 0, 6);
                 serial.write(buff, 7);
-            } else if (btnStatus == BTN_STATUS_LOCK) {
-                ui->tips->appendPlainText("串口波特率修改成功，开始给芯片加锁");
-                chipstep = ISP_LOCK;
-                char buff[7];
-                buff[0] = ISP_LOCK;
-                memset(buff+1, 0, 6);
-                serial.write(buff, 7);
-            } else if (btnStatus == BTN_STATUS_UNLOCK) {
-                ui->tips->appendPlainText("串口波特率修改成功，开始给芯片解锁");
-                chipstep = ISP_UNLOCK;
-                char buff[7];
-                buff[0] = ISP_UNLOCK;
-                memset(buff+1, 0, 6);
-                serial.write(buff, 7);
+            } else if (btnStatus == BTN_CHIP_LOCK || btnStatus == BTN_CHIP_UNLOCK) {
+                ui->tips->appendPlainText("串口波特率修改成功，开始下载boot patch");
+                chipstep = ISP_WRITE_RAM;
+                offset = 0;
+                len = sizeof(boot_patch_code) - offset < 0x100 ? sizeof(boot_patch_code) : 0x100;
+                addr = 0x20080000;
+                char *serialWriteBuff = (char*)malloc(7 + len);
+                if (serialWriteBuff == NULL) {
+                    ui->tips->appendPlainText("内存申请失败");
+                    CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
+                    return;
+                }
+                serialWriteBuff[0] = ISP_WRITE_RAM;
+                serialWriteBuff[4] = addr>>24;
+                serialWriteBuff[3] = addr>>16;
+                serialWriteBuff[2] = addr>>8;
+                serialWriteBuff[1] = addr;
+                serialWriteBuff[6] = len >> 8;
+                serialWriteBuff[5] = len;
+                memcpy(serialWriteBuff + 7, (uchar*)boot_patch_code+offset, len);
+                serial.write(serialWriteBuff, len+7);
+                free(serialWriteBuff);
             } else if (btnStatus == BTN_STATUS_WRITE || btnStatus == BTN_STATUS_ERASE) {
                 ui->tips->appendPlainText("串口波特率修改成功，开始擦除操作");
                 chipstep = ISP_ERASE;
@@ -218,7 +247,6 @@ void TkmIsp::ReadSerialData () {
             } else if (btnStatus == BTN_STATUS_READ) {
                 chipstep = ISP_READ;
                 offset = 0;
-                uint len;
                 if (bin1len > 0) {
                     ui->tips->appendPlainText("串口波特率修改成功，开始读取msu1操作");
                     addr = 0x00010000;
@@ -256,20 +284,20 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_GETINFO) { // ISP_GETINFO
         if (serialReadBuff[0] != ISP_GETINFO_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
                 CloseSerial();
                 return;
             }
-            bufflen = 0;
             char buff[7];
             buff[0] = ISP_GETINFO;
             memset(buff+1, 0, 6);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
-            retrytime = 0;
             bufflen = 0;
+            retrytime = 0;
             char buff[128];
             const char *memorytype;
             if (serialReadBuff[1] & 0x01) {
@@ -284,8 +312,133 @@ void TkmIsp::ReadSerialData () {
             CloseSerial();
             return;
         }
+    } else if (chipstep == ISP_WRITE_RAM) { // ISP_WRITE_RAM
+        if (serialReadBuff[0] != ISP_WRITE_RAM_ACK) {
+            qDebug("in %s, at %d", __FILE__, __LINE__);
+            bufflen = 0;
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("下载boot patch失败");
+                CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
+                return;
+            }
+            len = sizeof(boot_patch_code) - offset < 0x100 ? sizeof(boot_patch_code) - offset : 0x100;
+            char *serialWriteBuff = (char*)malloc(7 + len);
+            if (serialWriteBuff == NULL) {
+                ui->tips->appendPlainText("内存申请失败");
+                CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
+                return;
+            }
+            serialWriteBuff[0] = ISP_WRITE_RAM;
+            serialWriteBuff[4] = addr>>24;
+            serialWriteBuff[3] = addr>>16;
+            serialWriteBuff[2] = addr>>8;
+            serialWriteBuff[1] = addr;
+            serialWriteBuff[6] = len >> 8;
+            serialWriteBuff[5] = len;
+            memcpy(serialWriteBuff + 7, (uchar*)boot_patch_code+offset, len);
+            serial.write(serialWriteBuff, len+7);
+            free(serialWriteBuff);
+        } else if (bufflen == 7) {
+            bufflen = 0;
+            retrytime = 0;
+            uchar address[4];
+            address[3] = addr>>24;
+            address[2] = addr>>16;
+            address[1] = addr>>8;
+            address[0] = addr;
+            if (memcmp(address, serialReadBuff+1, 4)) {
+                ui->tips->appendPlainText("写入数据失败");
+                CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
+                return;
+            }
+            len = 256*serialReadBuff[6] + serialReadBuff[5];
+            offset += len;
+            len = sizeof(boot_patch_code) - offset < 0x100 ? sizeof(boot_patch_code) - offset : 0x100;
+            if (len > 0) { // 尚未写入完毕
+                addr += len;
+                char *serialWriteBuff = (char*)malloc(7 + len);
+                if (serialWriteBuff == NULL) {
+                    ui->tips->appendPlainText("内存申请失败");
+                    CloseSerial();
+                    SendSocketData(failmsg, sizeof(failmsg));
+                    return;
+                }
+                serialWriteBuff[0] = ISP_WRITE_RAM;
+                serialWriteBuff[4] = addr>>24;
+                serialWriteBuff[3] = addr>>16;
+                serialWriteBuff[2] = addr>>8;
+                serialWriteBuff[1] = addr;
+                serialWriteBuff[6] = len >> 8;
+                serialWriteBuff[5] = len;
+                memcpy(serialWriteBuff + 7, (uchar*)boot_patch_code+offset, len);
+                serial.write(serialWriteBuff, len+7);
+                free(serialWriteBuff);
+                return;
+            }
+            ui->tips->appendPlainText("boot patch下载成功，开始运行boot patch");
+            chipstep = ISP_EXECUTE_CODE;
+            addr = 0x20080001;
+            char buff[7];
+            buff[0] = ISP_EXECUTE_CODE;
+            buff[4] = addr>>24;
+            buff[3] = addr>>16;
+            buff[2] = addr>>8;
+            buff[1] = addr;
+            buff[6] = 0;
+            buff[5] = 0;
+            serial.write(buff, 7);
+        }
+    } else if (chipstep == ISP_EXECUTE_CODE) { // ISP_EXECUTE_CODE
+        if (serialReadBuff[0] != ISP_EXECUTE_CODE_END) {
+            bufflen = 0;
+            retrytime++;
+            if (retrytime == 250) {
+                ui->tips->appendPlainText("启动boot patch失败");
+                CloseSerial();
+                SendSocketData(failmsg, sizeof(failmsg));
+                return;
+            }
+            addr = 0x20080001;
+            char buff[7];
+            buff[0] = ISP_EXECUTE_CODE;
+            buff[4] = addr>>24;
+            buff[3] = addr>>16;
+            buff[2] = addr>>8;
+            buff[1] = addr;
+            buff[6] = 0;
+            buff[5] = 0;
+            serial.write(buff, 7);
+        } else if (bufflen == 7) {
+            bufflen = 0;
+            retrytime = 0;
+            if (btnStatus == BTN_CHIP_LOCK) {
+                ui->tips->appendPlainText("启动boot patch成功，开始加锁芯片");
+                chipstep = ISP_LOCK;
+                char buff[7];
+                buff[0] = ISP_LOCK;
+                memset(buff+1, 0, 6);
+                serial.write(buff, 7);
+            } else if (btnStatus == BTN_CHIP_UNLOCK) {
+                ui->tips->appendPlainText("启动boot patch成功，开始解锁芯片");
+                chipstep = ISP_UNLOCK;
+                char buff[7];
+                buff[0] = ISP_UNLOCK;
+                memset(buff+1, 0, 6);
+                serial.write(buff, 7);
+            } else {
+                ui->tips->appendPlainText("程序内部错误");
+                CloseSerial();
+                SendSocketData(successmsg, sizeof(successmsg));
+                return;
+            }
+        }
     } else if (chipstep == ISP_LOCK) { // ISP_LOCK
         if (serialReadBuff[0] != ISP_LOCK_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("芯片加锁失败");
@@ -293,14 +446,13 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            bufflen = 0;
             char buff[7];
             buff[0] = ISP_LOCK;
             memset(buff+1, 0, 6);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
-            retrytime = 0;
             bufflen = 0;
+            retrytime = 0;
             ui->tips->appendPlainText("芯片加锁成功");
             CloseSerial();
             SendSocketData(successmsg, sizeof(successmsg));
@@ -308,6 +460,7 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_UNLOCK) { // ISP_UNLOCK
         if (serialReadBuff[0] != ISP_UNLOCK_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("芯片解锁失败");
@@ -315,14 +468,13 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            bufflen = 0;
             char buff[7];
             buff[0] = ISP_UNLOCK;
             memset(buff+1, 0, 6);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
-            retrytime = 0;
             bufflen = 0;
+            retrytime = 0;
             ui->tips->appendPlainText("芯片解锁成功");
             CloseSerial();
             SendSocketData(successmsg, sizeof(successmsg));
@@ -330,15 +482,14 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_READ) { // ISP_READ
         if (serialReadBuff[0] != ISP_READ_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("读取失败");
                 CloseSerial();
                 return;
             }
-            bufflen = 0;
             offset = 0;
-            uint len;
             if (bin1len > 0) {
                 addr = 0x00010000;
                 len = bin1len > 0x300 ? 0x300 : bin1len;
@@ -373,8 +524,9 @@ void TkmIsp::ReadSerialData () {
                 CloseSerial();
                 return;
             }
-            uint len = 256*serialReadBuff[6] + serialReadBuff[5];
+            len = 256*serialReadBuff[6] + serialReadBuff[5];
             if (bufflen == len + 7) { // 获取数据完毕
+                bufflen = 0;
                 uchar *bin;
                 uint binlen;
                 uint partitionOneSize;
@@ -434,7 +586,6 @@ void TkmIsp::ReadSerialData () {
                 pos.deletePreviousChar();
                 sprintf(buff, "已读出%uk数据", offset / 1024);
                 ui->tips->appendPlainText(buff);
-                bufflen = 0;
                 buff[0] = ISP_READ;
                 buff[4] = addr>>24;
                 buff[3] = addr>>16;
@@ -447,6 +598,7 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_ERASE) { // ISP_ERASE
         if (serialReadBuff[0] != ISP_ERASE_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("擦除失败");
@@ -467,7 +619,6 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            bufflen = 0;
             offset = 0;
             char buff[7];
             buff[0] = ISP_ERASE;
@@ -479,8 +630,8 @@ void TkmIsp::ReadSerialData () {
             buff[5] = 0;
             serial.write(buff, 7);
         } else if (bufflen == 7) {
-            retrytime = 0;
             bufflen = 0;
+            retrytime = 0;
             uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
@@ -674,6 +825,7 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_WRITE) { // ISP_WRITE
         if (serialReadBuff[0] != ISP_WRITE_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("写入失败");
@@ -681,10 +833,8 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            bufflen = 0;
             offset = 0;
             chipstep = ISP_WRITE;
-            uint len;
             uchar *bin;
             uchar param[0x1c];
             memset(param, 0xff, 0x1c);
@@ -770,8 +920,8 @@ void TkmIsp::ReadSerialData () {
             serial.write(serialWriteBuff, len+7);
             free(serialWriteBuff);
         } else if (bufflen == 7) {
-            retrytime = 0;
             bufflen = 0;
+            retrytime = 0;
             uchar address[4];
             address[3] = addr>>24;
             address[2] = addr>>16;
@@ -783,7 +933,7 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            uint len = 256*serialReadBuff[6] + serialReadBuff[5];
+            len = 256*serialReadBuff[6] + serialReadBuff[5];
             uchar *bin;
             uint binlen;
             uint partitionOneSize;
@@ -911,7 +1061,7 @@ void TkmIsp::ReadSerialData () {
                 ui->tips->appendPlainText("开始校验数据");
                 chipstep = ISP_CHECK;
                 offset = 0;
-                uint len = 0x1c;
+                len = 0x1c;
                 if (bin1len > 0) {
                     addr = 0x00000000;
                 } else if (bin0len > 0) {
@@ -954,6 +1104,7 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_CHECK) { // ISP_CHECK
         if (serialReadBuff[0] != ISP_READ_ACK) {
+            bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
                 ui->tips->appendPlainText("校验失败");
@@ -962,8 +1113,7 @@ void TkmIsp::ReadSerialData () {
                 return;
             }
             offset = 0;
-            bufflen = 0;
-            uint len = 0x1c;
+            len = 0x1c;
             if (bin1len > 0) {
                 addr = 0x00000000;
             } else if (bin0len > 0) {
@@ -998,7 +1148,7 @@ void TkmIsp::ReadSerialData () {
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
             }
-            uint len = 256*serialReadBuff[6] + serialReadBuff[5];
+            len = 256*serialReadBuff[6] + serialReadBuff[5];
             if (bufflen == len + 7) { // 获取数据完毕
                 uchar *bin;
                 uint binlen;
@@ -1482,7 +1632,7 @@ void TkmIsp::on_lock_clicked() {
         ui->tips->appendPlainText("串口打开失败");
         return;
     }
-    btnStatus = BTN_STATUS_LOCK;
+    btnStatus = BTN_CHIP_LOCK;
     sprintf(buff, "等待设备连接...%u", ++retrytime);
     ui->tips->appendPlainText(buff);
 }
@@ -1501,7 +1651,7 @@ void TkmIsp::on_unlock_clicked() {
         ui->tips->appendPlainText("串口打开失败");
         return;
     }
-    btnStatus = BTN_STATUS_UNLOCK;
+    btnStatus = BTN_CHIP_UNLOCK;
     sprintf(buff, "等待设备连接...%u", ++retrytime);
     ui->tips->appendPlainText(buff);
 }

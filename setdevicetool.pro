@@ -44,7 +44,8 @@ HEADERS  += mainwindow/mainwindow.h \
     tkmisp/tkmisp.h \
     uartassist/uartassist.h \
     netassist/netassist.h \
-    smartbuilding/22/smartbuilding22.h
+    smartbuilding/22/smartbuilding22.h \
+    tkmisp/patch.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \

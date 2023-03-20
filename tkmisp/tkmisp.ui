@@ -305,8 +305,8 @@
   <widget class="QPushButton" name="netctl">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>360</y>
+     <x>370</x>
+     <y>400</y>
      <width>91</width>
      <height>31</height>
     </rect>
