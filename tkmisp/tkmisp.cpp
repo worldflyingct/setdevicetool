@@ -357,9 +357,9 @@ void TkmIsp::ReadSerialData () {
             }
             len = 256*serialReadBuff[6] + serialReadBuff[5];
             offset += len;
+            addr += len;
             len = sizeof(boot_patch_code) - offset < 0x100 ? sizeof(boot_patch_code) - offset : 0x100;
             if (len > 0) { // 尚未写入完毕
-                addr += len;
                 char *serialWriteBuff = (char*)malloc(7 + len);
                 if (serialWriteBuff == NULL) {
                     ui->tips->appendPlainText("内存申请失败");
