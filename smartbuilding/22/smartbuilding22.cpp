@@ -188,10 +188,11 @@ void Smartbuilding22::ReadSerialData () {
                 }
                 if (len == 0) { // 这里将文件写入
                     if (btnStatus == 2) {
-                        ui->tips->setText("读取完毕");
+                        char buff[64];
+                        sprintf(buff, "读取完毕\r\n设备SN:%s", bin);
+                        ui->tips->setText(buff);
                         CloseSerial();
                         ui->speed->setValue(bin[33]);
-                        char buff[7];
                         sprintf(buff, "%d", bin[34]);
                         ui->power->setCurrentText(buff);
                         sprintf(buff, "%.2f", (bin[36] + ((uint16_t)bin[37]<<8)) / 100.0);
