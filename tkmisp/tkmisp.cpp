@@ -397,7 +397,7 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             retrytime++;
             if (retrytime == 250) {
-                ui->tips->appendPlainText("启动boot patch失败");
+                ui->tips->appendPlainText("运行boot patch失败");
                 CloseSerial();
                 SendSocketData(failmsg, sizeof(failmsg));
                 return;
@@ -416,14 +416,14 @@ void TkmIsp::ReadSerialData () {
             bufflen = 0;
             retrytime = 0;
             if (btnStatus == BTN_CHIP_LOCK) {
-                ui->tips->appendPlainText("启动boot patch成功，开始加锁芯片");
+                ui->tips->appendPlainText("运行boot patch成功，开始加锁芯片");
                 chipstep = ISP_LOCK;
                 char buff[7];
                 buff[0] = ISP_LOCK;
                 memset(buff+1, 0, 6);
                 serial.write(buff, 7);
             } else if (btnStatus == BTN_CHIP_UNLOCK) {
-                ui->tips->appendPlainText("启动boot patch成功，开始解锁芯片");
+                ui->tips->appendPlainText("运行boot patch成功，开始解锁芯片");
                 chipstep = ISP_UNLOCK;
                 char buff[7];
                 buff[0] = ISP_UNLOCK;
