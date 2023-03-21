@@ -132,7 +132,6 @@ void TkmIsp::ReadSerialData () {
             return;
         }
         bufflen = 0;
-        retrytime = 0;
         chipstep = ISP_SYNC_TWO;
         const char buff[] = "TaoLink.";
         serial.write(buff, 8);
@@ -1326,7 +1325,7 @@ void TkmIsp::ReadSerialData () {
         return;
     }
     timer.stop();
-    if (chipstep == ISP_SYNC) {
+    if (chipstep == ISP_SYNC || chipstep == ISP_SYNC_TWO) {
         timer.start(1000); // 正在同步，所需时间比较短
     } else {
         timer.start(3000); // 非ISP_SYNC命令，非擦除命令，统一等待3s

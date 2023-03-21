@@ -70,19 +70,32 @@ void Smartbuilding22::ReadSerialData () {
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
     if (chipstep == ISP_SYNC) {
-        if (bufflen != 8 || memcmp(serialReadBuff, "TurMass.", 8)) {
-            bufflen = 0;
+        if (bufflen < 8) {
             return;
         }
-        retrytime = 0;
+        int step;
+        for (step = 0 ; bufflen - step >= 8 ; step++) {
+            if (!memcmp(serialReadBuff+step, "TurMass.", 8)) {
+                break;
+            }
+        }
+        if (bufflen - step < 8) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
         bufflen = 0;
         chipstep = ISP_SYNC_TWO;
         const char buff[] = "TaoLink.";
         serial.write(buff, 8);
     } else if (chipstep == ISP_SYNC_TWO) { // sync2
-        if (bufflen != 2 || memcmp(serialReadBuff, "ok", 2)) {
+        if (bufflen < 2) {
+            return;
+        }
+        if (bufflen > 2 || memcmp(serialReadBuff, "ok", 2)) {
             chipstep = ISP_SYNC;
-            bufflen = 0;
             return;
         }
         bufflen = 0;
@@ -379,7 +392,7 @@ void Smartbuilding22::ReadSerialData () {
         return;
     }
     timer.stop();
-    if (chipstep == ISP_SYNC) {
+    if (chipstep == ISP_SYNC || chipstep == ISP_SYNC_TWO) {
         timer.start(1000); // 正在同步，所需时间比较短
     } else {
         timer.start(3000); // 非ISP_SYNC命令，非擦除命令，统一等待3s
