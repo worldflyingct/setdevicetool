@@ -285,12 +285,12 @@ void Rj45IotProgram::HandleSerialData (yyjson_val *json) {
         on_dhcp_clicked();
     }
     yyjson_val *ssid = yyjson_obj_get(json, "Ssid");
-    if (ssid) {
+    if (ssid && yyjson_get_len(ssid) > 0) { // Ssid存在且长度大于0
         ui->wifimode->setChecked(true);
         on_wifimode_clicked();
         ui->ssid->setText(yyjson_get_str(ssid));
         yyjson_val *wifipass = yyjson_obj_get(json, "WifiPass");
-        if (wifipass) {
+        if (wifipass && yyjson_get_len(wifipass) > 0) { // WifiPass存在且长度大于0
             ui->security->setChecked(true);
             ui->wifipass->setText(yyjson_get_str(wifipass));
         } else {
