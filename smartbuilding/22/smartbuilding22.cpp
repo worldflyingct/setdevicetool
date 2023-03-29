@@ -213,6 +213,7 @@ void Smartbuilding22::ReadSerialData () {
                         sprintf(buff, "%.2f", (bin[38] + ((uint16_t)bin[39]<<8)) / 100.0);
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
+                        ui->uploadmode->setChecked(bin[40]); // 0是立刻上传，1是帧上传。
                         ui->sleep_num1->setValue(bin[42]);
                         ui->sleep_num2->setValue(bin[43]);
                         ui->sleep_num3->setValue(bin[44]);
@@ -235,6 +236,9 @@ void Smartbuilding22::ReadSerialData () {
                         bin[38] = tmp;
                         bin[39] = tmp >> 8;
                         bin[35] = ui->index->value();
+                        if (ui->uploadmode->isEnabled()) {
+                            bin[40] = ui->uploadmode->isChecked();
+                        }
                         if (writesleepnum) {
                             bin[42] = ui->sleep_num1->value();
                             bin[43] = ui->sleep_num2->value();
@@ -492,6 +496,11 @@ void Smartbuilding22::SetWriteSleepNum (int index, bool checked) {
 
 void Smartbuilding22::on_devicetype_currentIndexChanged(int index) {
     SetWriteSleepNum(index, ui->enablesleepnum->isChecked());
+    if (index == 0 || index == 1) {
+        ui->uploadmode->setEnabled(false);
+    } else {
+        ui->uploadmode->setEnabled(true);
+    }
 }
 
 void Smartbuilding22::on_enablesleepnum_stateChanged(int param) {
