@@ -213,6 +213,10 @@ void Smartbuilding22::ReadSerialData () {
                         sprintf(buff, "%.2f", (bin[38] + ((uint16_t)bin[39]<<8)) / 100.0);
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
+                        ui->sleep_num1->setValue(bin[42]);
+                        ui->sleep_num2->setValue(bin[43]);
+                        ui->sleep_num3->setValue(bin[44]);
+                        ui->sleep_num4->setValue(bin[45]);
                         return;
                     } else if (btnStatus == 1) {
                         bufflen = 0;
@@ -231,6 +235,12 @@ void Smartbuilding22::ReadSerialData () {
                         bin[38] = tmp;
                         bin[39] = tmp >> 8;
                         bin[35] = ui->index->value();
+                        if (writesleepnum) {
+                            bin[42] = ui->sleep_num1->value();
+                            bin[43] = ui->sleep_num2->value();
+                            bin[44] = ui->sleep_num3->value();
+                            bin[45] = ui->sleep_num4->value();
+                        }
                         chipstep = ISP_ERASE;
                         addr = 0x6a000;
                         char buff[7];
@@ -428,7 +438,7 @@ void Smartbuilding22::CloseSerial () {
     btnStatus = 0;
 }
 
-void Smartbuilding22::on_getconfig_clicked() {
+void Smartbuilding22::on_getconfig_clicked () {
     if (btnStatus) {
         ui->tips->setText("用户终止操作");
         CloseSerial();
@@ -446,7 +456,7 @@ void Smartbuilding22::on_getconfig_clicked() {
     ui->tips->setText(buff);
 }
 
-void Smartbuilding22::on_setconfig_clicked() {
+void Smartbuilding22::on_setconfig_clicked () {
     if (btnStatus) {
         ui->tips->setText("用户终止操作");
         CloseSerial();
@@ -462,4 +472,28 @@ void Smartbuilding22::on_setconfig_clicked() {
     char buff[64];
     sprintf(buff, "等待设备连接...%u", ++retrytime);
     ui->tips->setText(buff);
+}
+
+void Smartbuilding22::SetWriteSleepNum (int index, bool checked) {
+    if ((index == 0 || index == 1) && checked) {
+        ui->sleep_num1->setEnabled(true);
+        ui->sleep_num2->setEnabled(true);
+        ui->sleep_num3->setEnabled(true);
+        ui->sleep_num4->setEnabled(true);
+        writesleepnum = 1;
+    } else {
+        ui->sleep_num1->setEnabled(false);
+        ui->sleep_num2->setEnabled(false);
+        ui->sleep_num3->setEnabled(false);
+        ui->sleep_num4->setEnabled(false);
+        writesleepnum = 0;
+    }
+}
+
+void Smartbuilding22::on_devicetype_currentIndexChanged(int index) {
+    SetWriteSleepNum(index, ui->enablesleepnum->isChecked());
+}
+
+void Smartbuilding22::on_enablesleepnum_stateChanged(int param) {
+    SetWriteSleepNum(ui->devicetype->currentIndex(), param);
 }

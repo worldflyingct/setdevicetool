@@ -28,6 +28,8 @@ private slots:
     void on_refresh_clicked();
     void on_setconfig_clicked();
     void on_getconfig_clicked();
+    void on_devicetype_currentIndexChanged(int index);
+    void on_enablesleepnum_stateChanged(int param);
 
 private:
     Ui::Smartbuilding22 *ui;
@@ -36,6 +38,7 @@ private:
     int OpenSerial();
     void CloseSerial();
     void HandleSerialData(char *data);
+    void SetWriteSleepNum(int index, bool checked);
 
     QSerialPort serial;
     QTimer timer;
@@ -48,6 +51,7 @@ private:
     uchar retrytime = 0;
     uint addr = 0;
     uint offset = 0;
+    uchar writesleepnum = 0;
 };
 
 #endif // SMARTBUILDING22_H
