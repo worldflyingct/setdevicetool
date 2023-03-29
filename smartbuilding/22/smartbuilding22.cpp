@@ -213,7 +213,7 @@ void Smartbuilding22::ReadSerialData () {
                         sprintf(buff, "%.2f", (bin[38] + ((uint16_t)bin[39]<<8)) / 100.0);
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
-                        ui->uploadmode->setChecked(bin[40]); // 0是立刻上传，1是帧上传。
+                        ui->uploadmode->setChecked(bin[40]); // 0是帧上传，1是立刻上传。
                         ui->sleep_num1->setValue(bin[42]);
                         ui->sleep_num2->setValue(bin[43]);
                         ui->sleep_num3->setValue(bin[44]);
