@@ -214,10 +214,11 @@ void Smartbuilding22::ReadSerialData () {
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
                         ui->uploadmode->setChecked(bin[40]); // 0是帧上传，1是立刻上传。
-                        ui->sleep_num1->setValue(bin[42]);
-                        ui->sleep_num2->setValue(bin[43]);
-                        ui->sleep_num3->setValue(bin[44]);
-                        ui->sleep_num4->setValue(bin[45]);
+                        uint32_t sleep_num1 = 256 * 256 * 256 * (uint32_t)bin[44] + 256 * 256 * (uint32_t)bin[45] + 256 * (uint32_t)bin[46] + (uint32_t)bin[47];
+                        ui->sleep_num1->setValue(sleep_num1);
+                        uint32_t sleep_num2 = 256 * 256 * 256 * (uint32_t)bin[48] + 256 * 256 * (uint32_t)bin[49] + 256 * (uint32_t)bin[50] + (uint32_t)bin[51];
+                        ui->sleep_num2->setValue(sleep_num2);
+                        ui->pr->setValue(bin[52]);
                         return;
                     } else if (btnStatus == 1) {
                         bufflen = 0;
@@ -240,10 +241,17 @@ void Smartbuilding22::ReadSerialData () {
                             bin[40] = ui->uploadmode->isChecked();
                         }
                         if (writesleepnum) {
-                            bin[42] = ui->sleep_num1->value();
-                            bin[43] = ui->sleep_num2->value();
-                            bin[44] = ui->sleep_num3->value();
-                            bin[45] = ui->sleep_num4->value();
+                            uint32_t sleep_num1 = ui->sleep_num1->value();
+                            bin[44] = sleep_num1 >> 24;
+                            bin[45] = sleep_num1 >> 16;
+                            bin[46] = sleep_num1 >> 8;
+                            bin[47] = sleep_num1;
+                            uint32_t sleep_num2 = ui->sleep_num2->value();
+                            bin[48] = sleep_num2 >> 24;
+                            bin[49] = sleep_num2 >> 16;
+                            bin[50] = sleep_num2 >> 8;
+                            bin[51] = sleep_num2;
+                            bin[52] = ui->pr->value();
                         }
                         chipstep = ISP_ERASE;
                         addr = 0x6a000;
