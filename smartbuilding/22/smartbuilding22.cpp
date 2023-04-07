@@ -237,22 +237,18 @@ void Smartbuilding22::ReadSerialData () {
                         bin[38] = tmp;
                         bin[39] = tmp >> 8;
                         bin[35] = ui->index->value();
-                        if (ui->uploadmode->isEnabled()) {
-                            bin[40] = ui->uploadmode->isChecked();
-                        }
-                        if (writesleepnum) {
-                            uint32_t sleep_num1 = ui->sleep_num1->value();
-                            bin[44] = sleep_num1 >> 24;
-                            bin[45] = sleep_num1 >> 16;
-                            bin[46] = sleep_num1 >> 8;
-                            bin[47] = sleep_num1;
-                            uint32_t sleep_num2 = ui->sleep_num2->value();
-                            bin[48] = sleep_num2 >> 24;
-                            bin[49] = sleep_num2 >> 16;
-                            bin[50] = sleep_num2 >> 8;
-                            bin[51] = sleep_num2;
-                            bin[52] = ui->pr->value();
-                        }
+                        bin[40] = ui->uploadmode->isChecked();
+                        uint32_t sleep_num1 = ui->sleep_num1->value();
+                        bin[44] = sleep_num1 >> 24;
+                        bin[45] = sleep_num1 >> 16;
+                        bin[46] = sleep_num1 >> 8;
+                        bin[47] = sleep_num1;
+                        uint32_t sleep_num2 = ui->sleep_num2->value();
+                        bin[48] = sleep_num2 >> 24;
+                        bin[49] = sleep_num2 >> 16;
+                        bin[50] = sleep_num2 >> 8;
+                        bin[51] = sleep_num2;
+                        bin[52] = ui->pr->value();
                         chipstep = ISP_ERASE;
                         addr = 0x6a000;
                         char buff[7];
@@ -490,15 +486,9 @@ void Smartbuilding22::SetWriteSleepNum (int index, bool checked) {
     if ((index == 0 || index == 1) && checked) {
         ui->sleep_num1->setEnabled(true);
         ui->sleep_num2->setEnabled(true);
-        ui->sleep_num3->setEnabled(true);
-        ui->sleep_num4->setEnabled(true);
-        writesleepnum = 1;
     } else {
         ui->sleep_num1->setEnabled(false);
         ui->sleep_num2->setEnabled(false);
-        ui->sleep_num3->setEnabled(false);
-        ui->sleep_num4->setEnabled(false);
-        writesleepnum = 0;
     }
 }
 
@@ -506,8 +496,10 @@ void Smartbuilding22::on_devicetype_currentIndexChanged(int index) {
     SetWriteSleepNum(index, ui->enablesleepnum->isChecked());
     if (index == 0 || index == 1) {
         ui->uploadmode->setEnabled(false);
+        ui->pr->setEnabled(true);
     } else {
         ui->uploadmode->setEnabled(true);
+        ui->pr->setEnabled(false);
     }
 }
 

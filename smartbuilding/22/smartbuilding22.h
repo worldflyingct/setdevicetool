@@ -51,7 +51,6 @@ private:
     uchar retrytime = 0;
     uint addr = 0;
     uint offset = 0;
-    uchar writesleepnum = 0;
 };
 
 #endif // SMARTBUILDING22_H
