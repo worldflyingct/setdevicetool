@@ -13,6 +13,15 @@
 #define ISP_CHANGE_BAUDRATE         0x12
 #define ISP_CHANGE_BAUDRATE_ACK     0x13
 
+#define ISP_DEVICEMODE              0x20
+#define ISP_FREQ                    0x21
+#define ISP_TXP                     0x22
+#define ISP_MODE                    0x23
+#define ISP_SLOTBYTES               0x24
+#define ISP_SETDEVICE               0x25
+#define ISP_WAITSN                  0x26
+#define ISP_WAITSN2                 0x27
+
 Smartbuilding22::Smartbuilding22 (QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Smartbuilding22) {
@@ -104,7 +113,7 @@ void Smartbuilding22::ReadSerialData () {
         chipstep = ISP_SYNC_THREE;
         char buff[7];
         buff[0] = ISP_CHANGE_BAUDRATE;
-        buff[1] = 0x0b; // 设置芯片波特率为912600
+        buff[1] = 0x0b; // 设置芯片波特率为921600
         memset(buff+2, 0, 5);
         serial.write(buff, 7);
     } else if (chipstep == ISP_SYNC_THREE) { // sync3
@@ -118,7 +127,7 @@ void Smartbuilding22::ReadSerialData () {
             bufflen = 0;
             char buff[7];
             buff[0] = ISP_CHANGE_BAUDRATE;
-            buff[1] = 0x0b; // 设置芯片波特率为912600
+            buff[1] = 0x0b; // 设置芯片波特率为921600
             memset(buff+2, 0, 5);
             serial.write(buff, 7);
         } else {
@@ -156,6 +165,197 @@ void Smartbuilding22::ReadSerialData () {
             buff[5] = len;
             serial.write(buff, 7);
         }
+    } else if (chipstep == ISP_DEVICEMODE) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen = 0;
+        ui->tips->setText("设置通信器为时隙模式主机成功，开始设置通信器通信频点");
+        chipstep = ISP_FREQ;
+        const char buff[] = "AT+FREQ=475330000:475300000\r\n";
+        serial.write(buff, 29);
+    } else if (chipstep == ISP_FREQ) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen = 0;
+        ui->tips->setText("设置通信器通信频点成功，开始设置通信器发送功率");
+        chipstep = ISP_TXP;
+        const char buff[] = "AT+TXP=15\r\n";
+        serial.write(buff, 11);
+    } else if (chipstep == ISP_TXP) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen = 0;
+        ui->tips->setText("设置通信器发送功率成功，开始设置通信器通信速率");
+        chipstep = ISP_MODE;
+        const char buff[] = "AT+MODE=16:16\r\n";
+        serial.write(buff, 15);
+    } else if (chipstep == ISP_MODE) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen = 0;
+        ui->tips->setText("设置通信器通信速率成功，开始设置通信器数据包大小");
+        chipstep = ISP_SLOTBYTES;
+        const char buff[] = "AT+SLOTBYTES=33\r\n";
+        serial.write(buff, len);
+    } else if (chipstep == ISP_SLOTBYTES) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen = 0;
+        ui->tips->setText("设置通信器数据包大小成功，开始发送设备参数");
+        chipstep = ISP_SETDEVICE;
+        float centerfrequency;
+        sscanf(ui->centerfrequency->text().toUtf8().data(), "%f", &centerfrequency);
+        int center = int(centerfrequency * 100 + 0.5);
+        float offsetfrequency;
+        sscanf(ui->offsetfrequency->text().toUtf8().data(), "%f", &offsetfrequency);
+        int offset = int(offsetfrequency * 100 + 0.5);
+        int speed = ui->speed->value();
+        int index = ui->index->value();
+        char buff[64];
+        int len = sprintf(buff, "AT+SENDB=0:0083ffffffffffffffffffffffffffffffff%04x%04x%02x%02x\r\n", center, offset, speed, index);
+        serial.write(buff, len);
+    } else if (chipstep == ISP_SETDEVICE) {
+        if (bufflen < 7) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 7 ; step++) {
+            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
+                break;
+            }
+        }
+        if (bufflen - step < 7) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        bufflen -= step + 7;
+        ui->tips->setText("设备参数发送成功，等待数据返回");
+        chipstep = ISP_WAITSN;
+    } else if (chipstep == ISP_WAITSN) {
+        if (bufflen < 4) {
+            return;
+        }
+        int step;
+        for (step = 0 ; bufflen - step >= 4 ; step++) {
+            if (!memcmp(serialReadBuff+step, "Data", 4)) {
+                break;
+            }
+        }
+        if (bufflen - step < 4) {
+            for (int i = 0 ; i < step ; i++) {
+                serialReadBuff[i] = serialReadBuff[i+step];
+            }
+            bufflen -= step;
+            return;
+        }
+        int begin = step;
+        for (; bufflen - step >= 2 ; step++) {
+            if (!memcmp(serialReadBuff+step, "\r\n", 2)) {
+                break;
+            }
+        }
+        if (bufflen - step < 2) {
+            return;
+        }
+        step = 0;
+        while (serialReadBuff[begin+step] != ' ') {
+            step++;
+        }
+        int a = 0;
+        char sn[33];
+        while (serialReadBuff[begin+step] == ' ' || serialReadBuff[begin+step] == '\r') {
+            sn[a] = serialReadBuff[begin+step] <= '9' ? serialReadBuff[begin+step]-'0' : serialReadBuff[begin+step]+10-'A';
+            sn[a] *= 16;
+            step++;
+            sn[a] += serialReadBuff[begin+step] <= '9' ? serialReadBuff[begin+step]-'0' : serialReadBuff[begin+step]+10-'A';
+            step++;
+            a++;
+        }
+        sn[a] = '\0';
+        char buff[256];
+        memcpy(buff, "设置设备参数成功\r\nsn:", 13);
+        for (step = 0 ; step < a ; step++) {
+            int number = sn[step] / 16;
+            buff[13+2*step] = number < 10 ? number - '0' : number + 10 - 'A';
+            number = sn[step] % 16;
+            buff[13+2*step+1] = number < 10 ? number - '0' : number + 10 - 'A';
+        }
+        buff[13+2*a] = '\0';
+        ui->tips->setText(buff);
+        CloseSerial();
     } else if (chipstep == ISP_READ) { // ISP_READ
         if (serialReadBuff[0] != ISP_READ_ACK) {
             retrytime++;
@@ -215,11 +415,13 @@ void Smartbuilding22::ReadSerialData () {
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
                         ui->uploadmode->setChecked(bin[40]); // 0是帧上传，1是立刻上传。
-                        uint32_t sleep_num1 = (uint32_t)bin[44] + 256*(uint32_t)bin[45] + 256*256*(uint32_t)bin[46] + 256*256*256*(uint32_t)bin[47];
-                        ui->sleep_num1->setValue(sleep_num1);
-                        uint32_t sleep_num2 = (uint32_t)bin[48] + 256*(uint32_t)bin[49] + 256*256*(uint32_t)bin[50] + 256*256*256*(uint32_t)bin[51];
-                        ui->sleep_num2->setValue(sleep_num2);
-                        ui->pr->setValue(bin[52]);
+                        if (writesleepnum) {
+                            uint32_t sleep_num1 = (uint32_t)bin[44] + 256*(uint32_t)bin[45] + 256*256*(uint32_t)bin[46] + 256*256*256*(uint32_t)bin[47];
+                            ui->sleep_num1->setValue(sleep_num1);
+                            uint32_t sleep_num2 = (uint32_t)bin[48] + 256*(uint32_t)bin[49] + 256*256*(uint32_t)bin[50] + 256*256*256*(uint32_t)bin[51];
+                            ui->sleep_num2->setValue(sleep_num2);
+                            ui->pr->setValue(bin[52]);
+                        }
                         return;
                     } else if (btnStatus == 1) {
                         bufflen = 0;
@@ -239,17 +441,19 @@ void Smartbuilding22::ReadSerialData () {
                         bin[39] = tmp >> 8;
                         bin[35] = ui->index->value();
                         bin[40] = ui->uploadmode->isChecked();
-                        uint32_t sleep_num1 = ui->sleep_num1->value();
-                        bin[44] = sleep_num1;
-                        bin[45] = sleep_num1 >> 8;
-                        bin[46] = sleep_num1 >> 16;
-                        bin[47] = sleep_num1 >> 24;
-                        uint32_t sleep_num2 = ui->sleep_num2->value();
-                        bin[48] = sleep_num2;
-                        bin[49] = sleep_num2 >> 8;
-                        bin[50] = sleep_num2 >> 16;
-                        bin[51] = sleep_num2 >> 24;
-                        bin[52] = ui->pr->value();
+                        if (writesleepnum) {
+                            uint32_t sleep_num1 = ui->sleep_num1->value();
+                            bin[44] = sleep_num1;
+                            bin[45] = sleep_num1 >> 8;
+                            bin[46] = sleep_num1 >> 16;
+                            bin[47] = sleep_num1 >> 24;
+                            uint32_t sleep_num2 = ui->sleep_num2->value();
+                            bin[48] = sleep_num2;
+                            bin[49] = sleep_num2 >> 8;
+                            bin[50] = sleep_num2 >> 16;
+                            bin[51] = sleep_num2 >> 24;
+                            bin[52] = ui->pr->value();
+                        }
                         chipstep = ISP_ERASE;
                         addr = 0x6a000;
                         char buff[7];
@@ -453,6 +657,11 @@ void Smartbuilding22::on_getconfig_clicked () {
         CloseSerial();
         return;
     }
+    int index = ui->devicetype->currentIndex();
+    if (index != 0 && index != 1 && index != 2) {
+        ui->tips->setText("该设备不支持读取");
+        return;
+    }
     retrytime = 0;
     chipstep = ISP_SYNC;
     if (OpenSerial()) {
@@ -471,25 +680,39 @@ void Smartbuilding22::on_setconfig_clicked () {
         CloseSerial();
         return;
     }
-    retrytime = 0;
-    chipstep = ISP_SYNC;
-    if (OpenSerial()) {
-        ui->tips->setText("串口打开失败");
-        return;
+    int index = ui->devicetype->currentIndex();
+    if (index != 0 && index != 1 && index != 2) {
+        retrytime = 0;
+        chipstep = ISP_DEVICEMODE;
+        if (OpenSerial()) {
+            ui->tips->setText("串口打开失败");
+            return;
+        }
+        btnStatus = 1;
+        serial.write("AT+DEVICEMODE=0\r\n", 17);
+    } else {
+        retrytime = 0;
+        chipstep = ISP_SYNC;
+        if (OpenSerial()) {
+            ui->tips->setText("串口打开失败");
+            return;
+        }
+        btnStatus = 1;
+        char buff[64];
+        sprintf(buff, "等待设备连接...%u", ++retrytime);
+        ui->tips->setText(buff);
     }
-    btnStatus = 1;
-    char buff[64];
-    sprintf(buff, "等待设备连接...%u", ++retrytime);
-    ui->tips->setText(buff);
 }
 
 void Smartbuilding22::SetWriteSleepNum (int index, bool checked) {
     if ((index == 0 || index == 1) && checked) {
         ui->sleep_num1->setEnabled(true);
         ui->sleep_num2->setEnabled(true);
+        writesleepnum = 1;
     } else {
         ui->sleep_num1->setEnabled(false);
         ui->sleep_num2->setEnabled(false);
+        writesleepnum = 0;
     }
 }
 

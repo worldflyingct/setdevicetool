@@ -151,7 +151,7 @@ void TkmIsp::ReadSerialData () {
         chipstep = ISP_CHANGE_BAUDRATE;
         char buff[7];
         buff[0] = ISP_CHANGE_BAUDRATE;
-        buff[1] = 0x0b; // 设置芯片波特率为912600
+        buff[1] = 0x0b; // 设置芯片波特率为921600
         memset(buff+2, 0, 5);
         serial.write(buff, 7);
     } else if (chipstep == ISP_CHANGE_BAUDRATE) { // ISP_CHANGE_BAUDRATE
@@ -166,7 +166,7 @@ void TkmIsp::ReadSerialData () {
             }
             char buff[7];
             buff[0] = ISP_CHANGE_BAUDRATE;
-            buff[1] = 0x0b; // 设置芯片波特率为912600
+            buff[1] = 0x0b; // 设置芯片波特率为921600
             memset(buff+2, 0, 5);
             serial.write(buff, 7);
         } else if (bufflen == 7) {
