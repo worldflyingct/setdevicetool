@@ -89,6 +89,13 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete smartbuilding22;
         smartbuilding22 = NULL;
     }
+    if (tkm300config && tkm300config != widget) {
+        if (tkm300config->GetBtnStatus()) {
+            return -1;
+        }
+        delete tkm300config;
+        tkm300config = NULL;
+    }
     return 0;
 }
 
@@ -231,5 +238,18 @@ void MainWindow::on_actionSmartbuilding22_triggered() {
         int h = smartbuilding22->height();
         setFixedSize(w, h + 23);
         smartbuilding22->show();
+    }
+}
+
+void MainWindow::on_actionTkm300_triggered() {
+    if (FreeOthersWidget(tkm300config)) {
+        return;
+    }
+    if (!tkm300config) {
+        tkm300config = new Tkm300Config(ui->centralWidget);
+        int w = tkm300config->width();
+        int h = tkm300config->height();
+        setFixedSize(w, h + 23);
+        tkm300config->show();
     }
 }

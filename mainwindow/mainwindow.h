@@ -12,6 +12,7 @@
 #include "uartassist/uartassist.h"
 #include "netassist/netassist.h"
 #include "smartbuilding/22/smartbuilding22.h"
+#include "tkm300config/tkm300config.h"
 
 namespace Ui {
 class MainWindow;
@@ -37,6 +38,7 @@ private slots:
     void on_actionNetAssist_triggered();
     void on_actiontkm_triggered();
     void on_actionSmartbuilding22_triggered();
+    void on_actionTkm300_triggered();
 
 private:
     Ui::MainWindow *ui;
@@ -51,6 +53,7 @@ private:
     UartAssist *uartassist = NULL;
     NetAssist *netassist = NULL;
     Smartbuilding22 *smartbuilding22 = NULL;
+    Tkm300Config *tkm300config = NULL;
 };
 
 #endif // MAINWINDOW_H

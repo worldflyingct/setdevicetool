@@ -78,18 +78,19 @@ void Smartbuilding22::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+    serialReadBuff[bufflen] = '\0';
     if (chipstep == ISP_SYNC) {
         if (bufflen < 8) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 8 ; step++) {
             if (!memcmp(serialReadBuff+step, "TurMass.", 8)) {
                 break;
             }
         }
         if (bufflen - step < 8) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -169,14 +170,14 @@ void Smartbuilding22::ReadSerialData () {
         if (bufflen < 7) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 7 ; step++) {
             if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
                 break;
             }
         }
         if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -191,14 +192,14 @@ void Smartbuilding22::ReadSerialData () {
         if (bufflen < 7) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 7 ; step++) {
             if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
                 break;
             }
         }
         if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -213,14 +214,14 @@ void Smartbuilding22::ReadSerialData () {
         if (bufflen < 7) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 7 ; step++) {
             if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
                 break;
             }
         }
         if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -235,14 +236,14 @@ void Smartbuilding22::ReadSerialData () {
         if (bufflen < 7) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 7 ; step++) {
             if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
                 break;
             }
         }
         if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -252,19 +253,19 @@ void Smartbuilding22::ReadSerialData () {
         ui->tips->setText("设置通信器通信速率成功，开始设置通信器数据包大小");
         chipstep = ISP_SLOTBYTES;
         const char buff[] = "AT+SLOTBYTES=33\r\n";
-        serial.write(buff, len);
+        serial.write(buff, 17);
     } else if (chipstep == ISP_SLOTBYTES) {
         if (bufflen < 7) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 7 ; step++) {
             if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
                 break;
             }
         }
         if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -285,44 +286,24 @@ void Smartbuilding22::ReadSerialData () {
         int len = sprintf(buff, "AT+SENDB=0:0083ffffffffffffffffffffffffffffffff%04x%04x%02x%02x\r\n", center, offset, speed, index);
         serial.write(buff, len);
     } else if (chipstep == ISP_SETDEVICE) {
-        if (bufflen < 7) {
-            return;
-        }
-        int step;
-        for (step = 0 ; bufflen - step >= 7 ; step++) {
-            if (!memcmp(serialReadBuff+step, "AT_OK\r\n", 7)) {
-                break;
-            }
-        }
-        if (bufflen - step < 7) {
-            for (int i = 0 ; i < step ; i++) {
-                serialReadBuff[i] = serialReadBuff[i+step];
-            }
-            bufflen -= step;
-            return;
-        }
-        bufflen -= step + 7;
-        ui->tips->setText("设备参数发送成功，等待数据返回");
-        chipstep = ISP_WAITSN;
-    } else if (chipstep == ISP_WAITSN) {
         if (bufflen < 4) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 4 ; step++) {
             if (!memcmp(serialReadBuff+step, "Data", 4)) {
                 break;
             }
         }
-        if (bufflen - step < 4) {
-            for (int i = 0 ; i < step ; i++) {
-                serialReadBuff[i] = serialReadBuff[i+step];
-            }
-            bufflen -= step;
+        int newbufflen = bufflen - step;
+        for (i = 0 ; i + step < bufflen ; i++) {
+            serialReadBuff[i] = serialReadBuff[i+step];
+        }
+        bufflen = newbufflen;
+        if (newbufflen < 4) {
             return;
         }
-        int begin = step;
-        for (; bufflen - step >= 2 ; step++) {
+        for (step = 0 ; bufflen - step >= 2 ; step++) {
             if (!memcmp(serialReadBuff+step, "\r\n", 2)) {
                 break;
             }
@@ -330,30 +311,23 @@ void Smartbuilding22::ReadSerialData () {
         if (bufflen - step < 2) {
             return;
         }
-        step = 0;
-        while (serialReadBuff[begin+step] != ' ') {
+        step = 4;
+        while (serialReadBuff[step] == ' ') {
             step++;
         }
         int a = 0;
         char sn[33];
-        while (serialReadBuff[begin+step] == ' ' || serialReadBuff[begin+step] == '\r') {
-            sn[a] = serialReadBuff[begin+step] <= '9' ? serialReadBuff[begin+step]-'0' : serialReadBuff[begin+step]+10-'A';
+        while (serialReadBuff[step] != ' ' && serialReadBuff[step] != '\r') {
+            sn[a] = serialReadBuff[step] <= '9' ? serialReadBuff[step]-'0' : serialReadBuff[step]+10-'A';
             sn[a] *= 16;
             step++;
-            sn[a] += serialReadBuff[begin+step] <= '9' ? serialReadBuff[begin+step]-'0' : serialReadBuff[begin+step]+10-'A';
+            sn[a] += serialReadBuff[step] <= '9' ? serialReadBuff[step]-'0' : serialReadBuff[step]+10-'A';
             step++;
             a++;
         }
         sn[a] = '\0';
         char buff[256];
-        memcpy(buff, "设置设备参数成功\r\nsn:", 13);
-        for (step = 0 ; step < a ; step++) {
-            int number = sn[step] / 16;
-            buff[13+2*step] = number < 10 ? number - '0' : number + 10 - 'A';
-            number = sn[step] % 16;
-            buff[13+2*step+1] = number < 10 ? number - '0' : number + 10 - 'A';
-        }
-        buff[13+2*a] = '\0';
+        sprintf(buff, "设置设备参数成功\r\nsn:%s", sn);
         ui->tips->setText(buff);
         CloseSerial();
     } else if (chipstep == ISP_READ) { // ISP_READ

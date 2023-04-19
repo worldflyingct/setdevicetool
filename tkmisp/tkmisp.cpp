@@ -114,18 +114,19 @@ void TkmIsp::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+	serialReadBuff[bufflen] = '\0';
     if (chipstep == ISP_SYNC) {
         if (bufflen < 8) {
             return;
         }
-        int step;
+        int i, step;
         for (step = 0 ; bufflen - step >= 8 ; step++) {
             if (!memcmp(serialReadBuff+step, "TurMass.", 8)) {
                 break;
             }
         }
         if (bufflen - step < 8) {
-            for (int i = 0 ; i < step ; i++) {
+            for (i = 0 ; i + step < bufflen ; i++) {
                 serialReadBuff[i] = serialReadBuff[i+step];
             }
             bufflen -= step;
@@ -313,7 +314,6 @@ void TkmIsp::ReadSerialData () {
         }
     } else if (chipstep == ISP_WRITE_RAM) { // ISP_WRITE_RAM
         if (serialReadBuff[0] != ISP_WRITE_RAM_ACK) {
-            qDebug("in %s, at %d", __FILE__, __LINE__);
             bufflen = 0;
             retrytime++;
             if (retrytime == 250) {

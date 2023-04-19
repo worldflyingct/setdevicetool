@@ -61,6 +61,7 @@ void Rj45IotProgram::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+    serialReadBuff[bufflen] = '\0';
     if (btnStatus == 1) {
         const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
         if (bufflen == sizeof(set_success)) {
@@ -139,7 +140,6 @@ void Rj45IotProgram::on_setmode_clicked() {
     char host[256] = {0};
     ushort port = 0;
     if (COMMON::urldecode(mqtturl, mqtturllen, protocol, host, &port, NULL) || memcmp(protocol, "tcp", 3) || host[0] == 0 || port == 0) {
-        qDebug("protocol:%s, host:%s, port:%d\n", protocol, host, port);
         ui->tips->setText("mqtturl格式错误");
         return;
     }

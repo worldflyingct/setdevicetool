@@ -50,9 +50,9 @@ void UartAssist::ReadSerialData () {
     }
     if (ui->receiveHex->isChecked()) {
         uchar *s = (uchar*)ba.data();
-        int size = ba.size();
+        int i, size = ba.size();
         char dat[3*size];
-        for (int i = 0 ; i < size ; i++) {
+        for (i = 0 ; i < size ; i++) {
             uchar tmp = s[i] >> 4;
             dat[3*i] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
             tmp = s[i] & 0x0f;
@@ -179,8 +179,8 @@ void UartAssist::on_send_clicked () {
     int len = ba.size();
     char dat[len+2];
     if (ui->sendHex->isChecked()) {
-        int n = 0;
-        for (int i = 1 ; i < len ; i+=3) {
+        int i, n = 0;
+        for (i = 1 ; i < len ; i+=3) {
             if (i > 2 && s[i-2] != ' ') {
                 ui->receiveEdit->append("发送数据格式错误");
                 return;
@@ -232,9 +232,9 @@ void UartAssist::on_sendHex_clicked () {
     QByteArray ba = txt.toUtf8();
     if (ui->sendHex->isChecked()) {
         uchar *s = (uchar*)ba.data();
-        int size = ba.size();
+        int i, size = ba.size();
         char dat[3*size];
-        for (int i = 0 ; i < size ; i++) {
+        for (i = 0 ; i < size ; i++) {
             uchar tmp = s[i] >> 4;
             dat[3*i] = tmp < 10 ? tmp + '0' : tmp + 'A' - 10;
             tmp = s[i] & 0x0f;
@@ -246,8 +246,8 @@ void UartAssist::on_sendHex_clicked () {
         char *s = ba.data();
         int len = ba.size();
         char dat[len/3+1];
-        int n = 0;
-        for (int i = 1 ; i < len ; i+=3) {
+        int i, n = 0;
+        for (i = 1 ; i < len ; i+=3) {
             if (i > 2 && s[i-2] != ' ') {
                 return;
             }

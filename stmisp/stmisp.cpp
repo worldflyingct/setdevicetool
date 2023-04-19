@@ -110,6 +110,7 @@ void StmIsp::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+    serialReadBuff[bufflen] = '\0';
     if (chipstep == ISP_SYNC) { // sync
         if (bufflen != 1 || serialReadBuff[0] != 0x79) {
             bufflen = 0;

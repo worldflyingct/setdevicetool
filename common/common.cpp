@@ -23,8 +23,8 @@ ushort COMMON::crc_calc (ushort crc, uchar *dat, ushort len) {
 
 int COMMON::urldecode (const char *url, int urllen, char *protocol, char *host, ushort *port, char *path) {
     uint p = 0;
-    int offset = 0, state = 0;
-    for (int i = 0 ; i < urllen ; i++) {
+    int i, offset = 0, state = 0;
+    for (i = 0 ; i < urllen ; i++) {
         if (state == 0 && url[i] == ':') {
             if (i+2 < urllen && (url[i+1] != '/' || url[i+2] != '/')) {
                 return -1;
@@ -156,9 +156,9 @@ int COMMON::TKM_HexToBin(uchar *src, uint slength, uchar *dest, uint dlength, ui
 }
 
 bool COMMON::CheckValidIp (const char *ip) {
-    int count = 0;
+    int i, count = 0;
     ushort p = 0;
-    for (int i = 0 ; ip[i] != '\0' ; i++) {
+    for (i = 0 ; ip[i] != '\0' ; i++) {
         if (ip[i] < '0' || ip[i] > '9') {
             if (ip[i] == '.' ) {
                 p = 0;

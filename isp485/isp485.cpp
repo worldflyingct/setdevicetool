@@ -52,6 +52,7 @@ void Isp485::ReadSerialData () {
     char *c = arr.data();
     memcpy(serialReadBuff+bufflen, c, len);
     bufflen += len;
+	serialReadBuff[bufflen] = '\0';
     if (btnStatus == 1) {
         const char set_success[] = {0x73, 0x65 ,0x74 ,0x20 ,0x6F,0x6B, 0x31,0x35}; // set ok
         if (bufflen == sizeof(set_success)) {
