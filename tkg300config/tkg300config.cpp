@@ -1,5 +1,5 @@
-#include "tkm300config.h"
-#include "ui_tkm300config.h"
+#include "tkg300config.h"
+#include "ui_tkg300config.h"
 
 #define AT_GETDHCP          0x01
 #define AT_GETGWIP          0x02
@@ -17,9 +17,9 @@
 #define AT_SETMQTTSERVER    0x16
 #define AT_SETMQTTUSER      0x17
 
-Tkm300Config::Tkm300Config(QWidget *parent) :
+Tkg300Config::Tkg300Config(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::Tkm300Config) {
+    ui(new Ui::Tkg300Config) {
     ui->setupUi(this);
     GetComList();
     ipgroup.addButton(ui->dhcp, 0);
@@ -28,12 +28,12 @@ Tkm300Config::Tkm300Config(QWidget *parent) :
     on_dhcp_clicked();
 }
 
-Tkm300Config::~Tkm300Config() {
+Tkg300Config::~Tkg300Config() {
     delete ui;
 }
 
 // 获取可用的串口号
-void Tkm300Config::GetComList () {
+void Tkg300Config::GetComList () {
     QComboBox *c = ui->com;
     c->clear();
     foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -41,11 +41,11 @@ void Tkm300Config::GetComList () {
     }
 }
 
-void Tkm300Config::on_refresh_clicked () {
+void Tkg300Config::on_refresh_clicked () {
     GetComList();
 }
 
-void Tkm300Config::TimerOutEvent () {
+void Tkg300Config::TimerOutEvent () {
     if (btnStatus == 1) {
         ui->tips->setText("设备响应超时");
     } else if (btnStatus == 2) {
@@ -54,17 +54,17 @@ void Tkm300Config::TimerOutEvent () {
     CloseSerial();
 }
 
-void Tkm300Config::SerialErrorEvent () {
+void Tkg300Config::SerialErrorEvent () {
     ui->tips->setText("串口错误");
     CloseSerial();
     GetComList();
 }
 
-int Tkm300Config::GetBtnStatus () {
+int Tkg300Config::GetBtnStatus () {
     return btnStatus;
 }
 
-void Tkm300Config::ReadSerialData () {
+void Tkg300Config::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
     char *c = arr.data();
@@ -302,7 +302,7 @@ void Tkm300Config::ReadSerialData () {
     timer.start(1000);
 }
 
-int Tkm300Config::OpenSerial () {
+int Tkg300Config::OpenSerial () {
     char comname[12];
     sscanf(ui->com->currentText().toUtf8().data(), "%s ", comname);
     serial.setPortName(comname);
@@ -322,7 +322,7 @@ int Tkm300Config::OpenSerial () {
     return 0;
 }
 
-void Tkm300Config::CloseSerial () {
+void Tkg300Config::CloseSerial () {
     disconnect(&timer, 0, 0, 0);
     timer.stop();
     disconnect(&serial, 0, 0, 0);
@@ -331,7 +331,7 @@ void Tkm300Config::CloseSerial () {
     btnStatus = 0;
 }
 
-void Tkm300Config::on_setconfig_clicked() {
+void Tkg300Config::on_setconfig_clicked() {
     if (btnStatus) {
         ui->tips->setText("用户终止操作");
         CloseSerial();
@@ -355,7 +355,7 @@ void Tkm300Config::on_setconfig_clicked() {
     serial.write(buff, len);
 }
 
-void Tkm300Config::on_getconfig_clicked() {
+void Tkg300Config::on_getconfig_clicked() {
     if (btnStatus) {
         ui->tips->setText("用户终止操作");
         CloseSerial();
@@ -372,14 +372,14 @@ void Tkm300Config::on_getconfig_clicked() {
     serial.write("AT+DHCP=?\r\n", 11);
 }
 
-void Tkm300Config::on_dhcp_clicked() {
+void Tkg300Config::on_dhcp_clicked() {
     ui->ip->setEnabled(false);
     ui->netmask->setEnabled(false);
     ui->gateway->setEnabled(false);
     ui->dns->setEnabled(false);
 }
 
-void Tkm300Config::on_staticip_clicked() {
+void Tkg300Config::on_staticip_clicked() {
     ui->ip->setEnabled(true);
     ui->netmask->setEnabled(true);
     ui->gateway->setEnabled(true);

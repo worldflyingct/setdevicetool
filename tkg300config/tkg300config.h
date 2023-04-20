@@ -1,5 +1,5 @@
-#ifndef TKM300CONFIG_H
-#define TKM300CONFIG_H
+#ifndef TKG300CONFIG_H
+#define TKG300CONFIG_H
 
 #include <QWidget>
 #include <QButtonGroup>
@@ -10,16 +10,16 @@
 #include <QTimer>
 
 namespace Ui {
-class Tkm300Config;
+class Tkg300Config;
 }
 
-class Tkm300Config : public QWidget
+class Tkg300Config : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Tkm300Config(QWidget *parent = 0);
-    ~Tkm300Config();
+    explicit Tkg300Config(QWidget *parent = 0);
+    ~Tkg300Config();
     int GetBtnStatus();
 
 private slots:
@@ -35,7 +35,7 @@ private slots:
     void on_dhcp_clicked();
 
 private:
-    Ui::Tkm300Config *ui;
+    Ui::Tkg300Config *ui;
 
     void GetComList();
     int OpenSerial();
@@ -52,4 +52,4 @@ private:
     QButtonGroup ipgroup;
 };
 
-#endif // TKM300CONFIG_H
+#endif // TKG300CONFIG_H

@@ -30,7 +30,7 @@ SOURCES += main.cpp\
     netassist/netassist.cpp \
     common/common.cpp \
     smartbuilding/22/smartbuilding22.cpp \
-    tkm300config/tkm300config.cpp
+    tkg300config/tkg300config.cpp
 
 HEADERS  += mainwindow/mainwindow.h \
     common/yyjson.h \
@@ -47,7 +47,7 @@ HEADERS  += mainwindow/mainwindow.h \
     netassist/netassist.h \
     smartbuilding/22/smartbuilding22.h \
     tkmisp/patch.h \
-    tkm300config/tkm300config.h
+    tkg300config/tkg300config.h
 
 FORMS    += mainwindow/mainwindow.ui \
     ispiocontroller/ispiocontroller.ui \
@@ -60,7 +60,7 @@ FORMS    += mainwindow/mainwindow.ui \
     uartassist/uartassist.ui \
     netassist/netassist.ui \
     smartbuilding/22/smartbuilding22.ui \
-    tkm300config/tkm300config.ui
+    tkg300config/tkg300config.ui
 
 DISTFILES +=
 

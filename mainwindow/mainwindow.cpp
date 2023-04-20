@@ -89,12 +89,12 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete smartbuilding22;
         smartbuilding22 = NULL;
     }
-    if (tkm300config && tkm300config != widget) {
-        if (tkm300config->GetBtnStatus()) {
+    if (tkg300config && tkg300config != widget) {
+        if (tkg300config->GetBtnStatus()) {
             return -1;
         }
-        delete tkm300config;
-        tkm300config = NULL;
+        delete tkg300config;
+        tkg300config = NULL;
     }
     return 0;
 }
@@ -241,15 +241,15 @@ void MainWindow::on_actionSmartbuilding22_triggered() {
     }
 }
 
-void MainWindow::on_actionTkm300_triggered() {
-    if (FreeOthersWidget(tkm300config)) {
+void MainWindow::on_actionTkg300_triggered() {
+    if (FreeOthersWidget(tkg300config)) {
         return;
     }
-    if (!tkm300config) {
-        tkm300config = new Tkm300Config(ui->centralWidget);
-        int w = tkm300config->width();
-        int h = tkm300config->height();
+    if (!tkg300config) {
+        tkg300config = new Tkg300Config(ui->centralWidget);
+        int w = tkg300config->width();
+        int h = tkg300config->height();
         setFixedSize(w, h + 23);
-        tkm300config->show();
+        tkg300config->show();
     }
 }
