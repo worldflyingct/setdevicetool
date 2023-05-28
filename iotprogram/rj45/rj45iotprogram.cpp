@@ -54,7 +54,6 @@ int Rj45IotProgram::GetBtnStatus () {
     return btnStatus;
 }
 
-
 void Rj45IotProgram::ReadSerialData () {
     QByteArray arr = serial.readAll();
     int len = arr.length();
@@ -273,7 +272,10 @@ void Rj45IotProgram::HandleSerialData (yyjson_val *json) {
     yyjson_val *netmask = yyjson_obj_get(json, "NetMask");
     yyjson_val *gateway = yyjson_obj_get(json, "GateWay");
     yyjson_val *dns = yyjson_obj_get(json, "Dns");
-    if (ip && netmask && gateway && dns) {
+    if (ip && yyjson_get_len(ip) > 0 &&
+        netmask && yyjson_get_len(netmask) > 0 &&
+        gateway && yyjson_get_len(gateway) > 0 &&
+        dns && yyjson_get_len(dns) > 0) {
         ui->staticip->setChecked(true);
         on_staticip_clicked();
         ui->ip->setText(yyjson_get_str(ip));

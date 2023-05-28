@@ -389,13 +389,11 @@ void Smartbuilding22::ReadSerialData () {
                         ui->offsetfrequency->setText(buff);
                         ui->index->setValue(bin[35]);
                         ui->uploadmode->setChecked(bin[40]); // 0是帧上传，1是立刻上传。
-                        if (writesleepnum) {
-                            uint32_t sleep_num1 = (uint32_t)bin[44] + 256*(uint32_t)bin[45] + 256*256*(uint32_t)bin[46] + 256*256*256*(uint32_t)bin[47];
-                            ui->sleep_num1->setValue(sleep_num1);
-                            uint32_t sleep_num2 = (uint32_t)bin[48] + 256*(uint32_t)bin[49] + 256*256*(uint32_t)bin[50] + 256*256*256*(uint32_t)bin[51];
-                            ui->sleep_num2->setValue(sleep_num2);
-                            ui->pr->setValue(bin[52]);
-                        }
+                        uint32_t sleep_num1 = (uint32_t)bin[44] + 256*(uint32_t)bin[45] + 256*256*(uint32_t)bin[46] + 256*256*256*(uint32_t)bin[47];
+                        ui->sleep_num1->setValue(sleep_num1);
+                        uint32_t sleep_num2 = (uint32_t)bin[48] + 256*(uint32_t)bin[49] + 256*256*(uint32_t)bin[50] + 256*256*256*(uint32_t)bin[51];
+                        ui->sleep_num2->setValue(sleep_num2);
+                        ui->pr->setValue(bin[52]);
                         return;
                     } else if (btnStatus == 1) {
                         bufflen = 0;
