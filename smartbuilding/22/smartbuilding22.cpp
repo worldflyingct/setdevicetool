@@ -427,8 +427,8 @@ void Smartbuilding22::ReadSerialData () {
                             bin[49] = sleep_num2 >> 8;
                             bin[50] = sleep_num2 >> 16;
                             bin[51] = sleep_num2 >> 24;
-                            bin[52] = ui->pr->value();
                         }
+                        bin[52] = ui->pr->value();
                         chipstep = ISP_ERASE;
                         addr = 0x6a000;
                         char buff[7];
