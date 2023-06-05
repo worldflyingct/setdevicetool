@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>432</width>
-    <height>512</height>
+    <height>453</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -202,7 +202,7 @@
    <property name="geometry">
     <rect>
      <x>50</x>
-     <y>470</y>
+     <y>410</y>
      <width>51</width>
      <height>28</height>
     </rect>
@@ -251,7 +251,7 @@
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>470</y>
+     <y>410</y>
      <width>61</width>
      <height>28</height>
     </rect>
@@ -325,7 +325,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>380</y>
+     <y>320</y>
      <width>391</width>
      <height>71</height>
     </rect>
@@ -357,7 +357,7 @@
     </rect>
    </property>
    <property name="currentText">
-    <string>0</string>
+    <string>12</string>
    </property>
    <item>
     <property name="text">
@@ -627,42 +627,6 @@
    </property>
    <property name="text">
     <string>%</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="snlabel">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>330</y>
-     <width>71</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>设备sn</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="colon_11">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>330</y>
-     <width>16</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>:</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="sn">
-   <property name="geometry">
-    <rect>
-     <x>90</x>
-     <y>330</y>
-     <width>321</width>
-     <height>31</height>
-    </rect>
    </property>
   </widget>
  </widget>

@@ -380,7 +380,6 @@ void Smartbuilding22::ReadSerialData () {
                         bin[32] = '\0';
                         sprintf(buff, "读取完毕\r\n设备SN:%s", bin);
                         ui->tips->setText(buff);
-                        ui->sn->setText((char*)bin);
                         ui->speed->setValue(bin[33]);
                         sprintf(buff, "%d", bin[34]);
                         ui->power->setCurrentText(buff);
@@ -398,8 +397,6 @@ void Smartbuilding22::ReadSerialData () {
                         return;
                     } else if (btnStatus == 1) {
                         bufflen = 0;
-                        strcpy((char*)bin, ui->sn->text().toUtf8().data());
-                        bin[32] = '\0';
                         bin[33] = ui->speed->value();
                         int power;
                         sscanf(ui->power->currentText().toUtf8().data(), "%d", &power);
@@ -657,10 +654,6 @@ void Smartbuilding22::on_setconfig_clicked () {
     }
     int index = ui->devicetype->currentIndex();
     if (index != 0 && index != 1 && index != 2) {
-        if (!strlen(ui->sn->text().toUtf8().data())) {
-            ui->tips->setText("sn不能为空");
-            return;
-        }
         retrytime = 0;
         chipstep = ISP_DEVICEMODE;
         if (OpenSerial()) {
