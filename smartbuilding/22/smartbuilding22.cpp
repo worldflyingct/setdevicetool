@@ -693,9 +693,11 @@ void Smartbuilding22::on_devicetype_currentIndexChanged(int index) {
     if (index == 0 || index == 1) {
         ui->uploadmode->setEnabled(false);
         ui->pr->setEnabled(true);
+        ui->enablesleepnum->setEnabled(true);
     } else {
         ui->uploadmode->setEnabled(true);
         ui->pr->setEnabled(false);
+        ui->enablesleepnum->setEnabled(false);
     }
 }
 
