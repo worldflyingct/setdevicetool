@@ -17,7 +17,6 @@
 #define ISP_WRITE_ACK               0x03
 #define ISP_WRITE_RAM               0x04
 #define ISP_WRITE_RAM_ACK           0x05
-#define ISP_WRITE_RAM               0x04
 #define ISP_EXECUTE_CODE            0x15
 #define ISP_EXECUTE_CODE_END        0x17
 #define ISP_READ                    0x08
