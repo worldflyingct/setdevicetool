@@ -5,6 +5,8 @@
 // 串口相关头文件
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+// 定时器相关头文件
+#include <QTimer>
 
 namespace Ui {
 class UartAssist;
@@ -27,12 +29,15 @@ private slots:
     void on_clearsend_clicked();
     void on_clearreceive_clicked();
     void on_sendHex_clicked();
+    void TimerOutEvent();
 
 private:
     Ui::UartAssist *ui;
     void GetComList();
     QSerialPort serial;
+    QTimer timer;
     int btnStatus = 0;
+    unsigned char newdata = 1;
 };
 
 #endif // UARTASSIST_H

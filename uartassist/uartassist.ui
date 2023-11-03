@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>690</width>
-    <height>610</height>
+    <height>651</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -385,7 +385,7 @@
      <x>140</x>
      <y>120</y>
      <width>531</width>
-     <height>341</height>
+     <height>351</height>
     </rect>
    </property>
    <property name="readOnly">
@@ -399,9 +399,9 @@
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>480</y>
+     <y>490</y>
      <width>461</width>
-     <height>111</height>
+     <height>141</height>
     </rect>
    </property>
   </widget>
@@ -409,7 +409,7 @@
    <property name="geometry">
     <rect>
      <x>610</x>
-     <y>560</y>
+     <y>600</y>
      <width>61</width>
      <height>31</height>
     </rect>
@@ -519,9 +519,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>480</y>
+     <y>470</y>
      <width>120</width>
-     <height>111</height>
+     <height>161</height>
     </rect>
    </property>
    <property name="title">
@@ -531,7 +531,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>80</y>
       <width>101</width>
       <height>41</height>
      </rect>
@@ -545,13 +545,27 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>80</y>
+      <y>130</y>
       <width>101</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>发送hex</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="sendcrc">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>101</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>添加modbus
+crc校验</string>
     </property>
    </widget>
   </widget>

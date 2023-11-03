@@ -4,6 +4,7 @@
 #include <QTextCodec>
 // 公共函数库
 #include "common/hextobin.h"
+#include "common/common.h"
 
 NetAssist::NetAssist (QWidget *parent) :
     QWidget(parent),
@@ -19,7 +20,14 @@ int NetAssist::GetBtnStatus () {
     return btnStatus;
 }
 
+void NetAssist::TimerOutEvent () {
+    timer.stop();
+    newdata = 1;
+    ui->receiveEdit->append("");
+}
+
 void NetAssist::ReadSocketData () {
+    timer.stop();
     QByteArray ba;
     QHostAddress srcAddress;
     quint16 srcPort;
@@ -62,20 +70,26 @@ void NetAssist::ReadSocketData () {
     QTextCodec *tc = QTextCodec::codecForName("UTF8");
     QString str = tc->toUnicode(ba);
     if (ui->islogmode->isChecked()) {
-        char srcPortStr[8];
-        sprintf(srcPortStr, "%u", srcPort);
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        ui->receiveEdit->setTextColor(Qt::blue);
-        ui->receiveEdit->append(current_date_time.toString("[yyyy-MM-dd hh:mm:ss.zzz]") + "from " + srcAddress.toString() + ":" + srcPortStr);
-        ui->receiveEdit->setTextColor(Qt::black);
-        ui->receiveEdit->append(str);
-        ui->receiveEdit->append("");
+        if (newdata) {
+            newdata = 0;
+            char srcPortStr[8];
+            sprintf(srcPortStr, "%u", srcPort);
+            QDateTime current_date_time = QDateTime::currentDateTime();
+            ui->receiveEdit->setTextColor(Qt::blue);
+            ui->receiveEdit->append(current_date_time.toString("[yyyy-MM-dd hh:mm:ss.zzz]") + "from " + srcAddress.toString() + ":" + srcPortStr);
+            ui->receiveEdit->setTextColor(Qt::black);
+            ui->receiveEdit->append(str);
+        } else {
+            ui->receiveEdit->moveCursor(QTextCursor::End);
+            ui->receiveEdit->insertPlainText(str);
+        }
     } else if (ui->autonewline->isChecked()) {
         ui->receiveEdit->append(str);
     } else {
         ui->receiveEdit->moveCursor(QTextCursor::End);
         ui->receiveEdit->insertPlainText(str);
     }
+    timer.start(20);
 }
 
 void NetAssist::DisconnectSocket () {
@@ -116,6 +130,7 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
             ui->remoteport->setEnabled(false);
             ui->startclose->setText("停止");
             btnStatus = 1;
+            connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
             connect(&tcpClient, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
             connect(&tcpClient, SIGNAL(disconnected()),this,SLOT(DisconnectSocket()));
         } else if (prot == "TCP Server") {
@@ -129,6 +144,7 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
             ui->startclose->setText("停止");
             ui->clientlist->setEnabled(true);
             btnStatus = 1;
+            connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
             connect(&tcpServer, SIGNAL(newConnection()), this, SLOT(AcceptNewConnect()));
         } else { // prot == "UDP"
             if (!udpSocket.open(QIODevice::ReadWrite)) {
@@ -146,11 +162,14 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
             ui->localport->setEnabled(false);
             ui->startclose->setText("停止");
             btnStatus = 1;
+            connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
             connect(&udpSocket, SIGNAL(readyRead()), this, SLOT(ReadSocketData()));
         }
     } else {
         QString prot = ui->protocol->currentText();
         if (prot == "TCP Client") {
+            disconnect(&timer, 0, 0, 0);
+            timer.stop();
             disconnect(&tcpClient, 0, 0, 0);
             tcpClient.disconnectFromHost();
             if (tcpClient.state() != QTcpSocket::UnconnectedState) {
@@ -174,6 +193,8 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                     disconnect(tc, 0, 0, 0);
                     tc->close();
                 }
+                disconnect(&timer, 0, 0, 0);
+                timer.stop();
                 clients.clear();
                 disconnect(&tcpServer, 0, 0, 0);
                 tcpServer.close();
@@ -184,6 +205,8 @@ void NetAssist::OpenCloseSocket (int state, QTcpSocket *tc) {
                 ui->clientlist->setEnabled(false);
             }
         } else { // prot == "UDP"
+            disconnect(&timer, 0, 0, 0);
+            timer.stop();
             disconnect(&udpSocket, 0, 0, 0);
             udpSocket.close();
             btnStatus = 0;
@@ -228,7 +251,7 @@ void NetAssist::on_send_clicked () {
     QByteArray ba = txt.toUtf8();
     char *s = ba.data();
     int len = ba.size();
-    char dat[len+2];
+    char dat[len+4];
     if (ui->sendHex->isChecked()) {
         int i, n = 0;
         for (i = 1 ; i < len ; i+=3) {
@@ -255,6 +278,12 @@ void NetAssist::on_send_clicked () {
     if (ui->atnewline->isChecked()) {
         dat[len++] = '\r';
         dat[len++] = '\n';
+    }
+    if (ui->sendcrc->isChecked()) {
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)dat, len);
+        dat[len++] = crc & 0xff;
+        dat[len++] = crc >> 8;
     }
     QHostAddress dstAddress;
     quint16 dstPort;

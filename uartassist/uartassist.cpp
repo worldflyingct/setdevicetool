@@ -4,6 +4,7 @@
 #include <QTextCodec>
 // 公共函数库
 #include "common/hextobin.h"
+#include "common/common.h"
 
 UartAssist::UartAssist (QWidget *parent) :
     QWidget(parent),
@@ -43,7 +44,14 @@ int UartAssist::GetBtnStatus () {
     return btnStatus;
 }
 
+void UartAssist::TimerOutEvent () {
+    timer.stop();
+    newdata = 1;
+    ui->receiveEdit->append("");
+}
+
 void UartAssist::ReadSerialData () {
+    timer.stop();
     QByteArray ba = serial.readAll();
     if (ui->receivenoshow->isChecked()) {
         return;
@@ -64,18 +72,24 @@ void UartAssist::ReadSerialData () {
     QTextCodec *tc = QTextCodec::codecForName("UTF8");
     QString str = tc->toUnicode(ba);
     if (ui->islogmode->isChecked()) {
-        QDateTime current_date_time = QDateTime::currentDateTime();
-        ui->receiveEdit->setTextColor(Qt::blue);
-        ui->receiveEdit->append(current_date_time.toString("[yyyy-MM-dd hh:mm:ss.zzz]"));
-        ui->receiveEdit->setTextColor(Qt::black);
-        ui->receiveEdit->append(str);
-        ui->receiveEdit->append("");
+        if (newdata) {
+            newdata = 0;
+            QDateTime current_date_time = QDateTime::currentDateTime();
+            ui->receiveEdit->setTextColor(Qt::blue);
+            ui->receiveEdit->append(current_date_time.toString("[yyyy-MM-dd hh:mm:ss.zzz]"));
+            ui->receiveEdit->setTextColor(Qt::black);
+            ui->receiveEdit->append(str);
+        } else {
+            ui->receiveEdit->moveCursor(QTextCursor::End);
+            ui->receiveEdit->insertPlainText(str);
+        }
     } else if (ui->autonewline->isChecked()) {
         ui->receiveEdit->append(str);
     } else {
         ui->receiveEdit->moveCursor(QTextCursor::End);
         ui->receiveEdit->insertPlainText(str);
     }
+    timer.start(20);
 }
 
 void UartAssist::on_startclose_clicked () {
@@ -143,6 +157,7 @@ void UartAssist::on_startclose_clicked () {
             return;
         }
         serial.clear();
+        connect(&timer, SIGNAL(timeout()), this, SLOT(TimerOutEvent()));
         connect(&serial, SIGNAL(readyRead()), this, SLOT(ReadSerialData()));
         connect(&serial, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(SerialErrorEvent()));
         ui->startclose->setText("停止");
@@ -154,6 +169,8 @@ void UartAssist::on_startclose_clicked () {
         ui->stopbit->setEnabled(false);
         ui->flowcontrol->setEnabled(false);
     } else if (btnStatus == 1) {
+        disconnect(&timer, 0, 0, 0);
+        timer.stop();
         disconnect(&serial, 0, 0, 0);
         serial.close();
         ui->startclose->setText("开始");
@@ -177,7 +194,7 @@ void UartAssist::on_send_clicked () {
     QByteArray ba = txt.toUtf8();
     char *s = ba.data();
     int len = ba.size();
-    char dat[len+2];
+    char dat[len+4];
     if (ui->sendHex->isChecked()) {
         int i, n = 0;
         for (i = 1 ; i < len ; i+=3) {
@@ -204,6 +221,12 @@ void UartAssist::on_send_clicked () {
     if (ui->atnewline->isChecked()) {
         dat[len++] = '\r';
         dat[len++] = '\n';
+    }
+    if (ui->sendcrc->isChecked()) {
+        ushort crc = 0xffff;
+        crc = COMMON::crc_calc(crc, (uchar*)dat, len);
+        dat[len++] = crc & 0xff;
+        dat[len++] = crc >> 8;
     }
     serial.write(dat, len);
     if (!ui->islogmode->isChecked()) {

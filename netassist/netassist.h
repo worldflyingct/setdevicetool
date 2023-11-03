@@ -6,6 +6,8 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QUdpSocket>
+// 定时器相关头文件
+#include <QTimer>
 
 namespace Ui {
 class NetAssist;
@@ -30,13 +32,16 @@ private slots:
     void on_clearreceive_clicked();
     void on_clearsend_clicked();
     void on_sendHex_clicked();
+    void TimerOutEvent();
 
 private:
     Ui::NetAssist *ui;
     QTcpServer tcpServer;
     QTcpSocket tcpClient;
     QUdpSocket udpSocket;
+    QTimer timer;
     int btnStatus = 0;
+    unsigned char newdata = 1;
     QVector<QTcpSocket*> clients;
 
     void OpenCloseSocket(int state, QTcpSocket *tc);
