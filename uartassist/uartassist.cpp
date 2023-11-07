@@ -196,6 +196,7 @@ void UartAssist::on_send_clicked () {
     int len = ba.size();
     char dat[len+4];
     if (ui->sendHex->isChecked()) {
+        txt = "";
         int i, n = 0;
         for (i = 1 ; i < len ; i+=3) {
             if (i > 2 && s[i-2] != ' ') {
@@ -207,11 +208,16 @@ void UartAssist::on_send_clicked () {
                 ui->receiveEdit->append("发送数据格式错误");
                 return;
             }
+            char c = tmp1 < 10 ? tmp1 + '0' : tmp1 + 'A' - 10;
+            txt.append(c);
             uchar tmp2 = HexCharToBinChar(s[i]);
             if (tmp2 == 0xff) {
                 ui->receiveEdit->append("发送数据格式错误");
                 return;
             }
+            c = tmp2 < 10 ? tmp2 + '0' : tmp2 + 'A' - 10;
+            txt.append(c);
+            txt.append(' ');
             dat[n++] = (tmp1<<4) + tmp2;
         }
         len = n;
@@ -221,12 +227,36 @@ void UartAssist::on_send_clicked () {
     if (ui->atnewline->isChecked()) {
         dat[len++] = '\r';
         dat[len++] = '\n';
+        if (ui->sendHex->isChecked()) {
+            txt.append("0D 0A ");
+        } else {
+            txt.append("\r\n");
+        }
     }
     if (ui->sendcrc->isChecked()) {
         ushort crc = 0xffff;
         crc = COMMON::crc_calc(crc, (uchar*)dat, len);
         dat[len++] = crc & 0xff;
         dat[len++] = crc >> 8;
+        if (ui->sendHex->isChecked()) {
+            char c = (crc >> 4) & 0x0f;
+            c = c < 10 ? c + '0' : c + 'A' - 10;
+            txt.append(c);
+            c = crc & 0x0f;
+            c = c < 10 ? c + '0' : c + 'A' - 10;
+            txt.append(c);
+            txt.append(' ');
+            c = (crc >> 12) & 0x0f;
+            c = c < 10 ? c + '0' : c + 'A' - 10;
+            txt.append(c);
+            c = (crc >> 8) & 0x0f;
+            c = c < 10 ? c + '0' : c + 'A' - 10;
+            txt.append(c);
+            txt.append(' ');
+        } else {
+            txt.append(crc & 0xff);
+            txt.append(crc >> 8);
+        }
     }
     serial.write(dat, len);
     if (!ui->islogmode->isChecked()) {
