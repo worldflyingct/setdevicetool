@@ -253,6 +253,7 @@ void NetAssist::on_send_clicked () {
     int len = ba.size();
     char dat[len+4];
     if (ui->sendHex->isChecked()) {
+        txt = "";
         int i, n = 0;
         for (i = 1 ; i < len ; i+=3) {
             if (i > 2 && s[i-2] != ' ') {
