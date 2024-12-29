@@ -2,17 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "ispiocontroller/ispiocontroller.h"
-#include "isp485/isp485.h"
-#include "ispcollector/ispcollector.h"
-#include "iotprogram/isp/ispiotprogram.h"
-#include "iotprogram/rj45/rj45iotprogram.h"
+
 #include "stmisp/stmisp.h"
-#include "tkmisp/tkmisp.h"
 #include "uartassist/uartassist.h"
 #include "netassist/netassist.h"
-#include "smartbuilding/22/smartbuilding22.h"
-#include "tkg300config/tkg300config.h"
+#include "rs485serialserver/rs485serialserver.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,32 +22,18 @@ public:
 private slots:
     void on_actionAboutQt_triggered();
     void on_actionAbout_triggered();
-    void on_actionIspIoController_triggered();
-    void on_actionIsp485GateWay_triggered();
-    void on_actionIspCollector_triggered();
-    void on_actionIspIotProgram_triggered();
-    void on_actionRj45IotProgram_triggered();
     void on_actionStmIsp_triggered();
     void on_actionUartAssist_triggered();
     void on_actionNetAssist_triggered();
-    void on_actiontkm_triggered();
-    void on_actionSmartbuilding22_triggered();
-    void on_actionTkg300_triggered();
+    void on_actionRs485Server_triggered();
 
 private:
     Ui::MainWindow *ui;
     int FreeOthersWidget(void *widget);
-    IspIoController *ispiocontroller = NULL;
-    Isp485 *isp485 = NULL;
-    IspCollector *ispcollector = NULL;
-    IspIotProgram *ispiotprogram = NULL;
-    Rj45IotProgram *rj45iotprogram = NULL;
     StmIsp *stmisp = NULL;
-    TkmIsp *tkmisp = NULL;
     UartAssist *uartassist = NULL;
     NetAssist *netassist = NULL;
-    Smartbuilding22 *smartbuilding22 = NULL;
-    Tkg300Config *tkg300config = NULL;
+    Rs485SerialServer *rs485serialserver = NULL;
 };
 
 #endif // MAINWINDOW_H

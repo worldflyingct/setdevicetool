@@ -125,36 +125,6 @@ int COMMON::filewrite (QString savefilepath, char *bin, uint addr, char *buff, u
     return res;
 }
 
-int COMMON::TKM_HexToBin(uchar *src, uint slength, uchar *dest, uint dlength, uint *len) {
-    uint offset = 0;
-    for (uint i = 0 ; i < slength ; i += 10) {
-        if (src[i+8] != 0x0d || src[i+9] != 0x0a) {
-            return -1; // hex格式错误
-        }
-        if (offset + 4 > dlength) {
-            return -2; // dest太小
-        }
-        dest[offset] = src[i+6] <= '9' ? src[i+6]-'0' : src[i+6]+10-'A';
-        dest[offset] *= 16;
-        dest[offset] += src[i+7] <= '9' ? src[i+7]-'0' : src[i+7]+10-'A';
-        offset++;
-        dest[offset] = src[i+4] <= '9' ? src[i+4]-'0' : src[i+4]+10-'A';
-        dest[offset] *= 16;
-        dest[offset] += src[i+5] <= '9' ? src[i+5]-'0' : src[i+5]+10-'A';
-        offset++;
-        dest[offset] = src[i+2] <= '9' ? src[i+2]-'0' : src[i+2]+10-'A';
-        dest[offset] *= 16;
-        dest[offset] += src[i+3] <= '9' ? src[i+3]-'0' : src[i+3]+10-'A';
-        offset++;
-        dest[offset] = src[i] <= '9' ? src[i]-'0' : src[i]+10-'A';
-        dest[offset] *= 16;
-        dest[offset] += src[i+1] <= '9' ? src[i+1]-'0' : src[i+1]+10-'A';
-        offset++;
-    }
-    *len = offset;
-    return 0;
-}
-
 bool COMMON::CheckValidIp (const char *ip) {
     int i, count = 0;
     ushort p = 0;
@@ -173,19 +143,6 @@ bool COMMON::CheckValidIp (const char *ip) {
         }
     }
     if (count != 3) {
-        return false;
-    }
-    return true;
-}
-
-bool COMMON::CheckValidTelephone (const char *telephone) {
-    int i;
-    for (i = 0 ; telephone[i] != '\0' ; i++) {
-        if (telephone[i] < '0' || telephone[i] > '9') {
-            return false;
-        }
-    }
-    if (telephone[0] != '1' || i != 11) {
         return false;
     }
     return true;

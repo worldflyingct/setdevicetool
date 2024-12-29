@@ -7,12 +7,8 @@ int main (int argc, char *argv[]) {
     QApplication a(argc, argv);
     QFont font;
     int fontId = QFontDatabase::addApplicationFont(":/fonts.otf");
-    if (fontId < 0) { // 没有或是找不到字库文件
-        font.setFamily("Noto Serif SC Medium");
-    } else {
-        QString fontname = QFontDatabase::applicationFontFamilies(fontId).at(0);
-        font.setFamily(fontname);
-    }
+    QString fontname = QFontDatabase::applicationFontFamilies(fontId).at(0);
+    font.setFamily(fontname);
     font.setPixelSize(13);
     font.setWeight(QFont::Normal);
     font.setItalic(false);

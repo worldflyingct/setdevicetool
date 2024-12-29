@@ -19,54 +19,12 @@ int MainWindow::FreeOthersWidget (void *widget) {
     if (widget != ui->label) {
         ui->label->setVisible(false);
     }
-    if (ispiocontroller && ispiocontroller != widget) {
-        if (ispiocontroller->GetBtnStatus()) {
-            return -1;
-        }
-        delete ispiocontroller;
-        ispiocontroller = NULL;
-    }
-    if (isp485 && isp485 != widget) {
-        if (isp485->GetBtnStatus()) {
-            return -1;
-        }
-        delete isp485;
-        isp485 = NULL;
-    }
-    if (ispcollector && ispcollector != widget) {
-        if (ispcollector->GetBtnStatus()) {
-            return -1;
-        }
-        delete ispcollector;
-        ispcollector = NULL;
-    }
-    if (ispiotprogram && ispiotprogram != widget) {
-        if (ispiotprogram->GetBtnStatus()) {
-            return -1;
-        }
-        delete ispiotprogram;
-        ispiotprogram = NULL;
-    }
-    if (rj45iotprogram && rj45iotprogram != widget) {
-        if (rj45iotprogram->GetBtnStatus()) {
-            return -1;
-        }
-        delete rj45iotprogram;
-        rj45iotprogram = NULL;
-    }
     if (stmisp && stmisp != widget) {
         if (stmisp->GetBtnStatus()) {
             return -1;
         }
         delete stmisp;
         stmisp = NULL;
-    }
-    if (tkmisp && tkmisp != widget) {
-        if (tkmisp->GetBtnStatus()) {
-            return -1;
-        }
-        delete tkmisp;
-        tkmisp = NULL;
     }
     if (uartassist && uartassist != widget) {
         if (uartassist->GetBtnStatus()) {
@@ -82,19 +40,12 @@ int MainWindow::FreeOthersWidget (void *widget) {
         delete netassist;
         netassist = NULL;
     }
-    if (smartbuilding22 && smartbuilding22 != widget) {
-        if (smartbuilding22->GetBtnStatus()) {
+    if (stmisp && stmisp != widget) {
+        if (stmisp->GetBtnStatus()) {
             return -1;
         }
-        delete smartbuilding22;
-        smartbuilding22 = NULL;
-    }
-    if (tkg300config && tkg300config != widget) {
-        if (tkg300config->GetBtnStatus()) {
-            return -1;
-        }
-        delete tkg300config;
-        tkg300config = NULL;
+        delete stmisp;
+        stmisp = NULL;
     }
     return 0;
 }
@@ -111,71 +62,6 @@ void MainWindow::on_actionAbout_triggered () {
     ui->label->setVisible(true);
 }
 
-void MainWindow::on_actionIspIoController_triggered () {
-    if (FreeOthersWidget(ispiocontroller)) {
-        return;
-    }
-    if (!ispiocontroller) {
-        ispiocontroller = new IspIoController(ui->centralWidget);
-        int w = ispiocontroller->width();
-        int h = ispiocontroller->height();
-        setFixedSize(w, h + 23);
-        ispiocontroller->show();
-    }
-}
-
-void MainWindow::on_actionIsp485GateWay_triggered () {
-    if (FreeOthersWidget(isp485)) {
-        return;
-    }
-    if (!isp485) {
-        isp485 = new Isp485(ui->centralWidget);
-        int w = isp485->width();
-        int h = isp485->height();
-        setFixedSize(w, h + 23);
-        isp485->show();
-    }
-}
-
-void MainWindow::on_actionIspCollector_triggered () {
-    if (FreeOthersWidget(ispcollector)) {
-        return;
-    }
-    if (!ispcollector) {
-        ispcollector = new IspCollector(ui->centralWidget);
-        int w = ispcollector->width();
-        int h = ispcollector->height();
-        setFixedSize(w, h + 23);
-        ispcollector->show();
-    }
-}
-
-void MainWindow::on_actionIspIotProgram_triggered () {
-    if (FreeOthersWidget(ispiotprogram)) {
-        return;
-    }
-    if (!ispiotprogram) {
-        ispiotprogram = new IspIotProgram(ui->centralWidget);
-        int w = ispiotprogram->width();
-        int h = ispiotprogram->height();
-        setFixedSize(w, h + 23);
-        ispiotprogram->show();
-    }
-}
-
-void MainWindow::on_actionRj45IotProgram_triggered () {
-    if (FreeOthersWidget(rj45iotprogram)) {
-        return;
-    }
-    if (!rj45iotprogram) {
-        rj45iotprogram = new Rj45IotProgram(ui->centralWidget);
-        int w = rj45iotprogram->width();
-        int h = rj45iotprogram->height();
-        setFixedSize(w, h + 23);
-        rj45iotprogram->show();
-    }
-}
-
 void MainWindow::on_actionStmIsp_triggered () {
     if (FreeOthersWidget(stmisp)) {
         return;
@@ -186,19 +72,6 @@ void MainWindow::on_actionStmIsp_triggered () {
         int h = stmisp->height();
         setFixedSize(w, h + 23);
         stmisp->show();
-    }
-}
-
-void MainWindow::on_actiontkm_triggered() {
-    if (FreeOthersWidget(tkmisp)) {
-        return;
-    }
-    if (!tkmisp) {
-        tkmisp = new TkmIsp(ui->centralWidget);
-        int w = tkmisp->width();
-        int h = tkmisp->height();
-        setFixedSize(w, h + 23);
-        tkmisp->show();
     }
 }
 
@@ -228,28 +101,15 @@ void MainWindow::on_actionNetAssist_triggered () {
     }
 }
 
-void MainWindow::on_actionSmartbuilding22_triggered() {
-    if (FreeOthersWidget(smartbuilding22)) {
+void MainWindow::on_actionRs485Server_triggered () {
+    if (FreeOthersWidget(rs485serialserver)) {
         return;
     }
-    if (!smartbuilding22) {
-        smartbuilding22 = new Smartbuilding22(ui->centralWidget);
-        int w = smartbuilding22->width();
-        int h = smartbuilding22->height();
+    if (!rs485serialserver) {
+        rs485serialserver = new Rs485SerialServer(ui->centralWidget);
+        int w = rs485serialserver->width();
+        int h = rs485serialserver->height();
         setFixedSize(w, h + 23);
-        smartbuilding22->show();
-    }
-}
-
-void MainWindow::on_actionTkg300_triggered() {
-    if (FreeOthersWidget(tkg300config)) {
-        return;
-    }
-    if (!tkg300config) {
-        tkg300config = new Tkg300Config(ui->centralWidget);
-        int w = tkg300config->width();
-        int h = tkg300config->height();
-        setFixedSize(w, h + 23);
-        tkg300config->show();
+        rs485serialserver->show();
     }
 }

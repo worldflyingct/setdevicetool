@@ -93,7 +93,7 @@ static RESULT_STATUS HexFormatUncode (unsigned char *src, BinFarmat *p) {
 	}
     return RES_OK;
 }
- 
+
 RESULT_STATUS HexToBin (unsigned char *src, unsigned int slength, unsigned char *dest, unsigned int dlength, unsigned long offset, unsigned int *len) {
     unsigned int i, soffset = 0, doffset = 0;
     unsigned short addr_low;
